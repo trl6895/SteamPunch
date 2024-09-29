@@ -123,6 +123,37 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &1234552164
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1234552165}
+  m_Layer: 0
+  m_Name: GroundCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1234552165
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1234552164}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1410985989}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1294646225
 GameObject:
   m_ObjectHideFlags: 0
@@ -272,7 +303,7 @@ BoxCollider2D:
   m_GameObject: {fileID: 1410985985}
   m_Enabled: 1
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 17d8fc8d87bf33943a1dbec1f4f99628, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -371,7 +402,8 @@ Transform:
   m_LocalPosition: {x: -0.54, y: -0.63072, z: 0}
   m_LocalScale: {x: 0.07555285, y: 0.07555285, z: 0.07555285}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1234552165}
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -387,8 +419,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6207328477073e84a8560c02ad4fb5f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  jumpingPower: 184.7
   rb: {fileID: 1410985986}
-  pos: {fileID: 1410985989}
+  groundCheck: {fileID: 1234552165}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 8
 --- !u!95 &1410985991
 Animator:
   serializedVersion: 5
@@ -421,7 +457,7 @@ GameObject:
   - component: {fileID: 1965684260}
   - component: {fileID: 1965684259}
   - component: {fileID: 1965684258}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: TempFloor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
