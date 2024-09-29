@@ -1,11 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public enum EnemyStates 
+public enum EnemyStates
 {
     Alive,
-    Knocked
+    Knocked,
+    Grabbed
 }
 
 public class Enemy : MonoBehaviour
@@ -16,6 +15,9 @@ public class Enemy : MonoBehaviour
     EnemyStates currentState;
 
     private SpriteRenderer sprite;
+    private BoxCollider2D boxCollider;
+
+    private PlayerController player;
 
     // Right now my idea for this is that an enemy needs to be
     // "Knocked" for it to be grabbed, so the playee script will have
@@ -27,6 +29,7 @@ public class Enemy : MonoBehaviour
     void Start()
     {
         sprite = gameObject.GetComponent<SpriteRenderer>();
+        boxCollider = gameObject.GetComponent<BoxCollider2D>();
     }
 
     // Update is called once per frame
@@ -39,10 +42,36 @@ public class Enemy : MonoBehaviour
         }
         // making this an else if for the time being, 
         // in case we add more states
-        else if (currentState == EnemyStates.Knocked) 
+        else if (currentState == EnemyStates.Knocked)
         {
             sprite.color = Color.red;
             // do "dead" stuff
+        }
+
+        else if (currentState == EnemyStates.Grabbed)
+        {
+            sprite.color = Color.blue;
+            AttachToPlayer();
+        }
+    }
+
+    public void GrabbedByPlayer(PlayerController player)
+    {
+        currentState = EnemyStates.Grabbed;
+        boxCollider.enabled = false;
+        this.player = player;
+    }
+
+    private void AttachToPlayer()
+    {
+        if (player.IsFacingRight)
+        {
+            transform.position = new Vector3(player.transform.position.x + 1f, player.transform.position.y + 1f);
+        }
+
+        else
+        {
+            transform.position = new Vector3(player.transform.position.x - 1f, player.transform.position.y + 1f);
         }
     }
 }
