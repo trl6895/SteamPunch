@@ -14,18 +14,36 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer;
 
+    //animation
+    bool isStanding = false;
+    Animator animator;
+
+    private void Start()
+    {
+        animator = GetComponent<Animator>();
+    }
     void Update()
     {
         horizontal = Input.GetAxisRaw("Horizontal");
+        if (horizontal != 0 && isStanding)
+        {
+            animator.SetFloat("xvelocity", 1);
+        }
+        if (horizontal == 0 && animator.GetFloat("xvelocity") == 1)
+        {
+            animator.SetFloat("xvelocity", 0);
+        }
 
         if (Input.GetKey(KeyCode.Space) && IsGrounded())
         {
             rb.velocity += new Vector2(rb.velocity.x, jumpingPower) * Time.deltaTime;
+            isStanding = false;
         }
 
         if (Input.GetKey(KeyCode.Space) && rb.velocity.y > 0f)
         {
             rb.velocity += new Vector2(rb.velocity.x, rb.velocity.y * 0.5f) * Time.deltaTime;
+            isStanding = false;
         }
 
         Flip();
@@ -39,6 +57,11 @@ public class PlayerController : MonoBehaviour
     private bool IsGrounded()
     {
         return Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        isStanding = true;
     }
 
     private void Flip()
