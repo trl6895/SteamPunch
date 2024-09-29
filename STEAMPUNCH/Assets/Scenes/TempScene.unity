@@ -123,6 +123,37 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &1234552164
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1234552165}
+  m_Layer: 0
+  m_Name: GroundCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1234552165
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1234552164}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1410985989}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1294646225
 GameObject:
   m_ObjectHideFlags: 0
@@ -228,6 +259,7 @@ GameObject:
   - component: {fileID: 1410985987}
   - component: {fileID: 1410985986}
   - component: {fileID: 1410985990}
+  - component: {fileID: 1410985991}
   m_Layer: 0
   m_Name: TempPlayer
   m_TagString: Untagged
@@ -271,7 +303,7 @@ BoxCollider2D:
   m_GameObject: {fileID: 1410985985}
   m_Enabled: 1
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 17d8fc8d87bf33943a1dbec1f4f99628, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -294,18 +326,18 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: -2.1192932, y: 18.84355}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 31.011436, y: 34.629997}
-    newSize: {x: 1, y: 1}
+    pivot: {x: 0.5, y: 0}
+    oldSize: {x: 31.160002, y: 46.683018}
+    newSize: {x: 31.160002, y: 46.603012}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 31.011436, y: 34.629997}
+  m_Size: {x: 25.127693, y: 37.811756}
   m_EdgeRadius: 0
 --- !u!212 &1410985988
 SpriteRenderer:
@@ -348,12 +380,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: fa47b02863beb4242bab1f81535ea6de, type: 3}
+  m_Sprite: {fileID: 1112992524, guid: 7873fefa7e10b214fbb40ca66d47660e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 31.160002, y: 46.603012}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -367,10 +399,11 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1410985985}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.54, y: -0.083504, z: 0}
-  m_LocalScale: {x: 0.052076682, y: 0.052076682, z: 0.052076682}
+  m_LocalPosition: {x: -0.54, y: -0.63072, z: 0}
+  m_LocalScale: {x: 0.07555285, y: 0.07555285, z: 0.07555285}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1234552165}
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -386,8 +419,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6207328477073e84a8560c02ad4fb5f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  jumpingPower: 184.7
   rb: {fileID: 1410985986}
-  pos: {fileID: 1410985989}
+  groundCheck: {fileID: 1234552165}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 8
+--- !u!95 &1410985991
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1410985985}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: e8ae7f81c06bc8b4fb9424353f89b981, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1965684257
 GameObject:
   m_ObjectHideFlags: 0
@@ -399,7 +457,7 @@ GameObject:
   - component: {fileID: 1965684260}
   - component: {fileID: 1965684259}
   - component: {fileID: 1965684258}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: TempFloor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
