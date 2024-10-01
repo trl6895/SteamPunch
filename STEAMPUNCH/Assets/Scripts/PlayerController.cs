@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
+using UnityEngine.UI;
 
 public enum GameState { Demo, Pause }
 
@@ -21,11 +23,19 @@ public class PlayerController : MonoBehaviour
     Animator animator;
 
     private GameState _state; // Game State enum
+    public TMP_Text pauseText;
+    public Image pauseBackground;
+    
 
     private void Start()
     {
+        // Causing errors. Could prevent by only checking for animator if not null (I tried implementing this in the most literal sense and it did not work)
         animator = GetComponent<Animator>();
+
         _state = GameState.Demo; // Currently, there are only two states, and the default state is the demo.
+
+        pauseBackground.gameObject.SetActive(false);
+        pauseText.gameObject.SetActive(false);
     }
     void Update()
     {
@@ -37,6 +47,8 @@ public class PlayerController : MonoBehaviour
             {
                 Time.timeScale = 0;
                 _state = GameState.Pause;
+                pauseBackground.gameObject.SetActive(true);
+                pauseText.gameObject.SetActive(true);
             }
 
             horizontal = Input.GetAxisRaw("Horizontal");
@@ -66,12 +78,13 @@ public class PlayerController : MonoBehaviour
         // The Pause state. No updates or player control of any kind.
         else if (_state == GameState.Pause)
         {
-
             // Allows player to resume by pressing ESC
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 Time.timeScale = 1;
                 _state = GameState.Demo;
+                pauseBackground.gameObject.SetActive(false);
+                pauseText.gameObject.SetActive(false);
             }
         }
     }
