@@ -19,6 +19,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private LayerMask groundLayer;
 
     //animation
+    [SerializeField]
     bool isStanding = false;
     Animator animator;
 
@@ -30,6 +31,8 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         horizontal = Input.GetAxisRaw("Horizontal");
+
+        //walking animation
         if (horizontal != 0 && isStanding)
         {
             animator.SetFloat("xvelocity", 1);
@@ -56,12 +59,28 @@ public class PlayerController : MonoBehaviour
             nearbyKnockedEnemy.GrabbedByPlayer(this);
         }
 
+        if (!IsGrounded())
+        {
+            animator.SetBool("IsJumping", true);
+        }
         Flip();
     }
 
     private void FixedUpdate()
     {
         rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
+        
+        // jump/fall animation
+        if (!isStanding) 
+        {
+            animator.SetBool("IsJumping", true);
+            animator.SetFloat("yvelocity", rb.velocity.y);
+        }
+        else
+        {
+            animator.SetBool("IsJumping", false);
+        }
+
     }
 
     private bool NearKnockedEnemy()
