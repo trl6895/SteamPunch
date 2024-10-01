@@ -67,7 +67,7 @@ public class PlayerController : MonoBehaviour
     private bool NearKnockedEnemy()
     {
         int knockedEnemyColliders = Physics2D.OverlapCircle(transform.position, pickUpRadius, new ContactFilter2D().NoFilter(), nearbyColliders);
-        for (int i = 0; i < knockedEnemyColliders; i++)
+        for (int i = knockedEnemyColliders - 1; i >= 0; i--)
         {
             Enemy temp;
             if (nearbyColliders[i].gameObject.TryGetComponent<Enemy>(out temp))
@@ -75,10 +75,12 @@ public class PlayerController : MonoBehaviour
                 if (temp.CurrentState == EnemyStates.Knocked)
                 {
                     nearbyKnockedEnemy = temp;
+                    nearbyColliders.Clear();
                     return true;
                 }
             }
         }
+        nearbyColliders.Clear();
         return false;
     }
 
