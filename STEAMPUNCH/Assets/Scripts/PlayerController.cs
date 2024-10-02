@@ -1,8 +1,6 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 
 public enum GameState { Demo, Pause }
@@ -13,6 +11,13 @@ public class PlayerController : MonoBehaviour
     private float speed = 8f;
     [SerializeField] private float jumpingPower = 16f;
     private bool isFacingRight = true;
+
+    public bool IsFacingRight { get { return isFacingRight; } }
+
+    [SerializeField] private float pickUpRadius = 0.1f;
+    private List<Collider2D> nearbyColliders = new List<Collider2D>();
+    private Enemy nearbyKnockedEnemy;
+    private bool isHoldingEnemy = false;
 
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private Transform groundCheck;
@@ -26,10 +31,11 @@ public class PlayerController : MonoBehaviour
     private GameState _state; // Game State enum
     public TMP_Text pauseText;
     public Image pauseBackground;
-    
+
 
     private void Start()
     {
+        rb.freezeRotation = true;
         // Causing errors. Could prevent by only checking for animator if not null (I tried implementing this in the most literal sense and it did not work)
         animator = GetComponent<Animator>();
 
@@ -74,6 +80,23 @@ public class PlayerController : MonoBehaviour
                 isStanding = false;
             }
 
+            if (Input.GetKeyDown(KeyCode.F) && !isHoldingEnemy && NearKnockedEnemy())
+            {
+                isHoldingEnemy = true;
+                nearbyKnockedEnemy.GrabbedByPlayer(this);
+            }
+            else if (Input.GetKeyDown(KeyCode.F) && isHoldingEnemy)
+            {
+                isHoldingEnemy = false;
+                nearbyKnockedEnemy.DroppedByPlayer();
+                nearbyKnockedEnemy = null;
+            }
+
+            if (Input.GetKeyDown(KeyCode.R) || transform.position.y < -30)
+            {
+                transform.position = Vector3.zero;
+            }
+
             if (!IsGrounded())
             {
                 animator.SetBool("IsJumping", true);
@@ -97,9 +120,9 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
-        
+
         // jump/fall animation
-        if (!isStanding) 
+        if (!isStanding)
         {
             animator.SetBool("IsJumping", true);
             animator.SetFloat("yvelocity", rb.velocity.y);
@@ -109,6 +132,26 @@ public class PlayerController : MonoBehaviour
             animator.SetBool("IsJumping", false);
         }
 
+    }
+
+    private bool NearKnockedEnemy()
+    {
+        int knockedEnemyColliders = Physics2D.OverlapCircle(transform.position, pickUpRadius, new ContactFilter2D().NoFilter(), nearbyColliders);
+        for (int i = knockedEnemyColliders - 1; i >= 0; i--)
+        {
+            Enemy temp;
+            if (nearbyColliders[i].gameObject.TryGetComponent<Enemy>(out temp))
+            {
+                if (temp.CurrentState == EnemyStates.Knocked)
+                {
+                    nearbyKnockedEnemy = temp;
+                    nearbyColliders.Clear();
+                    return true;
+                }
+            }
+        }
+        nearbyColliders.Clear();
+        return false;
     }
 
     private bool IsGrounded()
@@ -123,7 +166,7 @@ public class PlayerController : MonoBehaviour
 
     private void Flip()
     {
-        if (isFacingRight && horizontal < 0f || !isFacingRight && horizontal > 0f)
+        if ((isFacingRight && horizontal < 0f) || (!isFacingRight && horizontal > 0f))
         {
             isFacingRight = !isFacingRight;
             Vector3 localScale = transform.localScale;
