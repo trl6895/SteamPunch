@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 
 public enum GameState { Demo, Pause }
@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float pickUpRadius = 0.1f;
     private List<Collider2D> nearbyColliders = new List<Collider2D>();
     private Enemy nearbyKnockedEnemy;
+    private bool isHoldingEnemy = false;
 
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private Transform groundCheck;
@@ -30,7 +31,7 @@ public class PlayerController : MonoBehaviour
     private GameState _state; // Game State enum
     public TMP_Text pauseText;
     public Image pauseBackground;
-    
+
 
     private void Start()
     {
@@ -79,9 +80,21 @@ public class PlayerController : MonoBehaviour
                 isStanding = false;
             }
 
-            if (NearKnockedEnemy() && Input.GetKey(KeyCode.F))
+            if (Input.GetKeyDown(KeyCode.F) && !isHoldingEnemy && NearKnockedEnemy())
             {
+                isHoldingEnemy = true;
                 nearbyKnockedEnemy.GrabbedByPlayer(this);
+            }
+            else if (Input.GetKeyDown(KeyCode.F) && isHoldingEnemy)
+            {
+                isHoldingEnemy = false;
+                nearbyKnockedEnemy.DroppedByPlayer();
+                nearbyKnockedEnemy = null;
+            }
+
+            if (Input.GetKeyDown(KeyCode.R) || transform.position.y < -30)
+            {
+                transform.position = Vector3.zero;
             }
 
             if (!IsGrounded())
@@ -107,9 +120,9 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
-        
+
         // jump/fall animation
-        if (!isStanding) 
+        if (!isStanding)
         {
             animator.SetBool("IsJumping", true);
             animator.SetFloat("yvelocity", rb.velocity.y);

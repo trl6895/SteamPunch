@@ -62,6 +62,14 @@ public class Enemy : MonoBehaviour
         this.player = player;
     }
 
+    public void DroppedByPlayer()
+    {
+        currentState = EnemyStates.Knocked;
+        boxCollider.enabled = true;
+        this.player = null;
+    }
+
+
     private void AttachToPlayer()
     {
         if (player.IsFacingRight)
