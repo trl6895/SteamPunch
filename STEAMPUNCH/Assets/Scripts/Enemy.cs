@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public enum EnemyStates
@@ -18,6 +19,9 @@ public class Enemy : MonoBehaviour
     private BoxCollider2D boxCollider;
 
     private PlayerController player;
+
+    [SerializeField]
+    private Rigidbody2D rb;
 
     // Right now my idea for this is that an enemy needs to be
     // "Knocked" for it to be grabbed, so the playee script will have
@@ -57,8 +61,10 @@ public class Enemy : MonoBehaviour
 
     public void GrabbedByPlayer(PlayerController player)
     {
+        rb.velocity -= rb.velocity;
         currentState = EnemyStates.Grabbed;
         boxCollider.enabled = false;
+        rb.isKinematic = true;
         this.player = player;
     }
 
@@ -66,9 +72,27 @@ public class Enemy : MonoBehaviour
     {
         currentState = EnemyStates.Knocked;
         boxCollider.enabled = true;
+        rb.isKinematic = false;
         this.player = null;
     }
 
+    public void ThrownByPlayer()
+    {
+        currentState = EnemyStates.Knocked;
+        boxCollider.enabled = true;
+        rb.isKinematic = false;
+        //If the player is facing right:
+        if (player.IsFacingRight)
+        {
+            rb.AddForce(new Vector2(player.throwingForceX, player.throwingForceY));
+        }
+        //Otherwise:
+        else
+        {
+            rb.AddForce(new Vector2(-player.throwingForceX, player.throwingForceY));
+        }
+        this.player = null;
+    }
 
     private void AttachToPlayer()
     {

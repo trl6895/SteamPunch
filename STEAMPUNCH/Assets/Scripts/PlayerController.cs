@@ -10,6 +10,8 @@ public class PlayerController : MonoBehaviour
     private float horizontal;
     private float speed = 8f;
     [SerializeField] private float jumpingPower = 16f;
+    [SerializeField] public float throwingForceX = 500.0f;
+    [SerializeField] public float throwingForceY = 500.0f;
     private bool isFacingRight = true;
 
     public bool IsFacingRight { get { return isFacingRight; } }
@@ -31,6 +33,8 @@ public class PlayerController : MonoBehaviour
     private GameState _state; // Game State enum
     public TMP_Text pauseText;
     public Image pauseBackground;
+
+    [SerializeField] GameObject sceneManager;
 
 
     private void Start()
@@ -92,9 +96,19 @@ public class PlayerController : MonoBehaviour
                 nearbyKnockedEnemy = null;
             }
 
+            if (Input.GetKeyDown(KeyCode.Q) && isHoldingEnemy)
+            {
+                //Drop the enemy
+                isHoldingEnemy = false;
+                nearbyKnockedEnemy.ThrownByPlayer();
+                nearbyKnockedEnemy = null;
+            }
+
             if (Input.GetKeyDown(KeyCode.R) || transform.position.y < -30)
             {
-                transform.position = Vector3.zero;
+                //transform.position = Vector3.zero;
+
+                sceneManager.GetComponent<SceneManager>().ResetScene();
             }
 
             if (!IsGrounded())
