@@ -19,6 +19,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private LayerMask groundLayer;
 
     //animation
+    [SerializeField]
     bool isStanding = false;
     Animator animator;
 
@@ -73,6 +74,10 @@ public class PlayerController : MonoBehaviour
                 isStanding = false;
             }
 
+            if (!IsGrounded())
+            {
+                animator.SetBool("IsJumping", true);
+            }
             Flip();
         }
         // The Pause state. No updates or player control of any kind.
@@ -92,6 +97,18 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
+        
+        // jump/fall animation
+        if (!isStanding) 
+        {
+            animator.SetBool("IsJumping", true);
+            animator.SetFloat("yvelocity", rb.velocity.y);
+        }
+        else
+        {
+            animator.SetBool("IsJumping", false);
+        }
+
     }
 
     private bool IsGrounded()
