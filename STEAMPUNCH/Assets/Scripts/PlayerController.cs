@@ -3,189 +3,231 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public enum GameState { Demo, Pause }
-
 public class PlayerController : MonoBehaviour
 {
+    // Fields ===========================================================================
+
+    // References -------------------------------------------------------------
+    [SerializeField] SceneManager sceneManager;
+
+    // Movement ---------------------------------------------------------------
     private float horizontal;
     private float speed = 8f;
-    [SerializeField] private float jumpingPower = 16f;
+    [SerializeField] public float jumpingPower = 16f;
     [SerializeField] public float throwingForceX = 500.0f;
     [SerializeField] public float throwingForceY = 500.0f;
     private bool isFacingRight = true;
 
-    public bool IsFacingRight { get { return isFacingRight; } }
-
+    // Interaction ------------------------------------------------------------
     [SerializeField] private float pickUpRadius = 0.1f;
     private List<Collider2D> nearbyColliders = new List<Collider2D>();
     private Enemy nearbyKnockedEnemy;
-    private bool isHoldingEnemy = false;
+    public bool isHoldingEnemy = false;
 
-    [SerializeField] private Rigidbody2D rb;
+    // Collision --------------------------------------------------------------
+    [SerializeField] public Rigidbody2D rb;
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer;
 
-    //animation
-    [SerializeField]
-    bool isStanding = false;
+    // Animation --------------------------------------------------------------
+    [SerializeField] bool isStanding = false;
     Animator animator;
 
-    private GameState _state; // Game State enum
-    public TMP_Text pauseText;
-    public Image pauseBackground;
+    // Properties =======================================================================
 
-    [SerializeField] GameObject sceneManager;
+    /// <summary>
+    /// Gets whether the player is facing right or not
+    /// </summary>
+    public bool IsFacingRight 
+    {
+        get
+        {
+            return isFacingRight;
+        }
+    }
 
+    // Methods ==========================================================================
 
+    // Start is called before the first frame update
     private void Start()
     {
+        // Stop the player from rotating
         rb.freezeRotation = true;
-        // Causing errors. Could prevent by only checking for animator if not null (I tried implementing this in the most literal sense and it did not work)
+
+        // Instantiate the animator
         animator = GetComponent<Animator>();
-
-        _state = GameState.Demo; // Currently, there are only two states, and the default state is the demo.
-
-        pauseBackground.gameObject.SetActive(false);
-        pauseText.gameObject.SetActive(false);
     }
+
+    // Update is called once per frame
     void Update()
     {
-        // The "Gameplay" State. All physics happens here.
-        if (_state == GameState.Demo)
+        // If the gameplay is actively running:
+        if (sceneManager.gameState == GameState.Demo)
         {
-            // Allows player to pause by pressing ESC
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                Time.timeScale = 0;
-                _state = GameState.Pause;
-                pauseBackground.gameObject.SetActive(true);
-                pauseText.gameObject.SetActive(true);
-            }
-
-            horizontal = Input.GetAxisRaw("Horizontal");
-            if (horizontal != 0 && isStanding)
-            {
-                animator.SetFloat("xvelocity", 1);
-            }
-            if (horizontal == 0 && animator.GetFloat("xvelocity") == 1)
-            {
-                animator.SetFloat("xvelocity", 0);
-            }
-
-            if (Input.GetKey(KeyCode.Space) && IsGrounded())
-            {
-                rb.velocity += new Vector2(rb.velocity.x, jumpingPower) * Time.deltaTime;
-                isStanding = false;
-            }
-
-            if (Input.GetKey(KeyCode.Space) && rb.velocity.y > 0f)
-            {
-                rb.velocity += new Vector2(rb.velocity.x, rb.velocity.y * 0.5f) * Time.deltaTime;
-                isStanding = false;
-            }
-
-            if (Input.GetKeyDown(KeyCode.F) && !isHoldingEnemy && NearKnockedEnemy())
-            {
-                isHoldingEnemy = true;
-                nearbyKnockedEnemy.GrabbedByPlayer(this);
-            }
-            else if (Input.GetKeyDown(KeyCode.F) && isHoldingEnemy)
-            {
-                isHoldingEnemy = false;
-                nearbyKnockedEnemy.DroppedByPlayer();
-                nearbyKnockedEnemy = null;
-            }
-
-            if (Input.GetKeyDown(KeyCode.Q) && isHoldingEnemy)
-            {
-                //Drop the enemy
-                isHoldingEnemy = false;
-                nearbyKnockedEnemy.ThrownByPlayer();
-                nearbyKnockedEnemy = null;
-            }
-
-            if (Input.GetKeyDown(KeyCode.R) || transform.position.y < -30)
-            {
-                //transform.position = Vector3.zero;
-
-                sceneManager.GetComponent<SceneManager>().ResetScene();
-            }
-
-            if (!IsGrounded())
-            {
-                animator.SetBool("IsJumping", true);
-            }
-            Flip();
+            Animate();
         }
-        // The Pause state. No updates or player control of any kind.
-        else if (_state == GameState.Pause)
+        // If the game is paused:
+        else if (sceneManager.gameState == GameState.Pause)
         {
-            // Allows player to resume by pressing ESC
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                Time.timeScale = 1;
-                _state = GameState.Demo;
-                pauseBackground.gameObject.SetActive(false);
-                pauseText.gameObject.SetActive(false);
-            }
+            //Nothing here right now :(
         }
     }
 
+    // FixedUpdate is called every fixed framerate frame
     private void FixedUpdate()
     {
+        // Update the player's velocity
         rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
-
-        // jump/fall animation
-        if (!isStanding)
-        {
-            animator.SetBool("IsJumping", true);
-            animator.SetFloat("yvelocity", rb.velocity.y);
-        }
-        else
-        {
-            animator.SetBool("IsJumping", false);
-        }
-
     }
 
-    private bool NearKnockedEnemy()
-    {
-        int knockedEnemyColliders = Physics2D.OverlapCircle(transform.position, pickUpRadius, new ContactFilter2D().NoFilter(), nearbyColliders);
-        for (int i = knockedEnemyColliders - 1; i >= 0; i--)
-        {
-            Enemy temp;
-            if (nearbyColliders[i].gameObject.TryGetComponent<Enemy>(out temp))
-            {
-                if (temp.CurrentState == EnemyStates.Knocked)
-                {
-                    nearbyKnockedEnemy = temp;
-                    nearbyColliders.Clear();
-                    return true;
-                }
-            }
-        }
-        nearbyColliders.Clear();
-        return false;
-    }
-
-    private bool IsGrounded()
-    {
-        return Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
-    }
-
+    // OnTriggerEnter2D is called when the Collider2D other enters the trigger
     private void OnTriggerEnter2D(Collider2D collision)
     {
         isStanding = true;
     }
 
+    /// <summary>
+    /// Detects whether the player is near a knocked enemy or not
+    /// </summary>
+    /// <returns>Whether the player is near a knocked enemy or not</returns>
+    public bool NearKnockedEnemy()
+    {
+        // Get the amount of colliders that there are near the player
+        int knockedEnemyColliders = Physics2D.OverlapCircle(transform.position, pickUpRadius, new ContactFilter2D().NoFilter(), nearbyColliders);
+
+        // For each collider within picking-up radius:
+        for (int i = knockedEnemyColliders - 1; i >= 0; i--)
+        {
+            // Create a temporary enemy object
+            Enemy temp;
+
+            // If the current nearby collider belongs to an enemy: (I think? I don't know what the out part means)
+            if (nearbyColliders[i].gameObject.TryGetComponent<Enemy>(out temp))
+            {
+                // If the current enemy is knocked:
+                if (temp.CurrentState == EnemyStates.Knocked)
+                {
+                    // Store a reference to the enemy in temp
+                    nearbyKnockedEnemy = temp;
+
+                    // Forget about all other nearby colliders
+                    nearbyColliders.Clear();
+
+                    return true;
+                }
+            }
+        }
+
+        // Forget about all of the nearby colliders
+        nearbyColliders.Clear();
+
+        return false;
+    }
+
+    /// <summary>
+    /// Detects if the player is on the ground
+    /// </summary>
+    /// <returns>Whether the player is on the ground or not</returns>
+    public bool IsGrounded()
+    {
+        return Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
+    }
+
+    /// <summary>
+    /// Animates the player
+    /// </summary>
+    private void Animate()
+    {
+        // Flip the player in the correct direction
+        Flip();
+
+        // Give the player's velocities to the animator
+        animator.SetFloat("xvelocity", horizontal);
+        animator.SetFloat("yvelocity", rb.velocity.y);
+
+        // If the player is standing on the ground:
+        if(isStanding)
+        {
+            // Tell the animator that the player is no longer jumping
+            animator.SetBool("IsJumping", false);
+        }
+    }
+
+    /// <summary>
+    /// Flips the player's sprite to the direction that they're moving in
+    /// </summary>
     private void Flip()
     {
+        // If the player is moving:
         if ((isFacingRight && horizontal < 0f) || (!isFacingRight && horizontal > 0f))
         {
+            // Swap isFacingRight
             isFacingRight = !isFacingRight;
+
+            // Flip the player's transform horizontally
             Vector3 localScale = transform.localScale;
             localScale.x *= -1f;
             transform.localScale = localScale;
         }
+    }
+
+    /// <summary>
+    /// Makes the player walk either left or right, depending on input
+    /// </summary>
+    public void Walk()
+    {
+        // Set the player's horizontal direction based on input
+        horizontal = Input.GetAxisRaw("Horizontal");
+    }
+
+    /// <summary>
+    /// Makes the player jump
+    /// </summary>
+    public void Jump()
+    {
+        isStanding = false;
+
+        // Tell the animator that the player is jumping
+        animator.SetBool("IsJumping", true);
+
+        rb.velocity += new Vector2(rb.velocity.x, jumpingPower) * Time.deltaTime;
+    }
+
+    /// <summary>
+    /// Prevents the player from falling too fast
+    /// </summary>
+    public void HoldingJump()
+    {
+        isStanding = false;
+        rb.velocity += new Vector2(rb.velocity.x, rb.velocity.y * 0.5f) * Time.deltaTime;
+    }
+
+    /// <summary>
+    /// Picks up the nearby knocked enemy
+    /// </summary>
+    public void PickUpEnemy()
+    {
+        isHoldingEnemy = true;
+        nearbyKnockedEnemy.GrabbedByPlayer(this);
+    }
+
+    /// <summary>
+    /// Drops the currently held enemy
+    /// </summary>
+    public void DropEnemy()
+    {
+        isHoldingEnemy = false;
+        nearbyKnockedEnemy.DroppedByPlayer();
+        nearbyKnockedEnemy = null;
+    }
+
+    /// <summary>
+    /// Throws the currently held enemy
+    /// </summary>
+    public void ThrowEnemy()
+    {
+        isHoldingEnemy = false;
+        nearbyKnockedEnemy.ThrownByPlayer();
+        nearbyKnockedEnemy = null;
     }
 }
