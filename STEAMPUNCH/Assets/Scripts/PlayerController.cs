@@ -3,6 +3,16 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// The states of the player that determine if they can be controlled or not
+/// </summary>
+public enum PlayerState { Free, Locked }
+
+/// <summary>
+/// The current fist that the player is punching with
+/// </summary>
+public enum CurrentFist { Right, Left }
+
 public class PlayerController : MonoBehaviour
 {
     // Fields ===========================================================================
@@ -23,6 +33,9 @@ public class PlayerController : MonoBehaviour
     private List<Collider2D> nearbyColliders = new List<Collider2D>();
     private Enemy nearbyKnockedEnemy;
     public bool isHoldingEnemy = false;
+    public float punchCooldownTimer = 0.0f;
+    [SerializeField] public const float punchCooldown = 1.0f;
+    [SerializeField] public CapsuleCollider2D punchCollider;
 
     // Collision --------------------------------------------------------------
     [SerializeField] public Rigidbody2D rb;
@@ -64,6 +77,7 @@ public class PlayerController : MonoBehaviour
         // If the gameplay is actively running:
         if (sceneManager.gameState == GameState.Demo)
         {
+            // Animate the player
             Animate();
         }
         // If the game is paused:
@@ -229,5 +243,62 @@ public class PlayerController : MonoBehaviour
         isHoldingEnemy = false;
         nearbyKnockedEnemy.ThrownByPlayer();
         nearbyKnockedEnemy = null;
+    }
+
+    /// <summary>
+    /// Makes the player peform a punch
+    /// </summary>
+    public void Punch()
+    {
+        // Play a punching sound effect
+
+
+        //If the player is facing right:
+        if (isFacingRight)
+        {
+            // Move the player a bit rightward
+            rb.AddForce(new Vector2(750.0f, 0.0f));
+        }
+        //Otherwise:
+        else
+        {
+            // Move the player a bit leftward
+            rb.AddForce(new Vector2(-750.0f, 0.0f));
+        }
+
+        // Initialize a list to hold all colliders that collide with the punch
+        List<Collider2D> contacts = new List<Collider2D>();
+        
+        // Fill the list with all contacts
+        punchCollider.OverlapCollider(new ContactFilter2D().NoFilter(), contacts);
+
+        // For each contact point in the punch collider:
+        for (int i = 0; i < contacts.Count; i++)
+        {
+            // Create a temporary enemy object
+            Enemy temp;
+
+            // If the current overlapping collider belongs to an enemy:
+            if (contacts[i].gameObject.TryGetComponent<Enemy>(out temp))
+            {
+                // If the enemy is alive:
+                if (temp.CurrentState == EnemyStates.Alive)
+                {
+                    // If the player is facing right:
+                    if (isFacingRight)
+                    {
+                        // Punch the enemy
+                        temp.Punched(new Vector2(300.0f, 200.0f));
+                    }
+                    // Otherwise:
+                    else
+                    {
+                        // Punch the enemy
+                        temp.Punched(new Vector2(-300.0f, 200.0f));
+                    }
+                }
+            }
+        }
+
     }
 }

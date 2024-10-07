@@ -141,6 +141,19 @@ public class Enemy : MonoBehaviour
     }
 
     /// <summary>
+    /// Sets up the enemy after being punched by the player
+    /// </summary>
+    /// <param name="force">The knockback force that the enemy receives after being punched</param>
+    public void Punched(Vector2 force)
+    {
+        // Update the enemy's state
+        currentState = EnemyStates.Knocked;
+
+        // Add a force to the enemy that sends it to the right
+        rb.AddForce(force);
+    }
+
+    /// <summary>
     /// Attaches the enemy to the player
     /// </summary>
     private void AttachToPlayer()

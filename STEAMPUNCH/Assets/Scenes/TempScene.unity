@@ -606,9 +606,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a8c0f012c060704b8ba0535baab8661, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameState: 0
   pauseText: {fileID: 1566583878}
   pauseBackground: {fileID: 2069998083}
+  gameState: 0
 --- !u!4 &667734453
 Transform:
   m_ObjectHideFlags: 0
@@ -1061,6 +1061,7 @@ GameObject:
   - component: {fileID: 1410985990}
   - component: {fileID: 1410985991}
   - component: {fileID: 1410985992}
+  - component: {fileID: 1410985993}
   m_Layer: 0
   m_Name: TempPlayer
   m_TagString: Untagged
@@ -1226,6 +1227,8 @@ MonoBehaviour:
   throwingForceY: 625
   pickUpRadius: 2
   isHoldingEnemy: 0
+  punchCooldownTimer: 0
+  punchCollider: {fileID: 1410985993}
   rb: {fileID: 1410985986}
   groundCheck: {fileID: 1234552165}
   groundLayer:
@@ -1288,6 +1291,41 @@ CapsuleCollider2D:
   m_Offset: {x: -1.0491067, y: -2.1047685}
   m_Size: {x: 33.191727, y: 1.7859484}
   m_Direction: 1
+--- !u!70 &1410985993
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1410985985}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 14.49, y: 19.2}
+  m_Size: {x: 2.3, y: 34.7}
+  m_Direction: 0
 --- !u!1 &1566583877
 GameObject:
   m_ObjectHideFlags: 0

@@ -63,9 +63,14 @@ public class InputHandler : MonoBehaviour
                 player.DropEnemy();
             }
 
+            // Press [Q]
+            if (Input.GetKeyDown(KeyCode.Q) && !player.isHoldingEnemy)
+            {
+                player.Punch();
+            }
             // Press [Q] while the player is holding an enemy
             // Make the player throw the enemy
-            if (Input.GetKeyDown(KeyCode.Q) && player.isHoldingEnemy)
+            else if (Input.GetKeyDown(KeyCode.Q) && player.isHoldingEnemy)
             {
                 player.ThrowEnemy();
             }
