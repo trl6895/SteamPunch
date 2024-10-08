@@ -1227,7 +1227,9 @@ MonoBehaviour:
   throwingForceY: 625
   pickUpRadius: 2
   isHoldingEnemy: 0
-  punchCooldownTimer: 0
+  punchCooldown: 0.25
+  fistResetCooldown: 1
+  punchCooldownTimer: 0.25
   punchCollider: {fileID: 1410985993}
   rb: {fileID: 1410985986}
   groundCheck: {fileID: 1234552165}
@@ -1323,8 +1325,8 @@ CapsuleCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 14.49, y: 19.2}
-  m_Size: {x: 2.3, y: 34.7}
+  m_Offset: {x: 17.7, y: 19.2}
+  m_Size: {x: 13.7, y: 34.7}
   m_Direction: 0
 --- !u!1 &1566583877
 GameObject:

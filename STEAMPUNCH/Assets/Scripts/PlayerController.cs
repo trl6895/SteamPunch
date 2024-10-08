@@ -33,8 +33,9 @@ public class PlayerController : MonoBehaviour
     private List<Collider2D> nearbyColliders = new List<Collider2D>();
     private Enemy nearbyKnockedEnemy;
     public bool isHoldingEnemy = false;
-    public float punchCooldownTimer = 0.0f;
-    [SerializeField] public const float punchCooldown = 1.0f;
+    [SerializeField] public float punchCooldown = 0.25f;
+    [SerializeField] public float fistResetCooldown = 1.0f;
+    [SerializeField] public float punchCooldownTimer = 0.25f;
     [SerializeField] public CapsuleCollider2D punchCollider;
 
     // Collision --------------------------------------------------------------
@@ -45,6 +46,7 @@ public class PlayerController : MonoBehaviour
     // Animation --------------------------------------------------------------
     [SerializeField] bool isStanding = false;
     Animator animator;
+    CurrentFist currentFist = CurrentFist.Right;
 
     // Properties =======================================================================
 
@@ -79,6 +81,16 @@ public class PlayerController : MonoBehaviour
         {
             // Animate the player
             Animate();
+
+            // Increment the punch cooldown timer
+            punchCooldownTimer += Time.deltaTime;
+
+            // If enough time has passed and the non-dominant fist is the current fist:
+            if (punchCooldownTimer >= fistResetCooldown && currentFist == CurrentFist.Left)
+            {
+                // Reset the current fist to the dominant fist
+                currentFist = CurrentFist.Right;
+            }
         }
         // If the game is paused:
         else if (sceneManager.gameState == GameState.Pause)
@@ -250,55 +262,74 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public void Punch()
     {
-        // Play a punching sound effect
-
-
-        //If the player is facing right:
-        if (isFacingRight)
+        // If the punch cooldown has been completed:
+        if (punchCooldownTimer >= punchCooldown)
         {
-            // Move the player a bit rightward
-            rb.AddForce(new Vector2(750.0f, 0.0f));
-        }
-        //Otherwise:
-        else
-        {
-            // Move the player a bit leftward
-            rb.AddForce(new Vector2(-750.0f, 0.0f));
-        }
+            // Reset the punch cooldown timer
+            punchCooldownTimer = 0.0f;
 
-        // Initialize a list to hold all colliders that collide with the punch
-        List<Collider2D> contacts = new List<Collider2D>();
-        
-        // Fill the list with all contacts
-        punchCollider.OverlapCollider(new ContactFilter2D().NoFilter(), contacts);
+            // Play a punching sound effect
 
-        // For each contact point in the punch collider:
-        for (int i = 0; i < contacts.Count; i++)
-        {
-            // Create a temporary enemy object
-            Enemy temp;
 
-            // If the current overlapping collider belongs to an enemy:
-            if (contacts[i].gameObject.TryGetComponent<Enemy>(out temp))
+            //If the player is facing right:
+            if (isFacingRight)
             {
-                // If the enemy is alive:
-                if (temp.CurrentState == EnemyStates.Alive)
+                // Move the player a bit rightward
+                rb.AddForce(new Vector2(750.0f, 0.0f));
+            }
+            //Otherwise:
+            else
+            {
+                // Move the player a bit leftward
+                rb.AddForce(new Vector2(-750.0f, 0.0f));
+            }
+
+            // Initialize a list to hold all colliders that collide with the punch
+            List<Collider2D> contacts = new List<Collider2D>();
+
+            // Fill the list with all contacts
+            punchCollider.OverlapCollider(new ContactFilter2D().NoFilter(), contacts);
+
+            // For each contact point in the punch collider:
+            for (int i = 0; i < contacts.Count; i++)
+            {
+                // Create a temporary enemy object
+                Enemy temp;
+
+                // If the current overlapping collider belongs to an enemy:
+                if (contacts[i].gameObject.TryGetComponent<Enemy>(out temp))
                 {
-                    // If the player is facing right:
-                    if (isFacingRight)
+                    // If the enemy is alive:
+                    if (temp.CurrentState == EnemyStates.Alive)
                     {
-                        // Punch the enemy
-                        temp.Punched(new Vector2(300.0f, 200.0f));
-                    }
-                    // Otherwise:
-                    else
-                    {
-                        // Punch the enemy
-                        temp.Punched(new Vector2(-300.0f, 200.0f));
+                        // If the player is facing right:
+                        if (isFacingRight)
+                        {
+                            // Punch the enemy
+                            temp.Punched(new Vector2(300.0f, 200.0f));
+                        }
+                        // Otherwise:
+                        else
+                        {
+                            // Punch the enemy
+                            temp.Punched(new Vector2(-300.0f, 200.0f));
+                        }
                     }
                 }
             }
-        }
 
+            // If the current fist being used to punch is the right one:
+            if (currentFist == CurrentFist.Right)
+            {
+                // Make the fist for the next punch be the left fist
+                currentFist = CurrentFist.Left;
+            }
+            // Otherwise:
+            else
+            {
+                // Make the fist for the next punch be the right fist
+                currentFist = CurrentFist.Right;
+            }
+        }
     }
 }
