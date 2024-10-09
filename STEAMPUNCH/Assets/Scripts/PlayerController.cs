@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 /// <summary>
 /// The states of the player that determine if they can be controlled or not
@@ -31,7 +29,7 @@ public class PlayerController : MonoBehaviour
     // Interaction ------------------------------------------------------------
     [SerializeField] private float pickUpRadius = 0.1f;
     private List<Collider2D> nearbyColliders = new List<Collider2D>();
-    private Enemy nearbyKnockedEnemy;
+    private ThrowableEnemy nearbyKnockedEnemy;
     public bool isHoldingEnemy = false;
     [SerializeField] public float punchCooldown = 0.25f;
     [SerializeField] public float fistResetCooldown = 1.0f;
@@ -53,7 +51,7 @@ public class PlayerController : MonoBehaviour
     /// <summary>
     /// Gets whether the player is facing right or not
     /// </summary>
-    public bool IsFacingRight 
+    public bool IsFacingRight
     {
         get
         {
@@ -124,14 +122,14 @@ public class PlayerController : MonoBehaviour
         // For each collider within picking-up radius:
         for (int i = knockedEnemyColliders - 1; i >= 0; i--)
         {
-            // Create a temporary enemy object
-            Enemy temp;
+            // Create a temporary throwable enemy object
+            ThrowableEnemy temp;
 
-            // If the current nearby collider belongs to an enemy: (I think? I don't know what the out part means)
-            if (nearbyColliders[i].gameObject.TryGetComponent<Enemy>(out temp))
+            // If the current nearby collider belongs to a throwable enemy:
+            if (nearbyColliders[i].gameObject.TryGetComponent<ThrowableEnemy>(out temp))
             {
                 // If the current enemy is knocked:
-                if (temp.CurrentState == EnemyStates.Knocked)
+                if (temp.BaseEnemy.CurrentState == EnemyStates.Knocked)
                 {
                     // Store a reference to the enemy in temp
                     nearbyKnockedEnemy = temp;
@@ -172,7 +170,7 @@ public class PlayerController : MonoBehaviour
         animator.SetFloat("yvelocity", rb.velocity.y);
 
         // If the player is standing on the ground:
-        if(isStanding)
+        if (isStanding)
         {
             // Tell the animator that the player is no longer jumping
             animator.SetBool("IsJumping", false);

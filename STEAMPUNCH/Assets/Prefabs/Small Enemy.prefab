@@ -13,8 +13,10 @@ GameObject:
   - component: {fileID: 2774793289857679824}
   - component: {fileID: 2076385746779683081}
   - component: {fileID: 8334033335059835008}
+  - component: {fileID: 3190283078520710008}
+  - component: {fileID: 5186171875854073279}
   m_Layer: 0
-  m_Name: Enemy
+  m_Name: Small Enemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -173,3 +175,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentState: 0
   rb: {fileID: 2774793289857679824}
+  health: 1
+--- !u!114 &3190283078520710008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 529867784597409175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 772de117080ff9b4c9db9ab6c54a047e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &5186171875854073279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 529867784597409175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 598d2504a4b4b9b4f803f0e9e31d4aa5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

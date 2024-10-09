@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 /// <summary>
@@ -19,9 +18,15 @@ public class Enemy : MonoBehaviour
     private SpriteRenderer sprite;
     private BoxCollider2D boxCollider;
 
-    private PlayerController player;
+    public BoxCollider2D BoxCollider { get { return boxCollider; } }
 
     [SerializeField] private Rigidbody2D rb;
+
+    public Rigidbody2D Rb { get { return rb; } }
+
+    [SerializeField] private int health = 1;
+
+    public int Health { get { return health; } }
 
     // Properties =======================================================================
 
@@ -37,6 +42,10 @@ public class Enemy : MonoBehaviour
         get
         {
             return currentState;
+        }
+        set
+        {
+            currentState = value;
         }
     }
 
@@ -64,80 +73,12 @@ public class Enemy : MonoBehaviour
         // Otherwise, if the enemy is knocked:
         else if (currentState == EnemyStates.Knocked)
         {
-            sprite.color = Color.red;
+            //sprite.color = Color.red;
+            KnockedOpacityFlash();
             // do "dead" stuff
         }
         // Otherwise, if the enemy is grabbed:
-        else if (currentState == EnemyStates.Grabbed)
-        {
-            sprite.color = Color.blue;
-            AttachToPlayer();
-        }
-    }
-
-    /// <summary>
-    /// Sets up the enemy after being grabbed by the player
-    /// </summary>
-    /// <param name="player">The player</param>
-    public void GrabbedByPlayer(PlayerController player)
-    {
-        // Remove the enemy's velocity
-        rb.velocity -= rb.velocity;
-
-        // Update the enemy's state
-        currentState = EnemyStates.Grabbed;
-
-        // Disable enemy collision and physics
-        boxCollider.enabled = false;
-        rb.isKinematic = true;
-        
-        // Get a reference to the player
-        this.player = player;
-    }
-
-    /// <summary>
-    /// Sets up the enemy after being dropped by the player
-    /// </summary>
-    public void DroppedByPlayer()
-    {
-        // Update the enemy's state
-        currentState = EnemyStates.Knocked;
-
-        // Enable enemy collision and physics
-        boxCollider.enabled = true;
-        rb.isKinematic = false;
-
-        // Remove the reference to the player
-        this.player = null;
-    }
-
-    /// <summary>
-    /// Sets up the enemy after being thrown by the player
-    /// </summary>
-    public void ThrownByPlayer()
-    {
-        // Update the enemy's state
-        currentState = EnemyStates.Knocked;
-
-        // Enable enemy collision and physics
-        boxCollider.enabled = true;
-        rb.isKinematic = false;
-
-        //If the player is facing right:
-        if (player.IsFacingRight)
-        {
-            // Add a force to the enemy that sends it to the right
-            rb.AddForce(new Vector2(player.throwingForceX, player.throwingForceY));
-        }
-        //Otherwise:
-        else
-        {
-            // Add a force to the enemy that sends it to the left
-            rb.AddForce(new Vector2(-player.throwingForceX, player.throwingForceY));
-        }
-
-        // Remove the reference to the player
-        this.player = null;
+        // MOVED TO THROWABLE ENEMY SCRIPT
     }
 
     /// <summary>
@@ -146,29 +87,22 @@ public class Enemy : MonoBehaviour
     /// <param name="force">The knockback force that the enemy receives after being punched</param>
     public void Punched(Vector2 force)
     {
-        // Update the enemy's state
-        currentState = EnemyStates.Knocked;
+        health--;
+
+        if (health <= 0)
+            // Update the enemy's state
+            currentState = EnemyStates.Knocked;
 
         // Add a force to the enemy that sends it to the right
         rb.AddForce(force);
     }
 
     /// <summary>
-    /// Attaches the enemy to the player
+    /// Creates pulsing opacity effect on knocked enemies to indicate that they're knocked
     /// </summary>
-    private void AttachToPlayer()
+    public void KnockedOpacityFlash()
     {
-        // If the player is facing right:
-        if (player.IsFacingRight)
-        {
-            // Put the enemy on the right side of the player
-            transform.position = new Vector3(player.transform.position.x + 1f, player.transform.position.y + 1f);
-        }
-        // Otherwise:
-        else
-        {
-            // Put the enemy on the left side of the player
-            transform.position = new Vector3(player.transform.position.x - 1f, player.transform.position.y + 1f);
-        }
+        sprite.color = new Color(1f, 1f, 1f, (0.25f * Mathf.Sin(Time.fixedTime / 0.1f)) + 0.75f);
     }
+
 }
