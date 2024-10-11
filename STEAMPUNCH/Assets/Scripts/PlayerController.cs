@@ -26,6 +26,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public float throwingForceY = 500.0f;
     private bool isFacingRight = true;
 
+    private bool jumpFlag = false;
+
     // Interaction ------------------------------------------------------------
     [SerializeField] private float pickUpRadius = 0.1f;
     private List<Collider2D> nearbyColliders = new List<Collider2D>();
@@ -102,6 +104,23 @@ public class PlayerController : MonoBehaviour
     {
         // Update the player's velocity
         rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
+
+        if (jumpFlag)
+        {
+            rb.AddForce(new Vector2(0.0f, jumpingPower));
+            jumpFlag = false;
+        }
+
+        if (IsGrounded())
+        {
+            rb.AddForce(new Vector2(horizontal * speed, 0.0f), ForceMode2D.Impulse);
+        }
+        else 
+        {
+            rb.AddForce(new Vector2(horizontal * speed * 8, 0.0f), ForceMode2D.Force);
+        }
+
+        rb.velocity = new Vector2(Mathf.Clamp(rb.velocity.x, -speed, speed), rb.velocity.y);
     }
 
     // OnTriggerEnter2D is called when the Collider2D other enters the trigger
@@ -214,7 +233,9 @@ public class PlayerController : MonoBehaviour
         // Tell the animator that the player is jumping
         animator.SetBool("IsJumping", true);
 
-        rb.velocity += new Vector2(rb.velocity.x, jumpingPower) * Time.deltaTime;
+        jumpFlag = true;
+
+        // rb.velocity += new Vector2(rb.velocity.x, jumpingPower) * Time.deltaTime;
     }
 
     /// <summary>

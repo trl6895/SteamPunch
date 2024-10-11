@@ -38,17 +38,17 @@ public class InputHandler : MonoBehaviour
 
             // Press [SPACE] while the player is grounded
             // Make the player jump
-            if (Input.GetKey(KeyCode.Space) && player.IsGrounded())
+            if (Input.GetKeyDown(KeyCode.Space) && player.IsGrounded())
             {
                 player.Jump();
             }
 
             // Holding [SPACE] after jumping
             // Prevents the player from falling too fast
-            if (Input.GetKey(KeyCode.Space) && player.rb.velocity.y > 0f)
-            {
-                player.HoldingJump();
-            }
+            //if (Input.GetKey(KeyCode.Space) && player.rb.velocity.y > 0f)
+            //{
+            //    player.HoldingJump();
+            //}
 
             // Press [F] while the player is not holding an enemy and while they are near a knocked enemy
             // Make the player pick up nearby knocked enemy
