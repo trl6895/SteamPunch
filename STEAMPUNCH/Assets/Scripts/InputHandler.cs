@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class InputHandler : MonoBehaviour
 {
@@ -87,25 +84,25 @@ public class InputHandler : MonoBehaviour
 
             // Press [F] while the player is not holding an enemy and while they are near a knocked enemy
             // Make the player pick up nearby knocked enemy
-            if (Input.GetKeyDown(KeyCode.F) && !player.isHoldingEnemy && player.NearKnockedEnemy())
+            if (Input.GetKeyDown(KeyCode.Mouse1) && !player.isHoldingEnemy && player.NearKnockedEnemy())
             {
                 player.PickUpEnemy();
             }
             // Press [F] while the player is holding an enemy
             // Make the player drop the enemy
-            else if (Input.GetKeyDown(KeyCode.F) && player.isHoldingEnemy)
+            else if (Input.GetKeyDown(KeyCode.Mouse1) && player.isHoldingEnemy)
             {
                 player.DropEnemy();
             }
 
             // Press [Q]
-            if (Input.GetKeyDown(KeyCode.Q) && !player.isHoldingEnemy)
+            else if (Input.GetKeyDown(KeyCode.Mouse0) && !player.isHoldingEnemy)
             {
                 player.Punch();
             }
             // Press [Q] while the player is holding an enemy
             // Make the player throw the enemy
-            else if (Input.GetKeyDown(KeyCode.Q) && player.isHoldingEnemy)
+            else if (Input.GetKeyDown(KeyCode.Mouse0) && player.isHoldingEnemy)
             {
                 player.ThrowEnemy();
             }
