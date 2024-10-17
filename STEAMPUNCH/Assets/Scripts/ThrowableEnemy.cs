@@ -32,7 +32,11 @@ public class ThrowableEnemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (baseEnemy.CurrentState == EnemyStates.Grabbed)
+        if (baseEnemy.CurrentState == EnemyStates.Knocked)
+        {
+            KnockedOpacityFlash();
+        }
+        else if (baseEnemy.CurrentState == EnemyStates.Grabbed)
         {
             sprite.color = Color.blue;
             AttachToPlayer();
@@ -122,5 +126,13 @@ public class ThrowableEnemy : MonoBehaviour
             // Put the enemy on the left side of the player
             transform.position = new Vector3(player.transform.position.x - 1f, player.transform.position.y + 1f);
         }
+    }
+
+    /// <summary>
+    /// Creates pulsing opacity effect on knocked enemies to indicate that they're knocked
+    /// </summary>
+    public void KnockedOpacityFlash()
+    {
+        sprite.color = new Color(1f, 1f, 1f, (0.25f * Mathf.Sin(Time.fixedTime / 0.1f)) + 0.75f);
     }
 }

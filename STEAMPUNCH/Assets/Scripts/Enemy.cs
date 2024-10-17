@@ -74,7 +74,7 @@ public class Enemy : MonoBehaviour
         else if (currentState == EnemyStates.Knocked)
         {
             //sprite.color = Color.red;
-            KnockedOpacityFlash();
+
             // do "dead" stuff
         }
         // Otherwise, if the enemy is grabbed:
@@ -97,12 +97,6 @@ public class Enemy : MonoBehaviour
         rb.AddForce(force);
     }
 
-    /// <summary>
-    /// Creates pulsing opacity effect on knocked enemies to indicate that they're knocked
-    /// </summary>
-    public void KnockedOpacityFlash()
-    {
-        sprite.color = new Color(1f, 1f, 1f, (0.25f * Mathf.Sin(Time.fixedTime / 0.1f)) + 0.75f);
-    }
+
 
 }
