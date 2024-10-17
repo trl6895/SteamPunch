@@ -177,7 +177,6 @@ MonoBehaviour:
   currentState: 0
   rb: {fileID: 2774793289857679824}
   health: 1
-  knockedSprite: {fileID: 21300000, guid: e3268c96c256bc645b7ca337633d23d7, type: 3}
 --- !u!114 &3190283078520710008
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -202,6 +201,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 598d2504a4b4b9b4f803f0e9e31d4aa5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentState: 0
+  rb: {fileID: 0}
+  health: 1
+  animator: {fileID: 3551798890675437588}
+  speed: 0
+  setWalkDistance: 0
+  collisionCheck: {fileID: 0}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!95 &3551798890675437588
 Animator:
   serializedVersion: 5

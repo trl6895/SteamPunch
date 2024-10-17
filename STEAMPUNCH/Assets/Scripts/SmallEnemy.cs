@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class SmallEnemy : Enemy
 {
-
+    //animation
+    [SerializeField]
+    Animator animator;
 
     [SerializeField] private float speed;
     private float walkDistance;
@@ -35,6 +37,10 @@ public class SmallEnemy : Enemy
                 Walk();
                 break;
             case EnemyStates.Knocked:
+                if (!animator.GetBool("IsKnocked"))
+                {
+                    animator.SetBool("IsKnocked", true);
+                }
                 break;
             case EnemyStates.Grabbed:
                 break;
