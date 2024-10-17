@@ -215,6 +215,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: Small Enemy
       objectReference: {fileID: 0}
+    - target: {fileID: 2076385746779683081, guid: f723c3aaad16149f999f2b1c8a2d1c55, type: 3}
+      propertyPath: m_Size.x
+      value: 1.7728243
+      objectReference: {fileID: 0}
+    - target: {fileID: 2076385746779683081, guid: f723c3aaad16149f999f2b1c8a2d1c55, type: 3}
+      propertyPath: m_Size.y
+      value: 1.435735
+      objectReference: {fileID: 0}
+    - target: {fileID: 2076385746779683081, guid: f723c3aaad16149f999f2b1c8a2d1c55, type: 3}
+      propertyPath: m_Offset.x
+      value: 0.044614792
+      objectReference: {fileID: 0}
+    - target: {fileID: 2076385746779683081, guid: f723c3aaad16149f999f2b1c8a2d1c55, type: 3}
+      propertyPath: m_Offset.y
+      value: 0.7178675
+      objectReference: {fileID: 0}
     - target: {fileID: 6153433748784156176, guid: f723c3aaad16149f999f2b1c8a2d1c55, type: 3}
       propertyPath: m_RootOrder
       value: 1
@@ -288,7 +304,7 @@ GameObject:
   - component: {fileID: 360137413}
   - component: {fileID: 360137416}
   m_Layer: 0
-  m_Name: Square
+  m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
