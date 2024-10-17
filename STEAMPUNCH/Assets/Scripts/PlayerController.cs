@@ -351,4 +351,9 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+
+    public void RideEnemy(Enemy enemy)
+    {
+
+    }
 }

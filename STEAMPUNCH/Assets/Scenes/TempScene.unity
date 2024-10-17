@@ -231,6 +231,10 @@ PrefabInstance:
       propertyPath: m_Offset.y
       value: 0.7178675
       objectReference: {fileID: 0}
+    - target: {fileID: 2774793289857679824, guid: f723c3aaad16149f999f2b1c8a2d1c55, type: 3}
+      propertyPath: m_Constraints
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 5186171875854073279, guid: f723c3aaad16149f999f2b1c8a2d1c55, type: 3}
       propertyPath: rb
       value: 
@@ -486,7 +490,7 @@ BoxCollider2D:
   m_GameObject: {fileID: 360137409}
   m_Enabled: 1
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 17d8fc8d87bf33943a1dbec1f4f99628, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
