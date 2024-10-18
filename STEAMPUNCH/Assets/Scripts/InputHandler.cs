@@ -105,10 +105,6 @@ public class InputHandler : MonoBehaviour
             else if (Input.GetKeyDown(KeyCode.Mouse0) && player.isHoldingEnemy)
             {
                 player.ThrowEnemy();
-                if (Input.GetKeyDown(KeyCode.Mouse0))
-                {
-
-                }
             }
 
             // Press [R]
