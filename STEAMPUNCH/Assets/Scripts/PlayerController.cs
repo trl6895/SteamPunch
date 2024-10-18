@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 /// <summary>
@@ -95,6 +96,12 @@ public class PlayerController : MonoBehaviour
             {
                 // Reset the current fist to the dominant fist
                 currentFist = CurrentFist.Right;
+            }
+
+            // Temporary death barrier for levels
+            if (transform.position.y < -30.0f)
+            {
+                sceneManager.ResetScene();
             }
         }
         // If the game is paused:
