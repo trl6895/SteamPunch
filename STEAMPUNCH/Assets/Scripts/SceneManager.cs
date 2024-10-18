@@ -47,7 +47,7 @@ public class SceneManager : MonoBehaviour
     /// </summary>
     public void ResetScene()
     {
-        UnityEngine.SceneManagement.SceneManager.LoadScene("TempScene");
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Sprint2Level");
     }
 
     /// <summary>
@@ -98,7 +98,7 @@ public class SceneManager : MonoBehaviour
         //levelTitleText.gameObject.SetActive(false);
 
         // Run the scene
-        UnityEngine.SceneManagement.SceneManager.LoadScene("TempScene");
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Sprint2Level");
     }
 
     /// <summary>

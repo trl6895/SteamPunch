@@ -179,7 +179,11 @@ public class PlayerController : MonoBehaviour
     /// <returns>Whether the player is on the ground or not</returns>
     public bool IsGrounded()
     {
-        return Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
+        return Physics2D.OverlapArea(new Vector2(groundCheck.position.x - (groundCheck.GetComponent<SpriteRenderer>().bounds.size.x / 2),
+            groundCheck.position.y + (groundCheck.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
+            new Vector2(groundCheck.position.x + (groundCheck.GetComponent<SpriteRenderer>().bounds.size.x / 2),
+            groundCheck.position.y - (groundCheck.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
+            groundLayer);
     }
 
     /// <summary>
