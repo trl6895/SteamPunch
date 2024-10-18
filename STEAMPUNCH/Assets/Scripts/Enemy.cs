@@ -26,6 +26,9 @@ public class Enemy : MonoBehaviour
 
     [SerializeField] private int health = 1;
 
+    // Audio ------------------------------------------------------------------
+    [SerializeField] public AudioSource sfx_knocked;
+
     public int Health { get { return health; } }
 
     // Properties =======================================================================
@@ -90,8 +93,13 @@ public class Enemy : MonoBehaviour
         health--;
 
         if (health <= 0)
+        {
             // Update the enemy's state
             currentState = EnemyStates.Knocked;
+
+            // Play the knocked sound effect
+            sfx_knocked.Play();
+        }
 
         // Add a force to the enemy that sends it to the right
         rb.AddForce(force);

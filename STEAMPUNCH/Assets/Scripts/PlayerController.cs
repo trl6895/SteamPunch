@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 /// <summary>
@@ -47,6 +48,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] bool isStanding = false;
     Animator animator;
     CurrentFist currentFist = CurrentFist.Right;
+
+    // Audio ------------------------------------------------------------------
+    [SerializeField] public AudioSource sfx_punchMiss;
+    [SerializeField] public AudioSource sfx_punchHit;
 
     // Properties =======================================================================
 
@@ -288,9 +293,6 @@ public class PlayerController : MonoBehaviour
             // Reset the punch cooldown timer
             punchCooldownTimer = 0.0f;
 
-            // Play a punching sound effect
-
-
             //If the player is facing right:
             if (isFacingRight)
             {
@@ -309,6 +311,9 @@ public class PlayerController : MonoBehaviour
 
             // Fill the list with all contacts
             punchCollider.OverlapCollider(new ContactFilter2D().NoFilter(), contacts);
+
+            // Make a boolean to track if anything was punched
+            bool successfulHit = false;
 
             // For each contact point in the punch collider:
             for (int i = 0; i < contacts.Count; i++)
@@ -334,6 +339,9 @@ public class PlayerController : MonoBehaviour
                             // Punch the enemy
                             temp.Punched(new Vector2(-300.0f, 200.0f));
                         }
+
+                        // Mark that there has been a successful hit
+                        successfulHit = true;
                     }
                 }
             }
@@ -349,6 +357,17 @@ public class PlayerController : MonoBehaviour
             {
                 // Make the fist for the next punch be the right fist
                 currentFist = CurrentFist.Right;
+            }
+
+            // If the player missed their punch:
+            if(!successfulHit)
+            {
+                sfx_punchMiss.Play();
+            }
+            // Otherwise:
+            else
+            {
+                sfx_punchHit.Play();
             }
         }
     }
