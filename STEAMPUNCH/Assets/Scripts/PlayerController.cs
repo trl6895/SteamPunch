@@ -135,7 +135,7 @@ public class PlayerController : MonoBehaviour
         if (IsGrounded())
         {
             rb.AddForce(new Vector2(horizontal * speed, 0.0f), ForceMode2D.Impulse);
-            isStanding = true;
+           
         }
         else 
         {
