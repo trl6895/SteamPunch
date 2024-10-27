@@ -49,6 +49,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] bool isStanding = false;
     Animator animator;
     CurrentFist currentFist = CurrentFist.Right;
+    float punchAnimTimer;
 
     // Audio ------------------------------------------------------------------
     [SerializeField] public AudioSource sfx_punchMiss;
@@ -77,6 +78,7 @@ public class PlayerController : MonoBehaviour
 
         // Instantiate the animator
         animator = GetComponent<Animator>();
+        punchAnimTimer = .25f;
     }
 
     // Update is called once per frame
@@ -108,6 +110,13 @@ public class PlayerController : MonoBehaviour
         else if (sceneManager.gameState == GameState.Pause)
         {
             //Nothing here right now :(
+        }
+
+        //if player doesn't click punch again, transitions back to movement
+        punchAnimTimer -= Time.deltaTime;
+        if (punchAnimTimer < 0f) 
+        {
+            animator.SetBool("IsPunching", false);
         }
     }
 
@@ -298,6 +307,8 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public void Punch()
     {
+        punchAnimTimer = .25f;
+        animator.SetBool("IsPunching", true);
         // If the punch cooldown has been completed:
         if (punchCooldownTimer >= punchCooldown)
         {
@@ -362,16 +373,18 @@ public class PlayerController : MonoBehaviour
             {
                 // Make the fist for the next punch be the left fist
                 currentFist = CurrentFist.Left;
+                animator.SetFloat("LeftRight", 0);
             }
             // Otherwise:
             else
             {
                 // Make the fist for the next punch be the right fist
                 currentFist = CurrentFist.Right;
+                animator.SetFloat("LeftRight", 1);
             }
 
             // If the player missed their punch:
-            if(!successfulHit)
+            if (!successfulHit)
             {
                 sfx_punchMiss.Play();
             }
