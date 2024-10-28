@@ -1,9 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 /// <summary>
 /// The states of the game
@@ -42,6 +41,20 @@ public class SceneManager : MonoBehaviour
     void Update()
     { }
 
+    private void OnEnable()
+    {
+        Scene scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+        switch (scene.name)
+        {
+            case "Menus":
+                SetupMainMenu();
+                break;
+            case "Sprint2Level":
+                SetupPlayDemo();
+                break;
+        }
+    }
+
     /// <summary>
     /// Resets the scene
     /// </summary>
@@ -57,7 +70,12 @@ public class SceneManager : MonoBehaviour
     {
         // Set the scene back to the Menus scene, and resume time in case this was run from the pause menu
         UnityEngine.SceneManagement.SceneManager.LoadScene("Menus");
+    }
+
+    private void SetupMainMenu()
+    {
         Time.timeScale = 1;
+        bPlayDemo.gameObject.SetActive(true);
 
         // Update the gameState enum
         gameState = GameState.Main;
@@ -66,8 +84,10 @@ public class SceneManager : MonoBehaviour
         mainTitleText.gameObject.SetActive(true);
 
         // ==================== Temporary ! ====================
-        bPlayDemo.gameObject.SetActive(true);
         //mainContinueText.gameObject.SetActive(true);
+
+        // Set the selected object in the menu
+        EventSystem.current.SetSelectedGameObject(bPlayDemo.gameObject);
     }
 
     /// <summary>
@@ -91,14 +111,20 @@ public class SceneManager : MonoBehaviour
     /// </summary>
     public void PlayDemo()
     {
-        // Update the gameState enum
-        gameState = GameState.Demo;
 
         // Hide LevelSelectMenu UI
         //levelTitleText.gameObject.SetActive(false);
 
         // Run the scene
         UnityEngine.SceneManagement.SceneManager.LoadScene("Sprint2Level");
+
+    }
+
+    public void SetupPlayDemo()
+    {
+        // Update the gameState enum
+        gameState = GameState.Demo;
+        EventSystem.current.SetSelectedGameObject(null);
     }
 
     /// <summary>
@@ -116,6 +142,9 @@ public class SceneManager : MonoBehaviour
         pauseBackground.gameObject.SetActive(true);
         pauseTitleText.gameObject.SetActive(true);
         bBackToMain.gameObject.SetActive(true);
+
+        // Set the selected object in the menu
+        EventSystem.current.SetSelectedGameObject(bBackToMain.gameObject);
     }
 
     /// <summary>
@@ -133,5 +162,7 @@ public class SceneManager : MonoBehaviour
         pauseBackground.gameObject.SetActive(false);
         pauseTitleText.gameObject.SetActive(false);
         bBackToMain.gameObject.SetActive(false);
+
+        EventSystem.current.SetSelectedGameObject(null);
     }
 }
