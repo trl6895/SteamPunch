@@ -3134,9 +3134,29 @@ PrefabInstance:
       propertyPath: sceneManager
       value: 
       objectReference: {fileID: 426985705}
+    - target: {fileID: 365114061818390284, guid: 4ad3b7c20f4a628418354502c698ab30, type: 3}
+      propertyPath: punchMoveForce
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 881621052250060928, guid: 4ad3b7c20f4a628418354502c698ab30, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 2845942094174600340, guid: 4ad3b7c20f4a628418354502c698ab30, type: 3}
+      propertyPath: m_Mass
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2845942094174600340, guid: 4ad3b7c20f4a628418354502c698ab30, type: 3}
+      propertyPath: m_Simulated
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2845942094174600340, guid: 4ad3b7c20f4a628418354502c698ab30, type: 3}
+      propertyPath: m_LinearDrag
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2845942094174600340, guid: 4ad3b7c20f4a628418354502c698ab30, type: 3}
+      propertyPath: m_UseAutoMass
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4922767755286380736, guid: 4ad3b7c20f4a628418354502c698ab30, type: 3}
       propertyPath: m_Size.x
@@ -3153,6 +3173,14 @@ PrefabInstance:
     - target: {fileID: 4922767755286380736, guid: 4ad3b7c20f4a628418354502c698ab30, type: 3}
       propertyPath: m_Offset.y
       value: 1.7941201
+      objectReference: {fileID: 0}
+    - target: {fileID: 4922767755286380736, guid: 4ad3b7c20f4a628418354502c698ab30, type: 3}
+      propertyPath: m_AutoTiling
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6110487473042558247, guid: 4ad3b7c20f4a628418354502c698ab30, type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7678440142122721311, guid: 4ad3b7c20f4a628418354502c698ab30, type: 3}
       propertyPath: m_RootOrder

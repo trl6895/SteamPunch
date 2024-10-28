@@ -30,6 +30,10 @@ public class PlayerController : MonoBehaviour
 
     private bool jumpFlag = false;
 
+    [SerializeField]
+    float punchMoveForce;
+    public float currentPunchMoveForce = 0;
+
     // Interaction ------------------------------------------------------------
     [SerializeField] private float pickUpRadius = 0.1f;
     private List<Collider2D> nearbyColliders = new List<Collider2D>();
@@ -105,6 +109,22 @@ public class PlayerController : MonoBehaviour
             {
                 sceneManager.ResetScene();
             }
+            if (currentPunchMoveForce > 0)
+            {
+                currentPunchMoveForce -= (3*punchMoveForce)*Time.deltaTime;
+                if (currentPunchMoveForce < 0)
+                {
+                    currentPunchMoveForce = 0;
+                }
+            }
+            if (currentPunchMoveForce < 0)
+            {
+                currentPunchMoveForce += (3 * punchMoveForce) * Time.deltaTime;
+                if (currentPunchMoveForce > 0)
+                {
+                    currentPunchMoveForce = 0;
+                }
+            }
         }
         // If the game is paused:
         else if (sceneManager.gameState == GameState.Pause)
@@ -124,7 +144,7 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         // Update the player's velocity
-        rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
+        rb.velocity = new Vector2((horizontal * speed) + currentPunchMoveForce, rb.velocity.y);
 
         if (jumpFlag)
         {
@@ -141,8 +161,6 @@ public class PlayerController : MonoBehaviour
         {
             rb.AddForce(new Vector2(horizontal * speed * 8, 0.0f), ForceMode2D.Force);
         }
-
-        rb.velocity = new Vector2(Mathf.Clamp(rb.velocity.x, -speed, speed), rb.velocity.y);
     }
 
     // OnTriggerEnter2D is called when the Collider2D other enters the trigger
@@ -319,13 +337,15 @@ public class PlayerController : MonoBehaviour
             if (isFacingRight)
             {
                 // Move the player a bit rightward
-                rb.AddForce(new Vector2(750.0f, 0.0f));
+                //rb.AddForce(new Vector2(750.0f, 0.0f));
+                currentPunchMoveForce = punchMoveForce;
             }
             //Otherwise:
             else
             {
                 // Move the player a bit leftward
-                rb.AddForce(new Vector2(-750.0f, 0.0f));
+                //rb.AddForce(new Vector2(-750.0f, 0.0f));
+                currentPunchMoveForce = -punchMoveForce;
             }
 
             // Initialize a list to hold all colliders that collide with the punch
