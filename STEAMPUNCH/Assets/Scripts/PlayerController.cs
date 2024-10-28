@@ -220,6 +220,11 @@ public class PlayerController : MonoBehaviour
             groundLayer);
     }
 
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawCube(new Vector3(5,2,3), new Vector3(1,2,3));
+    }
+
     /// <summary>
     /// Animates the player
     /// </summary>
