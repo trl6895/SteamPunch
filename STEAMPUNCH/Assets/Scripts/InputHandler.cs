@@ -75,6 +75,11 @@ public class InputHandler : MonoBehaviour
                 player.Jump();
             }
 
+            if (Input.GetKeyDown(KeyCode.Space) && player.CurrentState == PlayerState.Locked)
+            {
+                player.Jump();
+            }
+
             // Holding [SPACE] after jumping
             // Prevents the player from falling too fast
             //if (Input.GetKey(KeyCode.Space) && player.rb.velocity.y > 0f)
@@ -104,7 +109,8 @@ public class InputHandler : MonoBehaviour
             // Make the player throw the enemy
             else if (Input.GetKeyDown(KeyCode.Mouse0) && player.isHoldingEnemy)
             {
-                player.ThrowEnemy();
+                // player.ThrowEnemy();
+                player.SurfEnemy();
             }
 
             // Press [R]

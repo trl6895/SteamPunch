@@ -6,7 +6,7 @@ using UnityEngine;
 /// <summary>
 /// The states of the player that determine if they can be controlled or not
 /// </summary>
-public enum PlayerState { Free, Locked }
+public enum PlayerState { Free, Locked, Surfing }
 
 /// <summary>
 /// The current fist that the player is punching with
@@ -33,12 +33,15 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     float punchMoveForce;
     public float currentPunchMoveForce = 0;
+    // Player State -----------------------------------------------------------
+    private PlayerState currentState = PlayerState.Free;
 
     // Interaction ------------------------------------------------------------
     [SerializeField] private float pickUpRadius = 0.1f;
     private List<Collider2D> nearbyColliders = new List<Collider2D>();
     private ThrowableEnemy nearbyKnockedEnemy;
     public bool isHoldingEnemy = false;
+    public bool isSurfingEnemy = false;
     [SerializeField] public float punchCooldown = 0.25f;
     [SerializeField] public float fistResetCooldown = 1.0f;
     [SerializeField] public float punchCooldownTimer = 0.25f;
@@ -79,6 +82,14 @@ public class PlayerController : MonoBehaviour
     {
         get { return health; }
         set { health = value; }
+    }
+    
+    public PlayerState CurrentState
+    {
+        get
+        {
+            return currentState;
+        }
     }
 
     // Methods ==========================================================================
@@ -134,6 +145,10 @@ public class PlayerController : MonoBehaviour
                     currentPunchMoveForce = 0;
                 }
             }
+            if (isSurfingEnemy)
+            {
+                transform.position = new Vector2(nearbyKnockedEnemy.transform.position.x, nearbyKnockedEnemy.transform.position.y + 0.5f);
+            }
         }
         // If the game is paused:
         else if (sceneManager.gameState == GameState.Pause)
@@ -159,16 +174,20 @@ public class PlayerController : MonoBehaviour
         {
             rb.AddForce(new Vector2(0.0f, jumpingPower));
             jumpFlag = false;
+            currentState = PlayerState.Free;
         }
 
-        if (IsGrounded())
+        if (currentState == PlayerState.Free)
         {
-            rb.AddForce(new Vector2(horizontal * speed, 0.0f), ForceMode2D.Impulse);
-           
-        }
-        else 
-        {
-            rb.AddForce(new Vector2(horizontal * speed * 8, 0.0f), ForceMode2D.Force);
+            if (IsGrounded())
+            {
+                rb.AddForce(new Vector2(horizontal * speed, 0.0f), ForceMode2D.Impulse);
+            
+            }
+            else 
+            {
+                rb.AddForce(new Vector2(horizontal * speed * 8, 0.0f), ForceMode2D.Force);
+            }
         }
     }
 
@@ -282,7 +301,11 @@ public class PlayerController : MonoBehaviour
     public void Jump()
     {
         isStanding = false;
-
+        if (isSurfingEnemy == true)
+        {
+            isSurfingEnemy = false;
+            rb.simulated = true;
+        }
         // Tell the animator that the player is jumping
         animator.SetBool("IsJumping", true);
 
@@ -327,6 +350,15 @@ public class PlayerController : MonoBehaviour
         isHoldingEnemy = false;
         nearbyKnockedEnemy.ThrownByPlayer();
         nearbyKnockedEnemy = null;
+    }
+
+    public void SurfEnemy()
+    {
+        isHoldingEnemy = false;
+        currentState = PlayerState.Surfing; // Use this to lock the player's movement while surfing
+        nearbyKnockedEnemy.ThrownByPlayer();
+        isSurfingEnemy = true;
+        rb.simulated = false;
     }
 
     /// <summary>
@@ -423,10 +455,5 @@ public class PlayerController : MonoBehaviour
                 sfx_punchHit.Play();
             }
         }
-    }
-
-    public void RideEnemy(Enemy enemy)
-    {
-
     }
 }
