@@ -55,6 +55,9 @@ public class PlayerController : MonoBehaviour
     CurrentFist currentFist = CurrentFist.Right;
     float punchAnimTimer;
 
+    // Stats ------------------------------------------------------------------
+    [SerializeField] private float health;
+
     // Audio ------------------------------------------------------------------
     [SerializeField] public AudioSource sfx_punchMiss;
     [SerializeField] public AudioSource sfx_punchHit;
@@ -70,6 +73,12 @@ public class PlayerController : MonoBehaviour
         {
             return isFacingRight;
         }
+    }
+
+    public float Health
+    {
+        get { return health; }
+        set { health = value; }
     }
 
     // Methods ==========================================================================

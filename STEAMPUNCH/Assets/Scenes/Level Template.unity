@@ -3004,6 +3004,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 881621052250060928, guid: 4ad3b7c20f4a628418354502c698ab30, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 4374207472286747564, guid: 4ad3b7c20f4a628418354502c698ab30, type: 3}
       propertyPath: m_LocalPosition.y
       value: 0.036
@@ -3085,6 +3089,26 @@ PrefabInstance:
       propertyPath: m_Name
       value: Small Enemy
       objectReference: {fileID: 0}
+    - target: {fileID: 5186171875854073279, guid: f723c3aaad16149f999f2b1c8a2d1c55, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 613627184}
+    - target: {fileID: 5186171875854073279, guid: f723c3aaad16149f999f2b1c8a2d1c55, type: 3}
+      propertyPath: floorCheck
+      value: 
+      objectReference: {fileID: 1414090831}
+    - target: {fileID: 5186171875854073279, guid: f723c3aaad16149f999f2b1c8a2d1c55, type: 3}
+      propertyPath: knockbackForce
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 5186171875854073279, guid: f723c3aaad16149f999f2b1c8a2d1c55, type: 3}
+      propertyPath: playerLayer.m_Bits
+      value: 64
+      objectReference: {fileID: 0}
+    - target: {fileID: 5186171875854073279, guid: f723c3aaad16149f999f2b1c8a2d1c55, type: 3}
+      propertyPath: hitboxCollisionCheck
+      value: 
+      objectReference: {fileID: 1414090831}
     - target: {fileID: 6153433748784156176, guid: f723c3aaad16149f999f2b1c8a2d1c55, type: 3}
       propertyPath: m_RootOrder
       value: 2
@@ -4509,6 +4533,11 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!4 &1414090831 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2253354504363160093, guid: f723c3aaad16149f999f2b1c8a2d1c55, type: 3}
+  m_PrefabInstance: {fileID: 688885997}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1425526355
 GameObject:
   m_ObjectHideFlags: 0

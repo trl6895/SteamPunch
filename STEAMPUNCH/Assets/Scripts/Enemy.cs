@@ -26,6 +26,16 @@ public class Enemy : MonoBehaviour
 
     [SerializeField] private int health = 1;
 
+    [SerializeField] protected Transform floorCheck;
+    [SerializeField] protected LayerMask groundLayer;
+    [SerializeField] protected PlayerController player;
+    [SerializeField] protected LayerMask playerLayer;
+
+    [SerializeField] protected Transform hitboxCollisionCheck;
+
+    [SerializeField] protected float speed;
+    [SerializeField] protected float knockbackForce;
+
     // Audio ------------------------------------------------------------------
     [SerializeField] public AudioSource sfx_knocked;
 
@@ -103,6 +113,19 @@ public class Enemy : MonoBehaviour
 
         // Add a force to the enemy that sends it to the right
         rb.AddForce(force);
+    }
+
+    public void DamagePlayer()
+    {
+        if (Physics2D.OverlapArea(new Vector2(hitboxCollisionCheck.position.x - (hitboxCollisionCheck.GetComponent<SpriteRenderer>().bounds.size.x / 2),
+            hitboxCollisionCheck.position.y + (hitboxCollisionCheck.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
+            new Vector2(hitboxCollisionCheck.position.x + (hitboxCollisionCheck.GetComponent<SpriteRenderer>().bounds.size.x / 2),
+            hitboxCollisionCheck.position.y - (hitboxCollisionCheck.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
+            playerLayer))
+        {
+            player.Health -= 1.0f;
+            player.GetComponent<Rigidbody2D>().AddForce(new Vector2(2.0f * knockbackForce, 3.0f));
+        }
     }
 
 
