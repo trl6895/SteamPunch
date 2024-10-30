@@ -37,7 +37,7 @@ Transform:
   m_Children:
   - {fileID: 2253354504363160093}
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &7137066752389348426
 SpriteRenderer:
@@ -190,14 +190,20 @@ MonoBehaviour:
   currentState: 0
   rb: {fileID: 2774793289857679824}
   health: 1
-  sfx_knocked: {fileID: -6677355183776967926}
-  animator: {fileID: 3551798890675437588}
-  speed: -2
-  setWalkDistance: 10
-  collisionCheck: {fileID: 2253354504363160093}
+  floorCheck: {fileID: 2253354504363160093}
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
+  player: {fileID: 0}
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  hitboxCollisionCheck: {fileID: 0}
+  speed: -2
+  knockbackForce: 0
+  sfx_knocked: {fileID: -6677355183776967926}
+  animator: {fileID: 3551798890675437588}
+  setWalkDistance: 10
 --- !u!95 &3551798890675437588
 Animator:
   serializedVersion: 5

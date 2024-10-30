@@ -38362,9 +38362,25 @@ PrefabInstance:
       propertyPath: sceneManager
       value: 
       objectReference: {fileID: 426985705}
+    - target: {fileID: 365114061818390284, guid: 4ad3b7c20f4a628418354502c698ab30, type: 3}
+      propertyPath: punchCooldown
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 365114061818390284, guid: 4ad3b7c20f4a628418354502c698ab30, type: 3}
+      propertyPath: punchCooldownTimer
+      value: 0.25
+      objectReference: {fileID: 0}
     - target: {fileID: 881621052250060928, guid: 4ad3b7c20f4a628418354502c698ab30, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 4922767755286380736, guid: 4ad3b7c20f4a628418354502c698ab30, type: 3}
+      propertyPath: m_Size.y
+      value: 3.1939816
+      objectReference: {fileID: 0}
+    - target: {fileID: 4922767755286380736, guid: 4ad3b7c20f4a628418354502c698ab30, type: 3}
+      propertyPath: m_Offset.y
+      value: 1.5924904
       objectReference: {fileID: 0}
     - target: {fileID: 7678440142122721311, guid: 4ad3b7c20f4a628418354502c698ab30, type: 3}
       propertyPath: m_RootOrder
