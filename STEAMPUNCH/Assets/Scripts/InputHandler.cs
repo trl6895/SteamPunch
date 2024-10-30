@@ -75,7 +75,7 @@ public class InputHandler : MonoBehaviour
                 player.Jump();
             }
 
-            if (Input.GetKeyDown(KeyCode.Space) && player.CurrentState == PlayerState.Locked)
+            if (Input.GetKeyDown(KeyCode.Space) && player.CurrentState == PlayerState.Surfing)
             {
                 player.Jump();
             }
