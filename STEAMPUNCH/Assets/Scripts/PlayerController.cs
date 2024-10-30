@@ -111,6 +111,7 @@ public class PlayerController : MonoBehaviour
         animator = GetComponent<Animator>();
         punchAnimTimer = .25f;
 
+        // Disable the aim indicator
         aimIndicator.SetActive(false);
     }
 
