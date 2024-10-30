@@ -19,28 +19,22 @@ public class InputHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // If on main menu screen:
-        if (sceneManager.gameState == GameState.Main)
+        // If on title screen:
+        if (sceneManager.gameState == GameState.Title)
         {
-            // Important! Right now, we have one "level" and it's a demo,
-            // so I have this commented-out to effectively "skip over" visiting what would be the level select screen.
-
-            /*
-
             // Press [ESC]
             // Closes the game
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 Application.Quit();
             }
+            /*
             // Press ANY  OTHER KEY
             // Continues to level select screen
             else if (Input.anyKey)
             {
                 sceneManager.LevelSelectMenu();
-            }
-
-            */
+            }*/
         }
 
         // If on level select screen:
@@ -50,7 +44,7 @@ public class InputHandler : MonoBehaviour
             // Returns to title screen
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                sceneManager.MainMenu();
+                sceneManager.TitleScreen();
             }
         }
 
