@@ -25,6 +25,8 @@ public class SceneManager : MonoBehaviour
     [SerializeField] public Image pauseBackground;
     [SerializeField] public Button bBackToMain;
 
+    [SerializeField] public Camera mainCamera;
+
     // Gameplay management ----------------------------------------------------
     public GameState gameState;
 
@@ -47,7 +49,7 @@ public class SceneManager : MonoBehaviour
     /// </summary>
     public void ResetScene()
     {
-        UnityEngine.SceneManagement.SceneManager.LoadScene("Sprint2Level");
+        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
     }
 
     /// <summary>

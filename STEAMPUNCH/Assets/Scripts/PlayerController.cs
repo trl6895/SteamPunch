@@ -26,6 +26,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public float jumpingPower = 16f;
     [SerializeField] public float throwingForceX = 500.0f;
     [SerializeField] public float throwingForceY = 500.0f;
+    [SerializeField] public float throwingForce = 1000.0f;
     private bool isFacingRight = true;
 
     private bool jumpFlag = false;
@@ -46,6 +47,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public float fistResetCooldown = 1.0f;
     [SerializeField] public float punchCooldownTimer = 0.25f;
     [SerializeField] public CapsuleCollider2D punchCollider;
+    public float throwingAngle = 0.0f;
+    [SerializeField] public Vector2 holdingPosition;
+    public Vector3 mousePosition;
 
     // Collision --------------------------------------------------------------
     [SerializeField] public Rigidbody2D rb;
@@ -64,6 +68,9 @@ public class PlayerController : MonoBehaviour
     // Audio ------------------------------------------------------------------
     [SerializeField] public AudioSource sfx_punchMiss;
     [SerializeField] public AudioSource sfx_punchHit;
+
+    // Child Objects
+    [SerializeField] private GameObject aimIndicator;
 
     // Properties =======================================================================
 
@@ -103,6 +110,8 @@ public class PlayerController : MonoBehaviour
         // Instantiate the animator
         animator = GetComponent<Animator>();
         punchAnimTimer = .25f;
+
+        aimIndicator.SetActive(false);
     }
 
     // Update is called once per frame
@@ -116,6 +125,32 @@ public class PlayerController : MonoBehaviour
 
             // Increment the punch cooldown timer
             punchCooldownTimer += Time.deltaTime;
+
+            // Get the position of the mouse
+            mousePosition = sceneManager.mainCamera.ScreenToWorldPoint(Input.mousePosition);
+
+            // If the player is facing right:
+            if (isFacingRight)
+            {
+                // Set the holding position to the right of the player
+                holdingPosition = new Vector2(transform.position.x + 1.0f, transform.position.y + 1.0f);
+
+                // Update the throwing angle
+                throwingAngle = Mathf.Atan2((mousePosition.y - holdingPosition.y), (mousePosition.x - holdingPosition.x));
+            }
+            // Otherwise:
+            else
+            {
+                // Set the holding position to the left of the player
+                holdingPosition = new Vector2(transform.position.x - 1.0f, transform.position.y + 1.0f);
+
+                // Update the throwing angle
+                throwingAngle = -Mathf.Atan2((mousePosition.x - holdingPosition.x), (mousePosition.y - holdingPosition.y)) - (90.0f * Mathf.Deg2Rad);
+            }
+
+            // Update the position and rotation of the aim indicator
+            aimIndicator.transform.position = new Vector3(holdingPosition.x, holdingPosition.y, -1.0f);
+            aimIndicator.transform.rotation = Quaternion.Euler(0.0f, 0.0f, throwingAngle * Mathf.Rad2Deg);
 
             // If enough time has passed and the non-dominant fist is the current fist:
             if (punchCooldownTimer >= fistResetCooldown && currentFist == CurrentFist.Left)
@@ -287,6 +322,46 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
+    /// Turns the player to the right
+    /// </summary>
+    public void TurnRight()
+    {
+        // Set isFacingRight to true
+        isFacingRight = true;
+
+        // Flip the player's transform to the right
+        Vector3 localScale = transform.localScale;
+        localScale.x = Mathf.Abs(transform.localScale.x);
+        transform.localScale = localScale;
+
+        // Set the holding position to the right of the player
+        holdingPosition = new Vector2(transform.position.x + 1.0f, transform.position.y + 1.0f);
+
+        // Update the throwing angle
+        throwingAngle = Mathf.Atan2((mousePosition.y - holdingPosition.y), (mousePosition.x - holdingPosition.x));
+    }
+
+    /// <summary>
+    /// Turns the player to the left
+    /// </summary>
+    public void TurnLeft()
+    {
+        // Set isFacingRight to false
+        isFacingRight = false;
+
+        // Flip the player's transform to the left
+        Vector3 localScale = transform.localScale;
+        localScale.x = Mathf.Abs(transform.localScale.x) * -1.0f;
+        transform.localScale = localScale;
+
+        // Set the holding position to the left of the player
+        holdingPosition = new Vector2(transform.position.x - 1.0f, transform.position.y + 1.0f);
+
+        // Update the throwing angle
+        throwingAngle = -Mathf.Atan2((mousePosition.x - holdingPosition.x), (mousePosition.y - holdingPosition.y)) - (90.0f * Mathf.Deg2Rad);
+    }
+
+    /// <summary>
     /// Makes the player walk either left or right, depending on input
     /// </summary>
     public void Walk()
@@ -330,6 +405,9 @@ public class PlayerController : MonoBehaviour
     {
         isHoldingEnemy = true;
         nearbyKnockedEnemy.GrabbedByPlayer(this);
+
+        // Enable the aim indicator
+        aimIndicator.SetActive(true);
     }
 
     /// <summary>
@@ -340,6 +418,9 @@ public class PlayerController : MonoBehaviour
         isHoldingEnemy = false;
         nearbyKnockedEnemy.DroppedByPlayer();
         nearbyKnockedEnemy = null;
+
+        // Disable the aim indicator
+        aimIndicator.SetActive(false);
     }
 
     /// <summary>
@@ -348,17 +429,44 @@ public class PlayerController : MonoBehaviour
     public void ThrowEnemy()
     {
         isHoldingEnemy = false;
+        ValidateThrowDirection();
         nearbyKnockedEnemy.ThrownByPlayer();
         nearbyKnockedEnemy = null;
+
+        // Disable the aim indicator
+        aimIndicator.SetActive(false);
     }
 
     public void SurfEnemy()
     {
         isHoldingEnemy = false;
+        ValidateThrowDirection();
         currentState = PlayerState.Surfing; // Use this to lock the player's movement while surfing
         nearbyKnockedEnemy.ThrownByPlayer();
         isSurfingEnemy = true;
         rb.simulated = false;
+
+        // Disable the aim indicator
+        aimIndicator.SetActive(false);
+    }
+
+    /// <summary>
+    /// Turns the player around if they are aiming to throw behind themselves
+    /// </summary>
+    private void ValidateThrowDirection()
+    {
+        // If the player is facing right and the mouse is behind them:
+        if (isFacingRight && mousePosition.x < transform.position.x)
+        {
+            // Turn them around
+            TurnLeft();
+        }
+        // Otherwise, if the player is facing left and the mouse is behind them:
+        else if (!isFacingRight && mousePosition.x > transform.position.x)
+        {
+            // Turn them around
+            TurnRight();
+        }
     }
 
     /// <summary>
