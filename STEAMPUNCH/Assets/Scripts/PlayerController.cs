@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 /// <summary>
 /// The states of the player that determine if they can be controlled or not
@@ -34,6 +35,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     float punchMoveForce;
     public float currentPunchMoveForce = 0;
+    [SerializeField] private float recoilMultiplier = 1.0f;
     // Player State -----------------------------------------------------------
     private PlayerState currentState = PlayerState.Free;
 
@@ -50,6 +52,7 @@ public class PlayerController : MonoBehaviour
     public float throwingAngle = 0.0f;
     [SerializeField] public Vector2 holdingPosition;
     public Vector3 mousePosition;
+    private bool isPunching = false;
 
     // Collision --------------------------------------------------------------
     [SerializeField] public Rigidbody2D rb;
@@ -165,22 +168,36 @@ public class PlayerController : MonoBehaviour
             {
                 sceneManager.ResetScene();
             }
+
+            if(isPunching)
+            {
+                CheckForPunchHit();
+            }
             if (currentPunchMoveForce > 0)
             {
                 currentPunchMoveForce -= (3*punchMoveForce)*Time.deltaTime;
+
                 if (currentPunchMoveForce < 0)
                 {
                     currentPunchMoveForce = 0;
+
+                    // Track that the player is no longer punching
+                    isPunching = false;
                 }
             }
             if (currentPunchMoveForce < 0)
             {
                 currentPunchMoveForce += (3 * punchMoveForce) * Time.deltaTime;
+
                 if (currentPunchMoveForce > 0)
                 {
                     currentPunchMoveForce = 0;
+
+                    // Track that the player is no longer punching
+                    isPunching = false;
                 }
             }
+
             if (isSurfingEnemy)
             {
                 transform.position = new Vector2(nearbyKnockedEnemy.transform.position.x, nearbyKnockedEnemy.transform.position.y + 0.5f);
@@ -438,6 +455,9 @@ public class PlayerController : MonoBehaviour
         aimIndicator.SetActive(false);
     }
 
+    /// <summary>
+    /// Makes the player throw and surf on the currently held enemy
+    /// </summary>
     public void SurfEnemy()
     {
         isHoldingEnemy = false;
@@ -477,11 +497,15 @@ public class PlayerController : MonoBehaviour
     {
         punchAnimTimer = .25f;
         animator.SetBool("IsPunching", true);
+
         // If the punch cooldown has been completed:
         if (punchCooldownTimer >= punchCooldown)
         {
             // Reset the punch cooldown timer
             punchCooldownTimer = 0.0f;
+
+            // Track that the player is currently punching
+            isPunching = true;
 
             //If the player is facing right:
             if (isFacingRight)
@@ -497,72 +521,93 @@ public class PlayerController : MonoBehaviour
                 //rb.AddForce(new Vector2(-750.0f, 0.0f));
                 currentPunchMoveForce = -punchMoveForce;
             }
+        }
 
-            // Initialize a list to hold all colliders that collide with the punch
-            List<Collider2D> contacts = new List<Collider2D>();
+        // If the current fist being used to punch is the right one:
+        if (currentFist == CurrentFist.Right)
+        {
+            // Make the fist for the next punch be the left fist
+            currentFist = CurrentFist.Left;
+            animator.SetFloat("LeftRight", 0);
+        }
+        // Otherwise:
+        else
+        {
+            // Make the fist for the next punch be the right fist
+            currentFist = CurrentFist.Right;
+            animator.SetFloat("LeftRight", 1);
+        }
+    }
 
-            // Fill the list with all contacts
-            punchCollider.OverlapCollider(new ContactFilter2D().NoFilter(), contacts);
+    /// <summary>
+    /// Checks to see if a punch hit something
+    /// </summary>
+    private void CheckForPunchHit()
+    {
+        // Initialize a list to hold all colliders that collide with the punch
+        List<Collider2D> contacts = new List<Collider2D>();
 
-            // Make a boolean to track if anything was punched
-            bool successfulHit = false;
+        // Fill the list with all contacts
+        punchCollider.OverlapCollider(new ContactFilter2D().NoFilter(), contacts);
 
-            // For each contact point in the punch collider:
-            for (int i = 0; i < contacts.Count; i++)
+        // Make a boolean to track if anything was punched
+        bool successfulHit = false;
+
+        // For each contact point in the punch collider:
+        for (int i = 0; i < contacts.Count; i++)
+        {
+            // Create a temporary enemy object
+            Enemy tempEnemy;
+
+            // Create a temporary tilemap collider 2D
+            TilemapCollider2D tempTilemapCollider2D;
+
+            // If the current overlapping collider belongs to an enemy:
+            if (contacts[i].gameObject.TryGetComponent<Enemy>(out tempEnemy))
             {
-                // Create a temporary enemy object
-                Enemy temp;
-
-                // If the current overlapping collider belongs to an enemy:
-                if (contacts[i].gameObject.TryGetComponent<Enemy>(out temp))
+                // If the enemy is alive:
+                if (tempEnemy.CurrentState == EnemyStates.Alive)
                 {
-                    // If the enemy is alive:
-                    if (temp.CurrentState == EnemyStates.Alive)
+                    // If the player is facing right:
+                    if (isFacingRight)
                     {
-                        // If the player is facing right:
-                        if (isFacingRight)
-                        {
-                            // Punch the enemy
-                            temp.Punched(new Vector2(300.0f, 200.0f));
-                        }
-                        // Otherwise:
-                        else
-                        {
-                            // Punch the enemy
-                            temp.Punched(new Vector2(-300.0f, 200.0f));
-                        }
-
-                        // Mark that there has been a successful hit
-                        successfulHit = true;
+                        // Punch the enemy
+                        tempEnemy.Punched(new Vector2(300.0f, 200.0f));
                     }
+                    // Otherwise:
+                    else
+                    {
+                        // Punch the enemy
+                        tempEnemy.Punched(new Vector2(-300.0f, 200.0f));
+                    }
+
+                    // Mark that there has been a successful hit
+                    successfulHit = true;
                 }
             }
+            // Otherwise, if the current overlapping collider belongs to a wall:
+            else if (contacts[i].gameObject.TryGetComponent<TilemapCollider2D>(out tempTilemapCollider2D))
+            {
+                // Mark that there has been a successful hit
+                successfulHit = true;
+            }
+        }
 
-            // If the current fist being used to punch is the right one:
-            if (currentFist == CurrentFist.Right)
-            {
-                // Make the fist for the next punch be the left fist
-                currentFist = CurrentFist.Left;
-                animator.SetFloat("LeftRight", 0);
-            }
-            // Otherwise:
-            else
-            {
-                // Make the fist for the next punch be the right fist
-                currentFist = CurrentFist.Right;
-                animator.SetFloat("LeftRight", 1);
-            }
+        // If the player missed their punch:
+        if (!successfulHit)
+        {
+            sfx_punchMiss.Play();
+        }
+        // Otherwise:
+        else
+        {
+            // Make the player recoil
+            currentPunchMoveForce *= -recoilMultiplier;
 
-            // If the player missed their punch:
-            if (!successfulHit)
-            {
-                sfx_punchMiss.Play();
-            }
-            // Otherwise:
-            else
-            {
-                sfx_punchHit.Play();
-            }
+            // Track that the player is no longer punching
+            isPunching = false;
+
+            sfx_punchHit.Play();
         }
     }
 }
