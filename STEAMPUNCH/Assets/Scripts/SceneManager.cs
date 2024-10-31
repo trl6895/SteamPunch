@@ -21,13 +21,16 @@ public class SceneManager : MonoBehaviour
     [SerializeField] public TMP_Text titleTitle;
     [SerializeField] public Button titleLevels_b;
 
+    // Level Select
+    [SerializeField] public Button levelStage_b1;
     [SerializeField] public Button levelPlay_b;
     [SerializeField] public TMP_Text levelName;
     [SerializeField] public TMP_Text levelBlurb;
 
     [SerializeField] public TMP_Text pauseTitleText;
     [SerializeField] public Image pauseBackground;
-    [SerializeField] public Button bBackToMain;
+    [SerializeField] public Button pauseExit_b;
+
 
     [SerializeField] public Camera mainCamera;
 
@@ -58,10 +61,12 @@ public class SceneManager : MonoBehaviour
         switch (scene.name)
         {
             case "Menus":
-                TitleScreen();
+                //TitleScreen();
                 break;
             case "Level 1":
-                //PlayStage(); Do NOT uncomment this
+                // PlayStage();
+                // selectedStage = 1;
+                // SwitchToGame();
                 break;
         }
     }
@@ -78,7 +83,8 @@ public class SceneManager : MonoBehaviour
     {
         if (selectedStage == 1)
         {
-            UnityEngine.SceneManagement.SceneManager.LoadScene("Level 1");
+            var test = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            LoadLevel1();
         }
         else if (selectedStage == 2) { /*UnityEngine.SceneManagement.SceneManager.LoadScene("Stage2");*/ }
         else if (selectedStage == 3) { /*UnityEngine.SceneManagement.SceneManager.LoadScene("Stage3");*/ }
@@ -89,6 +95,8 @@ public class SceneManager : MonoBehaviour
     /// Loads the Menus scene.
     /// </summary>
     public void SwitchToTitle() { UnityEngine.SceneManagement.SceneManager.LoadScene("Menus"); }
+
+    public void LoadLevel1() { UnityEngine.SceneManagement.SceneManager.LoadScene("Level 1"); }
 
     /// <summary>
     /// Draws TITLE SCREEN UI.
@@ -131,6 +139,8 @@ public class SceneManager : MonoBehaviour
 
         foreach (GameObject x in levelUI)
         { x.gameObject.SetActive(true); }
+
+        EventSystem.current.SetSelectedGameObject(levelStage_b1.gameObject); // Triston's Controller Extravaganza
     }
 
     /// <summary>
@@ -166,9 +176,9 @@ public class SceneManager : MonoBehaviour
         // UI changes
         pauseBackground.gameObject.SetActive(true);
         pauseTitleText.gameObject.SetActive(true);
-        bBackToMain.gameObject.SetActive(true);
+        pauseExit_b.gameObject.SetActive(true);
 
-        EventSystem.current.SetSelectedGameObject(bBackToMain.gameObject); // Triston's Controller Extravaganza
+        EventSystem.current.SetSelectedGameObject(pauseExit_b.gameObject); // Triston's Controller Extravaganza
     }
 
     /// <summary>
@@ -183,7 +193,7 @@ public class SceneManager : MonoBehaviour
         // UI changes
         pauseBackground.gameObject.SetActive(false);
         pauseTitleText.gameObject.SetActive(false);
-        bBackToMain.gameObject.SetActive(false);
+        pauseExit_b.gameObject.SetActive(false);
 
         EventSystem.current.SetSelectedGameObject(null); // Triston's Controller Extravaganza
     }
@@ -230,5 +240,7 @@ public class SceneManager : MonoBehaviour
         levelBlurb.gameObject.SetActive(true);
 
         levelPlay_b.interactable = true;
+
+        EventSystem.current.SetSelectedGameObject(levelPlay_b.gameObject);
     }
 }
