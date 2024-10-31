@@ -97,7 +97,7 @@ public class InputHandler : MonoBehaviour
             // Make the player drop the enemy
             else if (Input.GetKeyDown(KeyCode.Mouse1) && player.isHoldingEnemy)
             {
-                player.DropEnemy();
+                player.SurfEnemy();
             }
 
             // Press [Mouse 0] while the player
@@ -110,7 +110,7 @@ public class InputHandler : MonoBehaviour
             else if (Input.GetKeyDown(KeyCode.Mouse0) && player.isHoldingEnemy)
             {
                 //player.ThrowEnemy();
-                player.SurfEnemy();
+                player.ThrowEnemy();
             }
 
             // Press [R]

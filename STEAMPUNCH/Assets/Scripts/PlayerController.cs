@@ -404,6 +404,7 @@ public class PlayerController : MonoBehaviour
         if (isSurfingEnemy == true)
         {
             isSurfingEnemy = false;
+            animator.SetBool("IsSurfing", false);
             rb.simulated = true;
         }
         // Tell the animator that the player is jumping
@@ -428,11 +429,14 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public void PickUpEnemy()
     {
-        isHoldingEnemy = true;
-        nearbyKnockedEnemy.GrabbedByPlayer(this);
+        if (!isSurfingEnemy)
+        {
+            isHoldingEnemy = true;
+            nearbyKnockedEnemy.GrabbedByPlayer(this);
 
-        // Show aiming controls
-        ShowAimControls();
+            // Show aiming controls
+            ShowAimControls();
+        }
     }
 
     /// <summary>
@@ -467,6 +471,7 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public void SurfEnemy()
     {
+        animator.SetBool("IsSurfing", true);
         isHoldingEnemy = false;
         ValidateThrowDirection();
         currentState = PlayerState.Surfing; // Use this to lock the player's movement while surfing
