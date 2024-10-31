@@ -1,3 +1,4 @@
+using Cinemachine;
 using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
@@ -20,6 +21,7 @@ public class PlayerController : MonoBehaviour
 
     // References -------------------------------------------------------------
     [SerializeField] SceneManager sceneManager;
+    [SerializeField] CameraActions cameraActions;
 
     // Movement ---------------------------------------------------------------
     private float horizontal;
@@ -36,6 +38,7 @@ public class PlayerController : MonoBehaviour
     float punchMoveForce;
     public float currentPunchMoveForce = 0;
     [SerializeField] private float recoilMultiplier = 1.0f;
+
     // Player State -----------------------------------------------------------
     private PlayerState currentState = PlayerState.Free;
 
@@ -606,6 +609,9 @@ public class PlayerController : MonoBehaviour
 
             // Track that the player is no longer punching
             isPunching = false;
+
+            // Shake the camera
+            cameraActions.Shake(0.1f, 0.02f);
 
             sfx_punchHit.Play();
         }
