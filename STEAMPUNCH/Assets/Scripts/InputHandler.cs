@@ -69,6 +69,11 @@ public class InputHandler : MonoBehaviour
                 player.Jump();
             }
 
+            if (Input.GetKeyDown(KeyCode.Space) && player.CurrentState == PlayerState.Surfing)
+            {
+                player.Jump();
+            }
+
             // Holding [SPACE] after jumping
             // Prevents the player from falling too fast
             //if (Input.GetKey(KeyCode.Space) && player.rb.velocity.y > 0f)
@@ -76,7 +81,7 @@ public class InputHandler : MonoBehaviour
             //    player.HoldingJump();
             //}
 
-            // Press [F] while the player is not holding an enemy and while they are near a knocked enemy
+            // Press [Mouse 1] while the player is not holding an enemy and while they are near a knocked enemy
             // Make the player pick up nearby knocked enemy
             if (Input.GetKeyDown(KeyCode.Mouse1) && !player.isHoldingEnemy && player.NearKnockedEnemy())
             {
@@ -89,16 +94,17 @@ public class InputHandler : MonoBehaviour
                 player.DropEnemy();
             }
 
-            // Press [Q]
+            // Press [Mouse 0] while the player
             else if (Input.GetKeyDown(KeyCode.Mouse0) && !player.isHoldingEnemy)
             {
                 player.Punch();
             }
-            // Press [Q] while the player is holding an enemy
+            // Press [Mouse 0] while the player is holding an enemy
             // Make the player throw the enemy
             else if (Input.GetKeyDown(KeyCode.Mouse0) && player.isHoldingEnemy)
             {
-                player.ThrowEnemy();
+                //player.ThrowEnemy();
+                player.SurfEnemy();
             }
 
             // Press [R]

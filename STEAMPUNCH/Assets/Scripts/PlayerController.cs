@@ -1,12 +1,14 @@
+using Cinemachine;
 using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 /// <summary>
 /// The states of the player that determine if they can be controlled or not
 /// </summary>
-public enum PlayerState { Free, Locked }
+public enum PlayerState { Free, Locked, Surfing }
 
 /// <summary>
 /// The current fist that the player is punching with
@@ -19,6 +21,7 @@ public class PlayerController : MonoBehaviour
 
     // References -------------------------------------------------------------
     [SerializeField] SceneManager sceneManager;
+    [SerializeField] CameraActions cameraActions;
 
     // Movement ---------------------------------------------------------------
     private float horizontal;
@@ -26,6 +29,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public float jumpingPower = 16f;
     [SerializeField] public float throwingForceX = 500.0f;
     [SerializeField] public float throwingForceY = 500.0f;
+    [SerializeField] public float throwingForce = 1000.0f;
     private bool isFacingRight = true;
 
     private bool jumpFlag = false;
@@ -33,16 +37,25 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     float punchMoveForce;
     public float currentPunchMoveForce = 0;
+    [SerializeField] private float recoilMultiplier = 1.0f;
+
+    // Player State -----------------------------------------------------------
+    private PlayerState currentState = PlayerState.Free;
 
     // Interaction ------------------------------------------------------------
     [SerializeField] private float pickUpRadius = 0.1f;
     private List<Collider2D> nearbyColliders = new List<Collider2D>();
     private ThrowableEnemy nearbyKnockedEnemy;
     public bool isHoldingEnemy = false;
+    public bool isSurfingEnemy = false;
     [SerializeField] public float punchCooldown = 0.25f;
     [SerializeField] public float fistResetCooldown = 1.0f;
     [SerializeField] public float punchCooldownTimer = 0.25f;
     [SerializeField] public CapsuleCollider2D punchCollider;
+    public float throwingAngle = 0.0f;
+    [SerializeField] public Vector2 holdingPosition;
+    public Vector3 mousePosition;
+    private bool isPunching = false;
 
     // Collision --------------------------------------------------------------
     [SerializeField] public Rigidbody2D rb;
@@ -55,9 +68,16 @@ public class PlayerController : MonoBehaviour
     CurrentFist currentFist = CurrentFist.Right;
     float punchAnimTimer;
 
+    // Stats ------------------------------------------------------------------
+    [SerializeField] private float health;
+
     // Audio ------------------------------------------------------------------
     [SerializeField] public AudioSource sfx_punchMiss;
     [SerializeField] public AudioSource sfx_punchHit;
+
+    // Child Objects
+    [SerializeField] private GameObject aimIndicator;
+    [SerializeField] private GameObject crosshair;
 
     // Properties =======================================================================
 
@@ -72,6 +92,20 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public float Health
+    {
+        get { return health; }
+        set { health = value; }
+    }
+    
+    public PlayerState CurrentState
+    {
+        get
+        {
+            return currentState;
+        }
+    }
+
     // Methods ==========================================================================
 
     // Start is called before the first frame update
@@ -83,6 +117,9 @@ public class PlayerController : MonoBehaviour
         // Instantiate the animator
         animator = GetComponent<Animator>();
         punchAnimTimer = .25f;
+
+        // Hide aiming controls
+        HideAimControls();
     }
 
     // Update is called once per frame
@@ -97,6 +134,35 @@ public class PlayerController : MonoBehaviour
             // Increment the punch cooldown timer
             punchCooldownTimer += Time.deltaTime;
 
+            // Get the position of the mouse
+            mousePosition = sceneManager.mainCamera.ScreenToWorldPoint(Input.mousePosition);
+
+            // If the player is facing right:
+            if (isFacingRight)
+            {
+                // Set the holding position to the right of the player
+                holdingPosition = new Vector2(transform.position.x + 1.0f, transform.position.y + 1.0f);
+
+                // Update the throwing angle
+                throwingAngle = Mathf.Atan2((mousePosition.y - holdingPosition.y), (mousePosition.x - holdingPosition.x));
+            }
+            // Otherwise:
+            else
+            {
+                // Set the holding position to the left of the player
+                holdingPosition = new Vector2(transform.position.x - 1.0f, transform.position.y + 1.0f);
+
+                // Update the throwing angle
+                throwingAngle = -Mathf.Atan2((mousePosition.x - holdingPosition.x), (mousePosition.y - holdingPosition.y)) - (90.0f * Mathf.Deg2Rad);
+            }
+
+            // Update the position and rotation of the aim indicator
+            aimIndicator.transform.position = new Vector3(holdingPosition.x, holdingPosition.y, -1.0f);
+            aimIndicator.transform.rotation = Quaternion.Euler(0.0f, 0.0f, throwingAngle * Mathf.Rad2Deg);
+
+            // Update the position of the crosshair
+            crosshair.transform.position = new Vector3(mousePosition.x, mousePosition.y, -1.0f);
+
             // If enough time has passed and the non-dominant fist is the current fist:
             if (punchCooldownTimer >= fistResetCooldown && currentFist == CurrentFist.Left)
             {
@@ -109,21 +175,39 @@ public class PlayerController : MonoBehaviour
             {
                 sceneManager.ResetScene();
             }
+
+            if(isPunching)
+            {
+                CheckForPunchHit();
+            }
             if (currentPunchMoveForce > 0)
             {
                 currentPunchMoveForce -= (3*punchMoveForce)*Time.deltaTime;
+
                 if (currentPunchMoveForce < 0)
                 {
                     currentPunchMoveForce = 0;
+
+                    // Track that the player is no longer punching
+                    isPunching = false;
                 }
             }
             if (currentPunchMoveForce < 0)
             {
                 currentPunchMoveForce += (3 * punchMoveForce) * Time.deltaTime;
+
                 if (currentPunchMoveForce > 0)
                 {
                     currentPunchMoveForce = 0;
+
+                    // Track that the player is no longer punching
+                    isPunching = false;
                 }
+            }
+
+            if (isSurfingEnemy)
+            {
+                transform.position = new Vector2(nearbyKnockedEnemy.transform.position.x, nearbyKnockedEnemy.transform.position.y + 0.5f);
             }
         }
         // If the game is paused:
@@ -150,16 +234,20 @@ public class PlayerController : MonoBehaviour
         {
             rb.AddForce(new Vector2(0.0f, jumpingPower));
             jumpFlag = false;
+            currentState = PlayerState.Free;
         }
 
-        if (IsGrounded())
+        if (currentState == PlayerState.Free)
         {
-            rb.AddForce(new Vector2(horizontal * speed, 0.0f), ForceMode2D.Impulse);
-           
-        }
-        else 
-        {
-            rb.AddForce(new Vector2(horizontal * speed * 8, 0.0f), ForceMode2D.Force);
+            if (IsGrounded())
+            {
+                rb.AddForce(new Vector2(horizontal * speed, 0.0f), ForceMode2D.Impulse);
+            
+            }
+            else 
+            {
+                rb.AddForce(new Vector2(horizontal * speed * 8, 0.0f), ForceMode2D.Force);
+            }
         }
     }
 
@@ -259,6 +347,46 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
+    /// Turns the player to the right
+    /// </summary>
+    public void TurnRight()
+    {
+        // Set isFacingRight to true
+        isFacingRight = true;
+
+        // Flip the player's transform to the right
+        Vector3 localScale = transform.localScale;
+        localScale.x = Mathf.Abs(transform.localScale.x);
+        transform.localScale = localScale;
+
+        // Set the holding position to the right of the player
+        holdingPosition = new Vector2(transform.position.x + 1.0f, transform.position.y + 1.0f);
+
+        // Update the throwing angle
+        throwingAngle = Mathf.Atan2((mousePosition.y - holdingPosition.y), (mousePosition.x - holdingPosition.x));
+    }
+
+    /// <summary>
+    /// Turns the player to the left
+    /// </summary>
+    public void TurnLeft()
+    {
+        // Set isFacingRight to false
+        isFacingRight = false;
+
+        // Flip the player's transform to the left
+        Vector3 localScale = transform.localScale;
+        localScale.x = Mathf.Abs(transform.localScale.x) * -1.0f;
+        transform.localScale = localScale;
+
+        // Set the holding position to the left of the player
+        holdingPosition = new Vector2(transform.position.x - 1.0f, transform.position.y + 1.0f);
+
+        // Update the throwing angle
+        throwingAngle = -Mathf.Atan2((mousePosition.x - holdingPosition.x), (mousePosition.y - holdingPosition.y)) - (90.0f * Mathf.Deg2Rad);
+    }
+
+    /// <summary>
     /// Makes the player walk either left or right, depending on input
     /// </summary>
     public void Walk()
@@ -273,7 +401,11 @@ public class PlayerController : MonoBehaviour
     public void Jump()
     {
         isStanding = false;
-
+        if (isSurfingEnemy == true)
+        {
+            isSurfingEnemy = false;
+            rb.simulated = true;
+        }
         // Tell the animator that the player is jumping
         animator.SetBool("IsJumping", true);
 
@@ -298,6 +430,9 @@ public class PlayerController : MonoBehaviour
     {
         isHoldingEnemy = true;
         nearbyKnockedEnemy.GrabbedByPlayer(this);
+
+        // Show aiming controls
+        ShowAimControls();
     }
 
     /// <summary>
@@ -308,6 +443,9 @@ public class PlayerController : MonoBehaviour
         isHoldingEnemy = false;
         nearbyKnockedEnemy.DroppedByPlayer();
         nearbyKnockedEnemy = null;
+
+        // Hide aiming controls
+        HideAimControls();
     }
 
     /// <summary>
@@ -316,8 +454,47 @@ public class PlayerController : MonoBehaviour
     public void ThrowEnemy()
     {
         isHoldingEnemy = false;
+        ValidateThrowDirection();
         nearbyKnockedEnemy.ThrownByPlayer();
         nearbyKnockedEnemy = null;
+
+        // Hide aiming controls
+        HideAimControls();
+    }
+
+    /// <summary>
+    /// Makes the player throw and surf on the currently held enemy
+    /// </summary>
+    public void SurfEnemy()
+    {
+        isHoldingEnemy = false;
+        ValidateThrowDirection();
+        currentState = PlayerState.Surfing; // Use this to lock the player's movement while surfing
+        nearbyKnockedEnemy.ThrownByPlayer();
+        isSurfingEnemy = true;
+        rb.simulated = false;
+
+        // Hide aiming controls
+        HideAimControls();
+    }
+
+    /// <summary>
+    /// Turns the player around if they are aiming to throw behind themselves
+    /// </summary>
+    private void ValidateThrowDirection()
+    {
+        // If the player is facing right and the mouse is behind them:
+        if (isFacingRight && mousePosition.x < transform.position.x)
+        {
+            // Turn them around
+            TurnLeft();
+        }
+        // Otherwise, if the player is facing left and the mouse is behind them:
+        else if (!isFacingRight && mousePosition.x > transform.position.x)
+        {
+            // Turn them around
+            TurnRight();
+        }
     }
 
     /// <summary>
@@ -327,11 +504,15 @@ public class PlayerController : MonoBehaviour
     {
         punchAnimTimer = .25f;
         animator.SetBool("IsPunching", true);
+
         // If the punch cooldown has been completed:
         if (punchCooldownTimer >= punchCooldown)
         {
             // Reset the punch cooldown timer
             punchCooldownTimer = 0.0f;
+
+            // Track that the player is currently punching
+            isPunching = true;
 
             //If the player is facing right:
             if (isFacingRight)
@@ -347,77 +528,121 @@ public class PlayerController : MonoBehaviour
                 //rb.AddForce(new Vector2(-750.0f, 0.0f));
                 currentPunchMoveForce = -punchMoveForce;
             }
+        }
 
-            // Initialize a list to hold all colliders that collide with the punch
-            List<Collider2D> contacts = new List<Collider2D>();
-
-            // Fill the list with all contacts
-            punchCollider.OverlapCollider(new ContactFilter2D().NoFilter(), contacts);
-
-            // Make a boolean to track if anything was punched
-            bool successfulHit = false;
-
-            // For each contact point in the punch collider:
-            for (int i = 0; i < contacts.Count; i++)
-            {
-                // Create a temporary enemy object
-                Enemy temp;
-
-                // If the current overlapping collider belongs to an enemy:
-                if (contacts[i].gameObject.TryGetComponent<Enemy>(out temp))
-                {
-                    // If the enemy is alive:
-                    if (temp.CurrentState == EnemyStates.Alive)
-                    {
-                        // If the player is facing right:
-                        if (isFacingRight)
-                        {
-                            // Punch the enemy
-                            temp.Punched(new Vector2(300.0f, 200.0f));
-                        }
-                        // Otherwise:
-                        else
-                        {
-                            // Punch the enemy
-                            temp.Punched(new Vector2(-300.0f, 200.0f));
-                        }
-
-                        // Mark that there has been a successful hit
-                        successfulHit = true;
-                    }
-                }
-            }
-
-            // If the current fist being used to punch is the right one:
-            if (currentFist == CurrentFist.Right)
-            {
-                // Make the fist for the next punch be the left fist
-                currentFist = CurrentFist.Left;
-                animator.SetFloat("LeftRight", 0);
-            }
-            // Otherwise:
-            else
-            {
-                // Make the fist for the next punch be the right fist
-                currentFist = CurrentFist.Right;
-                animator.SetFloat("LeftRight", 1);
-            }
-
-            // If the player missed their punch:
-            if (!successfulHit)
-            {
-                sfx_punchMiss.Play();
-            }
-            // Otherwise:
-            else
-            {
-                sfx_punchHit.Play();
-            }
+        // If the current fist being used to punch is the right one:
+        if (currentFist == CurrentFist.Right)
+        {
+            // Make the fist for the next punch be the left fist
+            currentFist = CurrentFist.Left;
+            animator.SetFloat("LeftRight", 0);
+        }
+        // Otherwise:
+        else
+        {
+            // Make the fist for the next punch be the right fist
+            currentFist = CurrentFist.Right;
+            animator.SetFloat("LeftRight", 1);
         }
     }
 
-    public void RideEnemy(Enemy enemy)
+    /// <summary>
+    /// Checks to see if a punch hit something
+    /// </summary>
+    private void CheckForPunchHit()
     {
+        // Initialize a list to hold all colliders that collide with the punch
+        List<Collider2D> contacts = new List<Collider2D>();
 
+        // Fill the list with all contacts
+        punchCollider.OverlapCollider(new ContactFilter2D().NoFilter(), contacts);
+
+        // Make a boolean to track if anything was punched
+        bool successfulHit = false;
+
+        // For each contact point in the punch collider:
+        for (int i = 0; i < contacts.Count; i++)
+        {
+            // Create a temporary enemy object
+            Enemy tempEnemy;
+
+            // Create a temporary tilemap collider 2D
+            TilemapCollider2D tempTilemapCollider2D;
+
+            // If the current overlapping collider belongs to an enemy:
+            if (contacts[i].gameObject.TryGetComponent<Enemy>(out tempEnemy))
+            {
+                // If the enemy is alive:
+                if (tempEnemy.CurrentState == EnemyStates.Alive)
+                {
+                    // If the player is facing right:
+                    if (isFacingRight)
+                    {
+                        // Punch the enemy
+                        tempEnemy.Punched(new Vector2(300.0f, 200.0f));
+                    }
+                    // Otherwise:
+                    else
+                    {
+                        // Punch the enemy
+                        tempEnemy.Punched(new Vector2(-300.0f, 200.0f));
+                    }
+
+                    // Mark that there has been a successful hit
+                    successfulHit = true;
+                }
+            }
+            // Otherwise, if the current overlapping collider belongs to a wall:
+            else if (contacts[i].gameObject.TryGetComponent<TilemapCollider2D>(out tempTilemapCollider2D))
+            {
+                // Mark that there has been a successful hit
+                successfulHit = true;
+            }
+        }
+
+        // If the player missed their punch:
+        if (!successfulHit)
+        {
+            sfx_punchMiss.Play();
+        }
+        // Otherwise:
+        else
+        {
+            // Make the player recoil
+            currentPunchMoveForce *= -recoilMultiplier;
+
+            // Track that the player is no longer punching
+            isPunching = false;
+
+            // Shake the camera
+            cameraActions.Shake(0.1f, 0.02f);
+
+            sfx_punchHit.Play();
+        }
+    }
+
+    /// <summary>
+    /// Shows the crosshair and aim indicator
+    /// </summary>
+    private void ShowAimControls()
+    {
+        // Enable the crosshair
+        crosshair.SetActive(true);
+
+        // Enable the aim indicator
+        aimIndicator.SetActive(true);
+
+    }
+
+    /// <summary>
+    /// Hides the crosshair and aim indicator
+    /// </summary>
+    private void HideAimControls()
+    {
+        // Disable the crosshair
+        crosshair.SetActive(false);
+
+        // Disable the aim indicator
+        aimIndicator.SetActive(false);
     }
 }

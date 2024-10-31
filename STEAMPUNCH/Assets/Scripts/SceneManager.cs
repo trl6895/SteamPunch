@@ -29,6 +29,8 @@ public class SceneManager : MonoBehaviour
     [SerializeField] public Image pauseBackground;
     [SerializeField] public Button bBackToMain;
 
+    [SerializeField] public Camera mainCamera;
+
     // Gameplay management ----------------------------------------------------
     public GameState gameState;
 

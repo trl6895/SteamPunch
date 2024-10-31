@@ -8,11 +8,8 @@ public class SmallEnemy : Enemy
     [SerializeField]
     Animator animator;
 
-    [SerializeField] private float speed;
     private float walkDistance;
     [SerializeField] private float setWalkDistance;
-    [SerializeField] private Transform collisionCheck;
-    [SerializeField] private LayerMask groundLayer;
     private bool facingLeft;
     private Vector3 movement;
     EnemyStates state;
@@ -53,10 +50,10 @@ public class SmallEnemy : Enemy
     public void Walk()
     {
 
-        if (Physics2D.OverlapArea(new Vector2(collisionCheck.position.x - (collisionCheck.GetComponent<SpriteRenderer>().bounds.size.x / 2),
-            collisionCheck.position.y + (collisionCheck.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
-            new Vector2(collisionCheck.position.x + (collisionCheck.GetComponent<SpriteRenderer>().bounds.size.x / 2),
-            collisionCheck.position.y - (collisionCheck.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
+        if (Physics2D.OverlapArea(new Vector2(floorCheck.position.x - (floorCheck.GetComponent<SpriteRenderer>().bounds.size.x / 2),
+            floorCheck.position.y + (floorCheck.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
+            new Vector2(floorCheck.position.x + (floorCheck.GetComponent<SpriteRenderer>().bounds.size.x / 2),
+            floorCheck.position.y - (floorCheck.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
             groundLayer) && walkDistance >= 0.0f)
         {
             transform.position -= new Vector3(speed, 0.0f, 0.0f) * Time.deltaTime;
@@ -66,6 +63,7 @@ public class SmallEnemy : Enemy
         {
             transform.Rotate(new Vector3(0.0f, 180.0f, 0.0f));
             speed *= -1;
+            knockbackForce *= -1;
             walkDistance = setWalkDistance;
         }
 

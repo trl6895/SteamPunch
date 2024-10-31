@@ -91,18 +91,25 @@ public class ThrowableEnemy : MonoBehaviour
         boxCollider.enabled = true;
         rb.isKinematic = false;
 
-        //If the player is facing right:
-        if (player.IsFacingRight)
+        // Ensure that the enemy is in the correct position
+        transform.position = player.holdingPosition;
+
+        // Get the force that the enemy will be thrown with
+        Vector2 force = new Vector2
+            (
+                Mathf.Cos(player.throwingAngle) * player.throwingForce,
+                Mathf.Sin(player.throwingAngle) * player.throwingForce
+            );
+
+        // If the player is facing left:
+        if (!player.IsFacingRight)
         {
-            // Add a force to the enemy that sends it to the right
-            rb.AddForce(new Vector2(player.throwingForceX, player.throwingForceY));
+            // Invert the force
+            force *= -1.0f;
         }
-        //Otherwise:
-        else
-        {
-            // Add a force to the enemy that sends it to the left
-            rb.AddForce(new Vector2(-player.throwingForceX, player.throwingForceY));
-        }
+
+        // Apply the force to the enemy's rigid body
+        rb.AddForce(force);
 
         // Remove the reference to the player
         this.player = null;
@@ -115,17 +122,19 @@ public class ThrowableEnemy : MonoBehaviour
     private void AttachToPlayer()
     {
         // If the player is facing right:
-        if (player.IsFacingRight)
-        {
-            // Put the enemy on the right side of the player
-            transform.position = new Vector3(player.transform.position.x + 1f, player.transform.position.y + 1f);
-        }
-        // Otherwise:
-        else
-        {
-            // Put the enemy on the left side of the player
-            transform.position = new Vector3(player.transform.position.x - 1f, player.transform.position.y + 1f);
-        }
+        //if (player.IsFacingRight)
+        //{
+        //    // Put the enemy on the right side of the player
+        //    transform.position = new Vector3(player.transform.position.x + 1f, player.transform.position.y + 1f);
+        //}
+        //// Otherwise:
+        //else
+        //{
+        //    // Put the enemy on the left side of the player
+        //    transform.position = new Vector3(player.transform.position.x - 1f, player.transform.position.y + 1f);
+        //}
+
+        transform.position = player.holdingPosition;
     }
 
     /// <summary>
