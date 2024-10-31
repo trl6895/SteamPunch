@@ -77,6 +77,7 @@ public class PlayerController : MonoBehaviour
 
     // Child Objects
     [SerializeField] private GameObject aimIndicator;
+    [SerializeField] private GameObject crosshair;
 
     // Properties =======================================================================
 
@@ -117,8 +118,8 @@ public class PlayerController : MonoBehaviour
         animator = GetComponent<Animator>();
         punchAnimTimer = .25f;
 
-        // Disable the aim indicator
-        aimIndicator.SetActive(false);
+        // Hide aiming controls
+        HideAimControls();
     }
 
     // Update is called once per frame
@@ -158,6 +159,9 @@ public class PlayerController : MonoBehaviour
             // Update the position and rotation of the aim indicator
             aimIndicator.transform.position = new Vector3(holdingPosition.x, holdingPosition.y, -1.0f);
             aimIndicator.transform.rotation = Quaternion.Euler(0.0f, 0.0f, throwingAngle * Mathf.Rad2Deg);
+
+            // Update the position of the crosshair
+            crosshair.transform.position = new Vector3(mousePosition.x, mousePosition.y, -1.0f);
 
             // If enough time has passed and the non-dominant fist is the current fist:
             if (punchCooldownTimer >= fistResetCooldown && currentFist == CurrentFist.Left)
@@ -427,8 +431,8 @@ public class PlayerController : MonoBehaviour
         isHoldingEnemy = true;
         nearbyKnockedEnemy.GrabbedByPlayer(this);
 
-        // Enable the aim indicator
-        aimIndicator.SetActive(true);
+        // Show aiming controls
+        ShowAimControls();
     }
 
     /// <summary>
@@ -440,8 +444,8 @@ public class PlayerController : MonoBehaviour
         nearbyKnockedEnemy.DroppedByPlayer();
         nearbyKnockedEnemy = null;
 
-        // Disable the aim indicator
-        aimIndicator.SetActive(false);
+        // Hide aiming controls
+        HideAimControls();
     }
 
     /// <summary>
@@ -454,8 +458,8 @@ public class PlayerController : MonoBehaviour
         nearbyKnockedEnemy.ThrownByPlayer();
         nearbyKnockedEnemy = null;
 
-        // Disable the aim indicator
-        aimIndicator.SetActive(false);
+        // Hide aiming controls
+        HideAimControls();
     }
 
     /// <summary>
@@ -470,8 +474,8 @@ public class PlayerController : MonoBehaviour
         isSurfingEnemy = true;
         rb.simulated = false;
 
-        // Disable the aim indicator
-        aimIndicator.SetActive(false);
+        // Hide aiming controls
+        HideAimControls();
     }
 
     /// <summary>
@@ -615,5 +619,30 @@ public class PlayerController : MonoBehaviour
 
             sfx_punchHit.Play();
         }
+    }
+
+    /// <summary>
+    /// Shows the crosshair and aim indicator
+    /// </summary>
+    private void ShowAimControls()
+    {
+        // Enable the crosshair
+        crosshair.SetActive(true);
+
+        // Enable the aim indicator
+        aimIndicator.SetActive(true);
+
+    }
+
+    /// <summary>
+    /// Hides the crosshair and aim indicator
+    /// </summary>
+    private void HideAimControls()
+    {
+        // Disable the crosshair
+        crosshair.SetActive(false);
+
+        // Disable the aim indicator
+        aimIndicator.SetActive(false);
     }
 }

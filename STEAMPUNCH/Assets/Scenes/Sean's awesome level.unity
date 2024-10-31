@@ -59604,6 +59604,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2135922005}
     - target: {fileID: 365114061818390284, guid: 4ad3b7c20f4a628418354502c698ab30, type: 3}
+      propertyPath: cameraActions
+      value: 
+      objectReference: {fileID: 264176895}
+    - target: {fileID: 365114061818390284, guid: 4ad3b7c20f4a628418354502c698ab30, type: 3}
       propertyPath: punchCooldown
       value: 0.25
       objectReference: {fileID: 0}
