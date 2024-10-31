@@ -1,9 +1,9 @@
+using System; // Don't delete me!
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using System; // Don't delete me!
 
 /// <summary>
 /// The states of the game
@@ -58,7 +58,7 @@ public class SceneManager : MonoBehaviour
             case "Menus":
                 TitleScreen();
                 break;
-            case "Sprint2Level":
+            case "Level 1":
                 //PlayStage(); Do NOT uncomment this
                 break;
         }
@@ -76,7 +76,7 @@ public class SceneManager : MonoBehaviour
     {
         if (selectedStage == 1)
         {
-            UnityEngine.SceneManagement.SceneManager.LoadScene("Sprint2Level");
+            UnityEngine.SceneManagement.SceneManager.LoadScene("Level 1");
         }
         else if (selectedStage == 2) { /*UnityEngine.SceneManagement.SceneManager.LoadScene("Stage2");*/ }
         else if (selectedStage == 3) { /*UnityEngine.SceneManagement.SceneManager.LoadScene("Stage3");*/ }
@@ -103,9 +103,12 @@ public class SceneManager : MonoBehaviour
         levelBlurb.gameObject.SetActive(false);
 
         // UI changes
-        try { foreach (GameObject x in levelUI)
-        { x.gameObject.SetActive(false); } }
-        catch (NullReferenceException) { Debug.Log("STFU??"); } // Stops error
+        try
+        {
+            foreach (GameObject x in levelUI)
+            { x.gameObject.SetActive(false); }
+        }
+        catch (NullReferenceException) { Debug.Log("Suppressing Error"); } // Stops error
 
         titleTitle.gameObject.SetActive(true);
         titleLevels_b.gameObject.SetActive(true);
