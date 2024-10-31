@@ -1,29 +1,36 @@
-using System.Collections;
-using System.Collections.Generic;
+using System; // Don't delete me!
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 /// <summary>
 /// The states of the game
 /// </summary>
-public enum GameState { Main, LevelSelect, Options, Demo, Pause }
+public enum GameState { Title, LevelSelect, Options, Demo, Pause }
 
 public class SceneManager : MonoBehaviour
 {
     // Fields ===========================================================================
 
+    private int selectedStage;
+    private GameObject[] levelUI;
+
     // References -------------------------------------------------------------
-    [SerializeField] public TMP_Text mainTitleText;
-    [SerializeField] public TMP_Text mainContinueText;
-    [SerializeField] public Button bPlayDemo;
+    [SerializeField] public TMP_Text titleTitle;
+    [SerializeField] public Button titleLevels_b;
 
-    [SerializeField] public TMP_Text levelTitleText;
+    // Level Select
+    [SerializeField] public Button levelStage_b1;
+    [SerializeField] public Button levelPlay_b;
+    [SerializeField] public TMP_Text levelName;
+    [SerializeField] public TMP_Text levelBlurb;
 
-    [SerializeField] public TMP_Text pauseTitleText;
+    [SerializeField] public TMP_Text pauseTitle;
     [SerializeField] public Image pauseBackground;
-    [SerializeField] public Button bBackToMain;
+    [SerializeField] public Button pauseExit_b;
+
 
     [SerializeField] public Camera mainCamera;
 
@@ -35,105 +42,205 @@ public class SceneManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        levelUI = GameObject.FindGameObjectsWithTag("levelScreen"); // Objects need to be ACTIVE to be found!
+
         // This determines what state the game will be in when it starts (!)
         if (UnityEngine.SceneManagement.SceneManager.GetSceneByName("Menus").isLoaded)
-        { gameState = GameState.Main; }
+        { TitleScreen(); } // If statement not really necessary.
     }
 
     // Update is called once per frame
     void Update()
     { }
 
-    /// <summary>
-    /// Resets the scene
-    /// </summary>
-    public void ResetScene()
+    // This will draw UI following a scene switch.
+    // This is vital to ensuring the game can find all of the UI
+    private void OnEnable()
     {
-        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+        Scene scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+        switch (scene.name)
+        {
+            case "Menus":
+                //TitleScreen();
+                break;
+            case "Level 1":
+                // PlayStage();
+                // selectedStage = 1;
+                // SwitchToGame();
+                break;
+        }
     }
 
     /// <summary>
-    /// The title screen, referred to by the word "main"
+    /// Restarts the current scene - Justin, is this how you have it?
     /// </summary>
-    public void MainMenu()
+    public void ResetScene() { UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().ToString()); }
+
+    /// <summary>
+    /// Loads the selected scene (level).
+    /// </summary>
+    public void SwitchToGame()
     {
-        // Set the scene back to the Menus scene, and resume time in case this was run from the pause menu
-        UnityEngine.SceneManagement.SceneManager.LoadScene("Menus");
-        Time.timeScale = 1;
-
-        // Update the gameState enum
-        gameState = GameState.Main;
-
-        // Display own UI
-        mainTitleText.gameObject.SetActive(true);
-
-        // ==================== Temporary ! ====================
-        bPlayDemo.gameObject.SetActive(true);
-        //mainContinueText.gameObject.SetActive(true);
+        if (selectedStage == 1)
+        {
+            var test = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            LoadLevel1();
+        }
+        else if (selectedStage == 2) { /*UnityEngine.SceneManagement.SceneManager.LoadScene("Stage2");*/ }
+        else if (selectedStage == 3) { /*UnityEngine.SceneManagement.SceneManager.LoadScene("Stage3");*/ }
+        else { }
     }
 
     /// <summary>
-    /// The Level Select screen.
+    /// Loads the Menus scene.
+    /// </summary>
+    public void SwitchToTitle() { UnityEngine.SceneManagement.SceneManager.LoadScene("Menus"); }
+
+    public void LoadLevel1() { UnityEngine.SceneManagement.SceneManager.LoadScene("Level 1"); }
+
+    /// <summary>
+    /// Draws TITLE SCREEN UI.
+    /// </summary>
+    public void TitleScreen()
+    {
+        gameState = GameState.Title;
+
+        // Cleanup !
+        if (Time.timeScale != 1) { Time.timeScale = 1; }
+        selectedStage = 0;
+        levelPlay_b.interactable = false;
+        levelName.gameObject.SetActive(false);
+        levelBlurb.gameObject.SetActive(false);
+
+        // UI changes
+        try
+        {
+            foreach (GameObject x in levelUI)
+            { x.gameObject.SetActive(false); }
+        }
+        catch (NullReferenceException) { Debug.Log("Suppressing Error"); } // Stops error
+
+        titleTitle.gameObject.SetActive(true);
+        titleLevels_b.gameObject.SetActive(true);
+
+        EventSystem.current.SetSelectedGameObject(titleLevels_b.gameObject); // Triston's Controller Extravaganza
+    }
+
+    /// <summary>
+    /// Draws LEVEL SELECT SCREEN UI.
     /// </summary>
     public void LevelSelectMenu()
     {
-        // Update the gameState enum
         gameState = GameState.LevelSelect;
 
-        // Hide MainMenu UI
-        mainTitleText.gameObject.SetActive(false);
-        mainContinueText.gameObject.SetActive(false);
+        // UI changes
+        titleTitle.gameObject.SetActive(false);
+        titleLevels_b.gameObject.SetActive(false);
 
-        // Display own UI
-        levelTitleText.gameObject.SetActive(true);
+        foreach (GameObject x in levelUI)
+        { x.gameObject.SetActive(true); }
+
+        EventSystem.current.SetSelectedGameObject(levelStage_b1.gameObject); // Triston's Controller Extravaganza
     }
 
     /// <summary>
-    /// Function to be run on PlayDemo button click.
+    /// Gets run upon choosing a stage to play - it loads that stage.
     /// </summary>
-    public void PlayDemo()
+    public void PlayStage()
     {
-        // Update the gameState enum
         gameState = GameState.Demo;
 
-        // Hide LevelSelectMenu UI
-        //levelTitleText.gameObject.SetActive(false);
+        // UI changes
+        foreach (GameObject x in levelUI)
+        { x.gameObject.SetActive(false); }
 
-        // Run the scene
-        UnityEngine.SceneManagement.SceneManager.LoadScene("Sprint2Level");
+        levelBlurb.gameObject.SetActive(false);
+        levelName.gameObject.SetActive(false);
+
+        EventSystem.current.SetSelectedGameObject(null); // Triston's Controller Extravaganza
+
+        SwitchToGame();
     }
 
+    // Pause & Unpause ==================================================================
+
     /// <summary>
-    /// Pauses the game
+    /// Pauses the game and displays the pause screen.
     /// </summary>
     public void Pause()
     {
-        // Update the gameState enum
         gameState = GameState.Pause;
 
-        // Stop the passage of time
-        Time.timeScale = 0;
+        Time.timeScale = 0; // Stop time (pauses all game physics)
 
-        // Display Pause UI
+        // UI changes
         pauseBackground.gameObject.SetActive(true);
-        pauseTitleText.gameObject.SetActive(true);
-        bBackToMain.gameObject.SetActive(true);
+        pauseTitle.gameObject.SetActive(true);
+        pauseExit_b.gameObject.SetActive(true);
+
+        EventSystem.current.SetSelectedGameObject(pauseExit_b.gameObject); // Triston's Controller Extravaganza
     }
 
     /// <summary>
-    /// Unpauses the game
+    /// Unpauses the game (and hides the pause screen).
     /// </summary>
     public void Unpause()
     {
-        // Update the gameState enum
         gameState = GameState.Demo;
 
-        // Continue the passage of time at normal speed
-        Time.timeScale = 1;
+        Time.timeScale = 1; // Resume time
 
-        // Hide Pause UI
+        // UI changes
         pauseBackground.gameObject.SetActive(false);
-        pauseTitleText.gameObject.SetActive(false);
-        bBackToMain.gameObject.SetActive(false);
+        pauseTitle.gameObject.SetActive(false);
+        pauseExit_b.gameObject.SetActive(false);
+
+        EventSystem.current.SetSelectedGameObject(null); // Triston's Controller Extravaganza
+    }
+
+    // Stage Buttons ====================================================================
+
+    /// <summary>
+    /// Internally changes the selected stage (to be called by buttons on Level Select).
+    /// Buttons must follow a specific naming convention: ending in level #.
+    /// </summary>
+    public void SelectStage()
+    {
+        // Dynamic button to level system, supports theoretically infinite levels.
+        // Takes numbers from end of the button's name to assign to selectedStage
+
+        for (int l = EventSystem.current.currentSelectedGameObject.name.Length - 1; l >= 0; l--)
+        {
+            if (Char.IsNumber(EventSystem.current.currentSelectedGameObject.name[l]))
+            {
+                selectedStage += ((int)EventSystem.current.currentSelectedGameObject.name[l] - '0') *
+                    (int)Math.Pow(10, EventSystem.current.currentSelectedGameObject.name.Length - 1 - l);
+            }
+        }
+
+        // This WILL set the level names and blurbs to be specific descriptions, written and stored here.
+
+        if (selectedStage == 1)
+        {
+            levelName.text = "I  -  CLOCKTOWER";
+            //levelBlurb.text = "...";
+        }
+        else if (selectedStage == 2)
+        {
+            //levelName.text = "II  -  ...";
+            //levelBlurb.text = "...";
+        }
+        else if (selectedStage == 2)
+        {
+            //levelName.text = "III  -  ...";
+            //levelBlurb.text = "...";
+        }
+
+        levelName.gameObject.SetActive(true);
+        levelBlurb.gameObject.SetActive(true);
+
+        levelPlay_b.interactable = true;
+
+        EventSystem.current.SetSelectedGameObject(levelPlay_b.gameObject);
     }
 }
