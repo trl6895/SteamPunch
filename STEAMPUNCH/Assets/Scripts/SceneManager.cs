@@ -27,7 +27,7 @@ public class SceneManager : MonoBehaviour
     [SerializeField] public TMP_Text levelName;
     [SerializeField] public TMP_Text levelBlurb;
 
-    [SerializeField] public TMP_Text pauseTitleText;
+    [SerializeField] public TMP_Text pauseTitle;
     [SerializeField] public Image pauseBackground;
     [SerializeField] public Button pauseExit_b;
 
@@ -175,7 +175,7 @@ public class SceneManager : MonoBehaviour
 
         // UI changes
         pauseBackground.gameObject.SetActive(true);
-        pauseTitleText.gameObject.SetActive(true);
+        pauseTitle.gameObject.SetActive(true);
         pauseExit_b.gameObject.SetActive(true);
 
         EventSystem.current.SetSelectedGameObject(pauseExit_b.gameObject); // Triston's Controller Extravaganza
@@ -192,7 +192,7 @@ public class SceneManager : MonoBehaviour
 
         // UI changes
         pauseBackground.gameObject.SetActive(false);
-        pauseTitleText.gameObject.SetActive(false);
+        pauseTitle.gameObject.SetActive(false);
         pauseExit_b.gameObject.SetActive(false);
 
         EventSystem.current.SetSelectedGameObject(null); // Triston's Controller Extravaganza
