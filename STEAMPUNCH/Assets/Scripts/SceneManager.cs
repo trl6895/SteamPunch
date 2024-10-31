@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System; // Don't delete me!
 
 /// <summary>
 /// The states of the game
@@ -16,7 +17,7 @@ public class SceneManager : MonoBehaviour
     private int selectedStage;
     private GameObject[] levelUI;
 
-// References -------------------------------------------------------------
+    // References -------------------------------------------------------------
     [SerializeField] public TMP_Text titleTitle;
     [SerializeField] public Button titleLevels_b;
 
@@ -102,8 +103,9 @@ public class SceneManager : MonoBehaviour
         levelBlurb.gameObject.SetActive(false);
 
         // UI changes
-        foreach (GameObject x in levelUI)
-        { x.gameObject.SetActive(false); Debug.Log(x.name); }
+        try { foreach (GameObject x in levelUI)
+        { x.gameObject.SetActive(false); } }
+        catch (NullReferenceException) { Debug.Log("STFU??"); } // Stops error
 
         titleTitle.gameObject.SetActive(true);
         titleLevels_b.gameObject.SetActive(true);
@@ -145,7 +147,7 @@ public class SceneManager : MonoBehaviour
         SwitchToGame();
     }
 
-    // ===================================================================================================
+    // Pause & Unpause ==================================================================
 
     /// <summary>
     /// Pauses the game and displays the pause screen.
@@ -181,17 +183,25 @@ public class SceneManager : MonoBehaviour
         EventSystem.current.SetSelectedGameObject(null); // Triston's Controller Extravaganza
     }
 
-    // ===================================================================================================
+    // Stage Buttons ====================================================================
 
     /// <summary>
     /// Internally changes the selected stage (to be called by buttons on Level Select).
+    /// Buttons must follow a specific naming convention: ending in level #.
     /// </summary>
     public void SelectStage()
     {
-        // This line dynamically sets selectedStage by drawing the last character from the string of the Button that was pressed.
-        // This supports up to nine levels without the need for a series of similar if statements, before it has to be rewritten.
+        // Dynamic button to level system, supports theoretically infinite levels.
+        // Takes numbers from end of the button's name to assign to selectedStage
 
-        selectedStage = (int)EventSystem.current.currentSelectedGameObject.name[EventSystem.current.currentSelectedGameObject.name.Length - 1] - '0';
+        for (int l = EventSystem.current.currentSelectedGameObject.name.Length - 1; l >= 0; l--)
+        {
+            if (Char.IsNumber(EventSystem.current.currentSelectedGameObject.name[l]))
+            {
+                selectedStage += ((int)EventSystem.current.currentSelectedGameObject.name[l] - '0') *
+                    (int)Math.Pow(10, EventSystem.current.currentSelectedGameObject.name.Length - 1 - l);
+            }
+        }
 
         // This WILL set the level names and blurbs to be specific descriptions, written and stored here.
 
