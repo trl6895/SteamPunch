@@ -38,9 +38,19 @@ public class ThrowableEnemy : MonoBehaviour
         }
         else if (baseEnemy.CurrentState == EnemyStates.Grabbed)
         {
-            sprite.color = Color.blue;
             AttachToPlayer();
         }
+    }
+
+
+    public void SetColor()
+    {
+        sprite.color = Color.green;
+    }
+
+    public void ResetColor()
+    {
+        sprite.color = Color.white;
     }
 
     /// <summary>
@@ -61,6 +71,8 @@ public class ThrowableEnemy : MonoBehaviour
 
         // Get a reference to the player
         this.player = player;
+
+        ResetColor();
     }
 
     /// <summary>
