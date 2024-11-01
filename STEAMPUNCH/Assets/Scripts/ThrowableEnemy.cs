@@ -62,7 +62,8 @@ public class ThrowableEnemy : MonoBehaviour
 
     public void SetColor()
     {
-        sprite.color = Color.green;
+        if (pickUpCoolDown <= 0)
+            sprite.color = Color.green;
     }
 
     public void ResetColor()
