@@ -61,6 +61,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public Rigidbody2D rb;
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private LayerMask enemyLayer;
 
     // Animation --------------------------------------------------------------
     [SerializeField] bool isStanding = false;

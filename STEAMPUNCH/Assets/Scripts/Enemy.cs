@@ -117,10 +117,10 @@ public class Enemy : MonoBehaviour
 
     public void DamagePlayer()
     {
-        if (Physics2D.OverlapArea(new Vector2(hitboxCollisionCheck.position.x - (hitboxCollisionCheck.GetComponent<SpriteRenderer>().bounds.size.x / 2),
-            hitboxCollisionCheck.position.y + (hitboxCollisionCheck.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
-            new Vector2(hitboxCollisionCheck.position.x + (hitboxCollisionCheck.GetComponent<SpriteRenderer>().bounds.size.x / 2),
-            hitboxCollisionCheck.position.y - (hitboxCollisionCheck.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
+        if (Physics2D.OverlapArea(new Vector2(hitboxCollisionCheck.position.x - (hitboxCollisionCheck.GetComponent<SpriteRenderer>().bounds.size.x / 2 - 6),
+            hitboxCollisionCheck.position.y + (hitboxCollisionCheck.GetComponent<SpriteRenderer>().bounds.size.y / 2 - 6)),
+            new Vector2(hitboxCollisionCheck.position.x + (hitboxCollisionCheck.GetComponent<SpriteRenderer>().bounds.size.x / 2 + 6),
+            hitboxCollisionCheck.position.y - (hitboxCollisionCheck.GetComponent<SpriteRenderer>().bounds.size.y / 2 + 6)),
             playerLayer))
         {
             player.Health -= 1.0f;
