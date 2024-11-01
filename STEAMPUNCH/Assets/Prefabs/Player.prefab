@@ -228,7 +228,7 @@ MonoBehaviour:
     m_Bits: 0
   isStanding: 0
   health: 0
-  sfx_punchMiss: {fileID: 7514643271300116259}
+  sfx_punchSwing: {fileID: 7514643271300116259}
   sfx_punchHit: {fileID: 4928504080782776766}
   aimIndicator: {fileID: 4364633247143839799}
   crosshair: {fileID: 8049344693494965105}
@@ -277,7 +277,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: dd3ac5c282c08924399e4fb52d05cb95, type: 3}
+  m_audioClip: {fileID: 8300000, guid: f23b1bf57f5e1224dac68b84972e62b9, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -373,7 +373,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 67874c866205ad64ead4a456aa7bcf56, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 89d226768000901459ac07407a52ef72, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
