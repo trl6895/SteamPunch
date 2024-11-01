@@ -74,7 +74,7 @@ public class SceneManager : MonoBehaviour
     /// <summary>
     /// Restarts the current scene - Justin, is this how you have it?
     /// </summary>
-    public void ResetScene() { UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().ToString()); }
+    public void ResetScene() { UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name); }
 
     /// <summary>
     /// Loads the selected scene (level).

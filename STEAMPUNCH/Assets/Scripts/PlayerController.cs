@@ -1,7 +1,4 @@
-using Cinemachine;
 using System.Collections.Generic;
-using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -98,7 +95,7 @@ public class PlayerController : MonoBehaviour
         get { return health; }
         set { health = value; }
     }
-    
+
     public PlayerState CurrentState
     {
         get
@@ -145,7 +142,7 @@ public class PlayerController : MonoBehaviour
                 holdingPosition = new Vector2(transform.position.x + 1.0f, transform.position.y + 1.0f);
 
                 // Update the throwing angle
-                throwingAngle = Mathf.Atan2((mousePosition.y - holdingPosition.y), (mousePosition.x - holdingPosition.x));
+                throwingAngle = Mathf.Atan2(mousePosition.y - holdingPosition.y, mousePosition.x - holdingPosition.x);
             }
             // Otherwise:
             else
@@ -154,7 +151,7 @@ public class PlayerController : MonoBehaviour
                 holdingPosition = new Vector2(transform.position.x - 1.0f, transform.position.y + 1.0f);
 
                 // Update the throwing angle
-                throwingAngle = -Mathf.Atan2((mousePosition.x - holdingPosition.x), (mousePosition.y - holdingPosition.y)) - (90.0f * Mathf.Deg2Rad);
+                throwingAngle = -Mathf.Atan2(mousePosition.x - holdingPosition.x, mousePosition.y - holdingPosition.y) - (90.0f * Mathf.Deg2Rad);
             }
 
             // Update the position and rotation of the aim indicator
@@ -177,13 +174,13 @@ public class PlayerController : MonoBehaviour
                 sceneManager.ResetScene();
             }
 
-            if(isPunching)
+            if (isPunching)
             {
                 CheckForPunchHit();
             }
             if (currentPunchMoveForce > 0)
             {
-                currentPunchMoveForce -= (3*punchMoveForce)*Time.deltaTime;
+                currentPunchMoveForce -= 3 * punchMoveForce * Time.deltaTime;
 
                 if (currentPunchMoveForce < 0)
                 {
@@ -195,7 +192,7 @@ public class PlayerController : MonoBehaviour
             }
             if (currentPunchMoveForce < 0)
             {
-                currentPunchMoveForce += (3 * punchMoveForce) * Time.deltaTime;
+                currentPunchMoveForce += 3 * punchMoveForce * Time.deltaTime;
 
                 if (currentPunchMoveForce > 0)
                 {
@@ -210,6 +207,10 @@ public class PlayerController : MonoBehaviour
             {
                 transform.position = new Vector2(nearbyKnockedEnemy.transform.position.x, nearbyKnockedEnemy.transform.position.y + 0.5f);
             }
+
+            if (!isHoldingEnemy && !isSurfingEnemy)
+                if (NearKnockedEnemy())
+                    SetKnockedEnemyColor();
         }
         // If the game is paused:
         else if (sceneManager.gameState == GameState.Pause)
@@ -219,7 +220,7 @@ public class PlayerController : MonoBehaviour
 
         //if player doesn't click punch again, transitions back to movement
         punchAnimTimer -= Time.deltaTime;
-        if (punchAnimTimer < 0f) 
+        if (punchAnimTimer < 0f)
         {
             animator.SetBool("IsPunching", false);
         }
@@ -243,9 +244,9 @@ public class PlayerController : MonoBehaviour
             if (IsGrounded())
             {
                 rb.AddForce(new Vector2(horizontal * speed, 0.0f), ForceMode2D.Impulse);
-            
+
             }
-            else 
+            else
             {
                 rb.AddForce(new Vector2(horizontal * speed * 8, 0.0f), ForceMode2D.Force);
             }
@@ -285,6 +286,7 @@ public class PlayerController : MonoBehaviour
                     // Forget about all other nearby colliders
                     nearbyColliders.Clear();
 
+
                     return true;
                 }
             }
@@ -294,6 +296,12 @@ public class PlayerController : MonoBehaviour
         nearbyColliders.Clear();
 
         return false;
+    }
+
+    private void SetKnockedEnemyColor()
+    {
+        if (nearbyKnockedEnemy != null)
+            nearbyKnockedEnemy.SetColor();
     }
 
     /// <summary>
@@ -364,7 +372,7 @@ public class PlayerController : MonoBehaviour
         holdingPosition = new Vector2(transform.position.x + 1.0f, transform.position.y + 1.0f);
 
         // Update the throwing angle
-        throwingAngle = Mathf.Atan2((mousePosition.y - holdingPosition.y), (mousePosition.x - holdingPosition.x));
+        throwingAngle = Mathf.Atan2(mousePosition.y - holdingPosition.y, mousePosition.x - holdingPosition.x);
     }
 
     /// <summary>
@@ -384,7 +392,7 @@ public class PlayerController : MonoBehaviour
         holdingPosition = new Vector2(transform.position.x - 1.0f, transform.position.y + 1.0f);
 
         // Update the throwing angle
-        throwingAngle = -Mathf.Atan2((mousePosition.x - holdingPosition.x), (mousePosition.y - holdingPosition.y)) - (90.0f * Mathf.Deg2Rad);
+        throwingAngle = -Mathf.Atan2(mousePosition.x - holdingPosition.x, mousePosition.y - holdingPosition.y) - (90.0f * Mathf.Deg2Rad);
     }
 
     /// <summary>
@@ -430,7 +438,7 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public void PickUpEnemy()
     {
-        if (!isSurfingEnemy)
+        if (!isSurfingEnemy && nearbyKnockedEnemy.PickUpCoolDown == 0)
         {
             isHoldingEnemy = true;
             nearbyKnockedEnemy.GrabbedByPlayer(this);
