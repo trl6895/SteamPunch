@@ -70,7 +70,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float health;
 
     // Audio ------------------------------------------------------------------
-    [SerializeField] public AudioSource sfx_punchMiss;
+    [SerializeField] public AudioSource sfx_punchSwing;
     [SerializeField] public AudioSource sfx_punchHit;
 
     // Child Objects
@@ -519,6 +519,9 @@ public class PlayerController : MonoBehaviour
         punchAnimTimer = .25f;
         animator.SetBool("IsPunching", true);
 
+        // Play the punch swing sound effect
+        sfx_punchSwing.Play();
+
         // If the punch cooldown has been completed:
         if (punchCooldownTimer >= punchCooldown)
         {
@@ -615,12 +618,7 @@ public class PlayerController : MonoBehaviour
         }
 
         // If the player missed their punch:
-        if (!successfulHit)
-        {
-            sfx_punchMiss.Play();
-        }
-        // Otherwise:
-        else
+        if (successfulHit)
         {
             // Make the player recoil
             currentPunchMoveForce *= -recoilMultiplier;
