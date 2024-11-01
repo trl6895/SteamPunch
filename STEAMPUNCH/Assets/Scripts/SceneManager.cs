@@ -209,12 +209,11 @@ public class SceneManager : MonoBehaviour
         // Dynamic button to level system, supports theoretically infinite levels.
         // Takes numbers from end of the button's name to assign to selectedStage
 
-        selectedStage = 0;
         for (int l = EventSystem.current.currentSelectedGameObject.name.Length - 1; l >= 0; l--)
         {
             if (Char.IsNumber(EventSystem.current.currentSelectedGameObject.name[l]))
             {
-                selectedStage += ((int)EventSystem.current.currentSelectedGameObject.name[l] - '0') *
+                selectedStage = ((int)EventSystem.current.currentSelectedGameObject.name[l] - '0') *
                     (int)Math.Pow(10, EventSystem.current.currentSelectedGameObject.name.Length - 1 - l);
             }
         }
