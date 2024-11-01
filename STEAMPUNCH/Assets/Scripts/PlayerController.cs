@@ -437,7 +437,7 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public void PickUpEnemy()
     {
-        if (!isSurfingEnemy)
+        if (!isSurfingEnemy && nearbyKnockedEnemy.PickUpCoolDown == 0)
         {
             isHoldingEnemy = true;
             nearbyKnockedEnemy.GrabbedByPlayer(this);

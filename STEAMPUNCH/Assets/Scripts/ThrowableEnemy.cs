@@ -11,12 +11,21 @@ public class ThrowableEnemy : MonoBehaviour
     private BoxCollider2D boxCollider;
 
     private PlayerController player;
+    private float pickUpCoolDown;
 
     public Enemy BaseEnemy
     {
         get
         {
             return baseEnemy;
+        }
+    }
+
+    public float PickUpCoolDown
+    {
+        get
+        {
+            return pickUpCoolDown;
         }
     }
 
@@ -32,9 +41,17 @@ public class ThrowableEnemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (pickUpCoolDown < 0)
+        {
+            pickUpCoolDown = 0;
+        }
         if (baseEnemy.CurrentState == EnemyStates.Knocked)
         {
             KnockedOpacityFlash();
+            if (pickUpCoolDown > 0)
+            {
+                pickUpCoolDown -= Time.deltaTime;
+            }
         }
         else if (baseEnemy.CurrentState == EnemyStates.Grabbed)
         {
@@ -120,6 +137,7 @@ public class ThrowableEnemy : MonoBehaviour
             force *= -1.0f;
         }
 
+        pickUpCoolDown = 1.5f;
         // Apply the force to the enemy's rigid body
         rb.AddForce(force);
 
