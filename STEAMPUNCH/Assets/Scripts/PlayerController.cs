@@ -32,6 +32,9 @@ public class PlayerController : MonoBehaviour
     private bool jumpFlag = false;
 
     [SerializeField]
+    float airPunchCounter = 0;
+
+    [SerializeField]
     float punchMoveForce;
     public float currentPunchMoveForce = 0;
     [SerializeField] private float recoilMultiplier = 1.0f;
@@ -177,6 +180,10 @@ public class PlayerController : MonoBehaviour
             if (isPunching)
             {
                 CheckForPunchHit();
+                if (airPunchCounter == 0)
+                {
+                    rb.velocity = new Vector3(rb.velocity.x, 0f);
+                }
             }
             if (currentPunchMoveForce > 0)
             {
@@ -244,11 +251,20 @@ public class PlayerController : MonoBehaviour
             if (IsGrounded())
             {
                 rb.AddForce(new Vector2(horizontal * speed, 0.0f), ForceMode2D.Impulse);
+                airPunchCounter = 0;
                 isStanding = true;
             }
             else
             {
                 rb.AddForce(new Vector2(horizontal * speed * 8, 0.0f), ForceMode2D.Force);
+            }
+        }
+
+        if (isPunching)
+        {
+            if (airPunchCounter == 1)
+            {
+                rb.velocity = new Vector3(rb.velocity.x, 0f);
             }
         }
     }
@@ -516,6 +532,16 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public void Punch()
     {
+        if (airPunchCounter == 0)
+        {
+            rb.velocity = new Vector3(rb.velocity.x, 0f);
+        }
+
+        if (!IsGrounded())
+        {
+            airPunchCounter++;
+        }
+
         punchAnimTimer = .25f;
         animator.SetBool("IsPunching", true);
 
