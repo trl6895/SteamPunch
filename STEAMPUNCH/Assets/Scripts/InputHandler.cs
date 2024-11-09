@@ -64,12 +64,12 @@ public class InputHandler : MonoBehaviour
 
             // Press [SPACE] while the player is grounded
             // Make the player jump
-            if (Input.GetKeyDown(KeyCode.Space) && player.IsGrounded())
+            if (Input.GetButtonDown("Jump") && player.IsGrounded())
             {
                 player.Jump();
             }
 
-            if (Input.GetKeyDown(KeyCode.Space) && player.CurrentState == PlayerState.Surfing)
+            if (Input.GetButtonDown("Jump") && player.CurrentState == PlayerState.Surfing)
             {
                 player.Jump();
             }
@@ -83,25 +83,25 @@ public class InputHandler : MonoBehaviour
 
             // Press [Mouse 1] while the player is not holding an enemy and while they are near a knocked enemy
             // Make the player pick up nearby knocked enemy
-            if (Input.GetKeyDown(KeyCode.Mouse1) && !player.isHoldingEnemy && player.NearKnockedEnemy())
+            if (Input.GetButtonDown("PickUpSurf") && !player.isHoldingEnemy && player.NearKnockedEnemy())
             {
                 player.PickUpEnemy();
             }
             // Press [F] while the player is holding an enemy
             // Make the player drop the enemy
-            else if (Input.GetKeyDown(KeyCode.Mouse1) && player.isHoldingEnemy)
+            else if (Input.GetButtonDown("PickUpSurf") && player.isHoldingEnemy)
             {
                 player.SurfEnemy();
             }
 
             // Press [Mouse 0] while the player
-            else if (Input.GetKeyDown(KeyCode.Mouse0) && !player.isHoldingEnemy)
+            else if (Input.GetButtonDown("PunchThrow") && !player.isHoldingEnemy)
             {
                 player.Punch();
             }
             // Press [Mouse 0] while the player is holding an enemy
             // Make the player throw the enemy
-            else if (Input.GetKeyDown(KeyCode.Mouse0) && player.isHoldingEnemy)
+            else if (Input.GetButtonDown("PunchThrow") && player.isHoldingEnemy)
             {
                 //player.ThrowEnemy();
                 player.ThrowEnemy();
@@ -109,7 +109,7 @@ public class InputHandler : MonoBehaviour
 
             // Press [R]
             // Reset the scene
-            if (Input.GetKeyDown(KeyCode.R))
+            if (Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.JoystickButton8))
             {
                 sceneManager.ResetScene();
             }
