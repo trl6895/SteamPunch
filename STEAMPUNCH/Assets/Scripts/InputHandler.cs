@@ -66,12 +66,12 @@ public class InputHandler : MonoBehaviour
             // Make the player jump
             if (Input.GetButtonDown("Jump") && player.IsGrounded())
             {
-                player.Jump();
+                //player.Jump();
             }
 
             if (Input.GetButtonDown("Jump") && player.CurrentState == PlayerState.Surfing)
             {
-                player.Jump();
+                //player.Jump();
             }
 
             // Holding [SPACE] after jumping

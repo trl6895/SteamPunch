@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
 
 /// <summary>
@@ -19,6 +20,9 @@ public class PlayerController : MonoBehaviour
     // References -------------------------------------------------------------
     [SerializeField] SceneManager sceneManager;
     [SerializeField] CameraActions cameraActions;
+    private NewInputHandler newInputHandler;
+    private InputAction move;
+    private InputAction look;
 
     // Movement ---------------------------------------------------------------
     private float horizontal;
@@ -109,9 +113,15 @@ public class PlayerController : MonoBehaviour
 
     // Methods ==========================================================================
 
+    private void Awake()
+    {
+        newInputHandler = new NewInputHandler();
+    }
+
     // Start is called before the first frame update
     private void Start()
     {
+
         // Stop the player from rotating
         rb.freezeRotation = true;
 
@@ -123,6 +133,25 @@ public class PlayerController : MonoBehaviour
         HideAimControls();
     }
 
+    private void OnEnable()
+    {
+        move = newInputHandler.Player.Move;
+        move.Enable();
+
+        look = newInputHandler.Player.Look;
+        look.Enable();
+
+        newInputHandler.Player.Jump.performed += Jump;
+        newInputHandler.Player.Jump.Enable();
+    }
+
+    private void OnDisable()
+    {
+        move.Disable();
+        look.Disable();
+        newInputHandler.Player.Jump.Disable();
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -132,11 +161,13 @@ public class PlayerController : MonoBehaviour
             // Animate the player
             Animate();
 
+            Walk();
+
             // Increment the punch cooldown timer
             punchCooldownTimer += Time.deltaTime;
 
             // Get the position of the mouse
-            mousePosition = sceneManager.mainCamera.ScreenToWorldPoint(Input.mousePosition);
+            mousePosition = sceneManager.mainCamera.ScreenToWorldPoint(look.ReadValue<Vector2>());
 
             // If the player is facing right:
             if (isFacingRight)
@@ -417,13 +448,14 @@ public class PlayerController : MonoBehaviour
     public void Walk()
     {
         // Set the player's horizontal direction based on input
-        horizontal = Input.GetAxisRaw("Horizontal");
+        //horizontal = Input.GetAxisRaw("Horizontal");
+        horizontal = move.ReadValue<Vector2>()[0];
     }
 
     /// <summary>
     /// Makes the player jump
     /// </summary>
-    public void Jump()
+    public void Jump(InputAction.CallbackContext context)
     {
         isStanding = false;
         if (isSurfingEnemy == true)
