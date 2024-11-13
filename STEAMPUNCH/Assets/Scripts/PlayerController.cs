@@ -143,6 +143,12 @@ public class PlayerController : MonoBehaviour
 
         newInputHandler.Player.Jump.performed += Jump;
         newInputHandler.Player.Jump.Enable();
+
+        newInputHandler.Player.Punch.performed += PunchOrThrow;
+        newInputHandler.Player.Punch.Enable();
+
+        newInputHandler.Player.Grab.performed += PickUpOrSurf;
+        newInputHandler.Player.Grab.Enable();
     }
 
     private void OnDisable()
@@ -150,6 +156,8 @@ public class PlayerController : MonoBehaviour
         move.Disable();
         look.Disable();
         newInputHandler.Player.Jump.Disable();
+        newInputHandler.Player.Punch.Disable();
+        newInputHandler.Player.Grab.Disable();
     }
 
     // Update is called once per frame
@@ -457,19 +465,23 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public void Jump(InputAction.CallbackContext context)
     {
-        isStanding = false;
-        if (isSurfingEnemy == true)
+        if (IsGrounded() || currentState == PlayerState.Surfing)
         {
-            isSurfingEnemy = false;
-            animator.SetBool("IsSurfing", false);
-            rb.simulated = true;
+            isStanding = false;
+            if (isSurfingEnemy == true)
+            {
+                isSurfingEnemy = false;
+                animator.SetBool("IsSurfing", false);
+                rb.simulated = true;
+            }
+            // Tell the animator that the player is jumping
+            animator.SetBool("IsJumping", true);
+
+            jumpFlag = true;
+
+            // rb.velocity += new Vector2(rb.velocity.x, jumpingPower) * Time.deltaTime;
         }
-        // Tell the animator that the player is jumping
-        animator.SetBool("IsJumping", true);
 
-        jumpFlag = true;
-
-        // rb.velocity += new Vector2(rb.velocity.x, jumpingPower) * Time.deltaTime;
     }
 
     /// <summary>
@@ -479,6 +491,18 @@ public class PlayerController : MonoBehaviour
     {
         isStanding = false;
         rb.velocity += new Vector2(rb.velocity.x, rb.velocity.y * 0.5f) * Time.deltaTime;
+    }
+
+    private void PickUpOrSurf(InputAction.CallbackContext context)
+    {
+        if (!isHoldingEnemy && NearKnockedEnemy())
+        {
+            PickUpEnemy();
+        }
+        else if (isHoldingEnemy)
+        {
+            SurfEnemy();
+        }
     }
 
     /// <summary>
@@ -556,6 +580,18 @@ public class PlayerController : MonoBehaviour
         {
             // Turn them around
             TurnRight();
+        }
+    }
+
+    private void PunchOrThrow(InputAction.CallbackContext context)
+    {
+        if (!isHoldingEnemy)
+        {
+            Punch();
+        }
+        else
+        {
+            ThrowEnemy();
         }
     }
 
