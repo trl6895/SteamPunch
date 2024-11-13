@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
 
 /// <summary>
@@ -19,6 +20,11 @@ public class PlayerController : MonoBehaviour
     // References -------------------------------------------------------------
     [SerializeField] SceneManager sceneManager;
     [SerializeField] CameraActions cameraActions;
+
+    // Input Handling (New Input System) --------------------------------------
+    private NewInputHandler newInputHandler;
+    private InputAction move;
+    private InputAction look;
 
     // Movement ---------------------------------------------------------------
     private float horizontal;
@@ -109,9 +115,17 @@ public class PlayerController : MonoBehaviour
 
     // Methods ==========================================================================
 
+    #region Unity Default Methods
+
+    private void Awake()
+    {
+        newInputHandler = new NewInputHandler();
+    }
+
     // Start is called before the first frame update
     private void Start()
     {
+
         // Stop the player from rotating
         rb.freezeRotation = true;
 
@@ -123,6 +137,35 @@ public class PlayerController : MonoBehaviour
         HideAimControls();
     }
 
+    private void OnEnable()
+    {
+        // Bind + Enable all Player controls here
+        move = newInputHandler.Player.Move;
+        move.Enable();
+
+        look = newInputHandler.Player.Look;
+        look.Enable();
+
+        newInputHandler.Player.Jump.performed += Jump;
+        newInputHandler.Player.Jump.Enable();
+
+        newInputHandler.Player.Punch.performed += PunchOrThrow;
+        newInputHandler.Player.Punch.Enable();
+
+        newInputHandler.Player.Grab.performed += PickUpOrSurf;
+        newInputHandler.Player.Grab.Enable();
+    }
+
+    private void OnDisable()
+    {
+        // Disable all Player controls here
+        move.Disable();
+        look.Disable();
+        newInputHandler.Player.Jump.Disable();
+        newInputHandler.Player.Punch.Disable();
+        newInputHandler.Player.Grab.Disable();
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -132,11 +175,13 @@ public class PlayerController : MonoBehaviour
             // Animate the player
             Animate();
 
+            Walk();
+
             // Increment the punch cooldown timer
             punchCooldownTimer += Time.deltaTime;
 
             // Get the position of the mouse
-            mousePosition = sceneManager.mainCamera.ScreenToWorldPoint(Input.mousePosition);
+            mousePosition = sceneManager.mainCamera.ScreenToWorldPoint(look.ReadValue<Vector2>());
 
             // If the player is facing right:
             if (isFacingRight)
@@ -275,63 +320,9 @@ public class PlayerController : MonoBehaviour
         isStanding = true;
     }
 
-    /// <summary>
-    /// Detects whether the player is near a knocked enemy or not
-    /// </summary>
-    /// <returns>Whether the player is near a knocked enemy or not</returns>
-    public bool NearKnockedEnemy()
-    {
-        // Get the amount of colliders that there are near the player
-        int knockedEnemyColliders = Physics2D.OverlapCircle(transform.position, pickUpRadius, new ContactFilter2D().NoFilter(), nearbyColliders);
+    #endregion
 
-        // For each collider within picking-up radius:
-        for (int i = knockedEnemyColliders - 1; i >= 0; i--)
-        {
-            // Create a temporary throwable enemy object
-            ThrowableEnemy temp;
-
-            // If the current nearby collider belongs to a throwable enemy:
-            if (nearbyColliders[i].gameObject.TryGetComponent<ThrowableEnemy>(out temp))
-            {
-                // If the current enemy is knocked:
-                if (temp.BaseEnemy.CurrentState == EnemyStates.Knocked)
-                {
-                    // Store a reference to the enemy in temp
-                    nearbyKnockedEnemy = temp;
-
-                    // Forget about all other nearby colliders
-                    nearbyColliders.Clear();
-
-
-                    return true;
-                }
-            }
-        }
-
-        // Forget about all of the nearby colliders
-        nearbyColliders.Clear();
-
-        return false;
-    }
-
-    private void SetKnockedEnemyColor()
-    {
-        if (nearbyKnockedEnemy != null)
-            nearbyKnockedEnemy.SetColor();
-    }
-
-    /// <summary>
-    /// Detects if the player is on the ground
-    /// </summary>
-    /// <returns>Whether the player is on the ground or not</returns>
-    public bool IsGrounded()
-    {
-        return Physics2D.OverlapArea(new Vector2(groundCheck.position.x - (groundCheck.GetComponent<SpriteRenderer>().bounds.size.x / 2),
-            groundCheck.position.y + (groundCheck.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
-            new Vector2(groundCheck.position.x + (groundCheck.GetComponent<SpriteRenderer>().bounds.size.x / 2),
-            groundCheck.position.y - (groundCheck.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
-            groundLayer);
-    }
+    #region Player Animation/Direction
 
     /// <summary>
     /// Animates the player
@@ -411,119 +402,56 @@ public class PlayerController : MonoBehaviour
         throwingAngle = -Mathf.Atan2(mousePosition.x - holdingPosition.x, mousePosition.y - holdingPosition.y) - (90.0f * Mathf.Deg2Rad);
     }
 
+    #endregion
+
+    #region Passive Input (Walk)
+
     /// <summary>
     /// Makes the player walk either left or right, depending on input
     /// </summary>
     public void Walk()
     {
         // Set the player's horizontal direction based on input
-        horizontal = Input.GetAxisRaw("Horizontal");
+        horizontal = move.ReadValue<Vector2>()[0];
     }
+
+    #endregion
+
+    #region Button Input Actions
 
     /// <summary>
     /// Makes the player jump
     /// </summary>
-    public void Jump()
+    public void Jump(InputAction.CallbackContext context)
     {
-        isStanding = false;
-        if (isSurfingEnemy == true)
+        if (IsGrounded() || currentState == PlayerState.Surfing)
         {
-            isSurfingEnemy = false;
-            animator.SetBool("IsSurfing", false);
-            rb.simulated = true;
+            isStanding = false;
+            if (isSurfingEnemy == true)
+            {
+                isSurfingEnemy = false;
+                animator.SetBool("IsSurfing", false);
+                rb.simulated = true;
+            }
+            // Tell the animator that the player is jumping
+            animator.SetBool("IsJumping", true);
+
+            jumpFlag = true;
+
+            // rb.velocity += new Vector2(rb.velocity.x, jumpingPower) * Time.deltaTime;
         }
-        // Tell the animator that the player is jumping
-        animator.SetBool("IsJumping", true);
 
-        jumpFlag = true;
-
-        // rb.velocity += new Vector2(rb.velocity.x, jumpingPower) * Time.deltaTime;
     }
 
-    /// <summary>
-    /// Prevents the player from falling too fast
-    /// </summary>
-    public void HoldingJump()
+    private void PunchOrThrow(InputAction.CallbackContext context)
     {
-        isStanding = false;
-        rb.velocity += new Vector2(rb.velocity.x, rb.velocity.y * 0.5f) * Time.deltaTime;
-    }
-
-    /// <summary>
-    /// Picks up the nearby knocked enemy
-    /// </summary>
-    public void PickUpEnemy()
-    {
-        if (!isSurfingEnemy && nearbyKnockedEnemy.PickUpCoolDown == 0)
+        if (!isHoldingEnemy)
         {
-            isHoldingEnemy = true;
-            nearbyKnockedEnemy.GrabbedByPlayer(this);
-
-            // Show aiming controls
-            ShowAimControls();
+            Punch();
         }
-    }
-
-    /// <summary>
-    /// Drops the currently held enemy
-    /// </summary>
-    public void DropEnemy()
-    {
-        isHoldingEnemy = false;
-        nearbyKnockedEnemy.DroppedByPlayer();
-        nearbyKnockedEnemy = null;
-
-        // Hide aiming controls
-        HideAimControls();
-    }
-
-    /// <summary>
-    /// Throws the currently held enemy
-    /// </summary>
-    public void ThrowEnemy()
-    {
-        isHoldingEnemy = false;
-        ValidateThrowDirection();
-        nearbyKnockedEnemy.ThrownByPlayer();
-        nearbyKnockedEnemy = null;
-
-        // Hide aiming controls
-        HideAimControls();
-    }
-
-    /// <summary>
-    /// Makes the player throw and surf on the currently held enemy
-    /// </summary>
-    public void SurfEnemy()
-    {
-        animator.SetBool("IsSurfing", true);
-        isHoldingEnemy = false;
-        ValidateThrowDirection();
-        currentState = PlayerState.Surfing; // Use this to lock the player's movement while surfing
-        nearbyKnockedEnemy.ThrownByPlayer();
-        isSurfingEnemy = true;
-        rb.simulated = false;
-
-        // Hide aiming controls
-        HideAimControls();
-    }
-
-    /// <summary>
-    /// Turns the player around if they are aiming to throw behind themselves
-    /// </summary>
-    private void ValidateThrowDirection()
-    {
-        // If the player is facing right and the mouse is behind them:
-        if (isFacingRight && mousePosition.x < transform.position.x)
+        else
         {
-            // Turn them around
-            TurnLeft();
-        }
-        // Otherwise, if the player is facing left and the mouse is behind them:
-        else if (!isFacingRight && mousePosition.x > transform.position.x)
-        {
-            // Turn them around
-            TurnRight();
+            ThrowEnemy();
         }
     }
 
@@ -586,6 +514,100 @@ public class PlayerController : MonoBehaviour
             // Make the fist for the next punch be the right fist
             currentFist = CurrentFist.Right;
             animator.SetFloat("LeftRight", 1);
+        }
+    }
+
+    /// <summary>
+    /// Throws the currently held enemy
+    /// </summary>
+    public void ThrowEnemy()
+    {
+        isHoldingEnemy = false;
+        ValidateThrowDirection();
+        nearbyKnockedEnemy.ThrownByPlayer();
+        nearbyKnockedEnemy = null;
+
+        // Hide aiming controls
+        HideAimControls();
+    }
+
+    private void PickUpOrSurf(InputAction.CallbackContext context)
+    {
+        if (!isHoldingEnemy && NearKnockedEnemy())
+        {
+            PickUpEnemy();
+        }
+        else if (isHoldingEnemy)
+        {
+            SurfEnemy();
+        }
+    }
+
+    /// <summary>
+    /// Picks up the nearby knocked enemy
+    /// </summary>
+    public void PickUpEnemy()
+    {
+        if (!isSurfingEnemy && nearbyKnockedEnemy.PickUpCoolDown == 0)
+        {
+            isHoldingEnemy = true;
+            nearbyKnockedEnemy.GrabbedByPlayer(this);
+
+            // Show aiming controls
+            ShowAimControls();
+        }
+    }
+
+    /// <summary>
+    /// Makes the player throw and surf on the currently held enemy
+    /// </summary>
+    public void SurfEnemy()
+    {
+        animator.SetBool("IsSurfing", true);
+        isHoldingEnemy = false;
+        ValidateThrowDirection();
+        currentState = PlayerState.Surfing; // Use this to lock the player's movement while surfing
+        nearbyKnockedEnemy.ThrownByPlayer();
+        isSurfingEnemy = true;
+        rb.simulated = false;
+
+        // Hide aiming controls
+        HideAimControls();
+    }
+
+    #endregion
+
+    #region Validation Functions
+
+    /// <summary>
+    /// Detects if the player is on the ground
+    /// </summary>
+    /// <returns>Whether the player is on the ground or not</returns>
+    public bool IsGrounded()
+    {
+        return Physics2D.OverlapArea(new Vector2(groundCheck.position.x - (groundCheck.GetComponent<SpriteRenderer>().bounds.size.x / 2),
+            groundCheck.position.y + (groundCheck.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
+            new Vector2(groundCheck.position.x + (groundCheck.GetComponent<SpriteRenderer>().bounds.size.x / 2),
+            groundCheck.position.y - (groundCheck.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
+            groundLayer);
+    }
+
+    /// <summary>
+    /// Turns the player around if they are aiming to throw behind themselves
+    /// </summary>
+    private void ValidateThrowDirection()
+    {
+        // If the player is facing right and the mouse is behind them:
+        if (isFacingRight && mousePosition.x < transform.position.x)
+        {
+            // Turn them around
+            TurnLeft();
+        }
+        // Otherwise, if the player is facing left and the mouse is behind them:
+        else if (!isFacingRight && mousePosition.x > transform.position.x)
+        {
+            // Turn them around
+            TurnRight();
         }
     }
 
@@ -660,6 +682,49 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
+    /// Detects whether the player is near a knocked enemy or not
+    /// </summary>
+    /// <returns>Whether the player is near a knocked enemy or not</returns>
+    public bool NearKnockedEnemy()
+    {
+        // Get the amount of colliders that there are near the player
+        int knockedEnemyColliders = Physics2D.OverlapCircle(transform.position, pickUpRadius, new ContactFilter2D().NoFilter(), nearbyColliders);
+
+        // For each collider within picking-up radius:
+        for (int i = knockedEnemyColliders - 1; i >= 0; i--)
+        {
+            // Create a temporary throwable enemy object
+            ThrowableEnemy temp;
+
+            // If the current nearby collider belongs to a throwable enemy:
+            if (nearbyColliders[i].gameObject.TryGetComponent<ThrowableEnemy>(out temp))
+            {
+                // If the current enemy is knocked:
+                if (temp.BaseEnemy.CurrentState == EnemyStates.Knocked)
+                {
+                    // Store a reference to the enemy in temp
+                    nearbyKnockedEnemy = temp;
+
+                    // Forget about all other nearby colliders
+                    nearbyColliders.Clear();
+
+
+                    return true;
+                }
+            }
+        }
+
+        // Forget about all of the nearby colliders
+        nearbyColliders.Clear();
+
+        return false;
+    }
+
+    #endregion
+
+    #region Aim Controls Visibility
+
+    /// <summary>
     /// Shows the crosshair and aim indicator
     /// </summary>
     private void ShowAimControls()
@@ -683,4 +748,42 @@ public class PlayerController : MonoBehaviour
         // Disable the aim indicator
         aimIndicator.SetActive(false);
     }
+
+    #endregion
+
+    #region Etc. Helpers
+    private void SetKnockedEnemyColor()
+    {
+        if (nearbyKnockedEnemy != null)
+            nearbyKnockedEnemy.SetColor();
+    }
+    #endregion
+
+    #region Not In Use
+
+    /// <summary>
+    /// Prevents the player from falling too fast
+    /// 11/13/24 - Not In Use
+    /// </summary>
+    public void HoldingJump()
+    {
+        isStanding = false;
+        rb.velocity += new Vector2(rb.velocity.x, rb.velocity.y * 0.5f) * Time.deltaTime;
+    }
+
+    /// <summary>
+    /// Drops the currently held enemy
+    /// 11/13/24 - Not in Use
+    /// </summary>
+    public void DropEnemy()
+    {
+        isHoldingEnemy = false;
+        nearbyKnockedEnemy.DroppedByPlayer();
+        nearbyKnockedEnemy = null;
+
+        // Hide aiming controls
+        HideAimControls();
+    }
+
+    #endregion
 }

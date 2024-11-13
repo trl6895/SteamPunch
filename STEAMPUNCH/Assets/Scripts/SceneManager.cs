@@ -2,6 +2,7 @@ using System; // Don't delete me!
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -21,6 +22,8 @@ public class SceneManager : MonoBehaviour
     [SerializeField] public TMP_Text titleTitle;
     [SerializeField] public Button titleLevels_b;
 
+    private NewInputHandler newInputHandler;
+
     // Level Select
     [SerializeField] public Button levelStage_b1;
     [SerializeField] public Button levelPlay_b;
@@ -38,6 +41,10 @@ public class SceneManager : MonoBehaviour
     public GameState gameState;
 
     // Methods ==========================================================================
+    private void Awake()
+    {
+        newInputHandler = new NewInputHandler();
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -57,6 +64,14 @@ public class SceneManager : MonoBehaviour
     // This is vital to ensuring the game can find all of the UI
     private void OnEnable()
     {
+
+        newInputHandler.UI.Pause.performed += PauseOrUnpause;
+        newInputHandler.UI.Pause.Enable();
+
+        newInputHandler.UI.Reset.performed += OnResetButtonClick;
+        newInputHandler.UI.Reset.Enable();
+
+
         Scene scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
         switch (scene.name)
         {
@@ -71,10 +86,24 @@ public class SceneManager : MonoBehaviour
         }
     }
 
+    private void OnDisable()
+    {
+        newInputHandler.UI.Pause.Disable();
+        newInputHandler.UI.Reset.Disable();
+    }
+
+    private void OnResetButtonClick(InputAction.CallbackContext context)
+    {
+        ResetScene();
+    }
+
     /// <summary>
     /// Restarts the current scene - Justin, is this how you have it?
     /// </summary>
-    public void ResetScene() { UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name); }
+    public void ResetScene()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+    }
 
     /// <summary>
     /// Loads the selected scene (level).
@@ -163,6 +192,22 @@ public class SceneManager : MonoBehaviour
     }
 
     // Pause & Unpause ==================================================================
+
+    private void PauseOrUnpause(InputAction.CallbackContext context)
+    {
+        if (gameState == GameState.Demo)
+        {
+            Pause();
+        }
+        else if (gameState == GameState.Pause)
+        {
+            Unpause();
+        }
+        else if (gameState == GameState.Title)
+        {
+            Application.Quit();
+        }
+    }
 
     /// <summary>
     /// Pauses the game and displays the pause screen.
