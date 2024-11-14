@@ -135,8 +135,10 @@ public class ThrowableEnemy : MonoBehaviour
         if (!player.IsFacingRight)
         {
             // Invert the force
-            force *= -1.0f;
+            //force *= -1.0f;
         }
+
+        Debug.Log("FORCE: " + force);
 
         pickUpCoolDown = 1.5f;
         // Apply the force to the enemy's rigid body

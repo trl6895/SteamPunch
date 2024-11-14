@@ -25,6 +25,8 @@ public class PlayerController : MonoBehaviour
     private NewInputHandler newInputHandler;
     private InputAction move;
     private InputAction look;
+    private InputAction aim;
+    private bool usingGamepad;
 
     // Movement ---------------------------------------------------------------
     private float horizontal;
@@ -61,6 +63,7 @@ public class PlayerController : MonoBehaviour
     public float throwingAngle = 0.0f;
     [SerializeField] public Vector2 holdingPosition;
     public Vector3 mousePosition;
+    public Vector2 rightStickPosition;
     private bool isPunching = false;
 
     // Collision --------------------------------------------------------------
@@ -125,6 +128,16 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     private void Start()
     {
+        // Check for gamepad usage, aiming controls differ
+        var devices = InputSystem.devices;
+        for (var i = 0; i < devices.Count; ++i)
+        {
+            var device = devices[i];
+            if (device is Joystick || device is Gamepad)
+            {
+                usingGamepad = true;
+            }
+        }
 
         // Stop the player from rotating
         rb.freezeRotation = true;
@@ -146,6 +159,9 @@ public class PlayerController : MonoBehaviour
         look = newInputHandler.Player.Look;
         look.Enable();
 
+        aim = newInputHandler.Player.Aim;
+        aim.Enable();
+
         newInputHandler.Player.Jump.performed += Jump;
         newInputHandler.Player.Jump.Enable();
 
@@ -161,6 +177,7 @@ public class PlayerController : MonoBehaviour
         // Disable all Player controls here
         move.Disable();
         look.Disable();
+        aim.Disable();
         newInputHandler.Player.Jump.Disable();
         newInputHandler.Player.Punch.Disable();
         newInputHandler.Player.Grab.Disable();
@@ -188,26 +205,36 @@ public class PlayerController : MonoBehaviour
             {
                 // Set the holding position to the right of the player
                 holdingPosition = new Vector2(transform.position.x + 1.0f, transform.position.y + 1.0f);
-
-                // Update the throwing angle
-                throwingAngle = Mathf.Atan2(mousePosition.y - holdingPosition.y, mousePosition.x - holdingPosition.x);
             }
             // Otherwise:
             else
             {
                 // Set the holding position to the left of the player
                 holdingPosition = new Vector2(transform.position.x - 1.0f, transform.position.y + 1.0f);
-
-                // Update the throwing angle
-                throwingAngle = -Mathf.Atan2(mousePosition.x - holdingPosition.x, mousePosition.y - holdingPosition.y) - (90.0f * Mathf.Deg2Rad);
             }
+
+            if (usingGamepad)
+                rightStickPosition = aim.ReadValue<Vector2>() * 2;
+            else
+                rightStickPosition = ((Vector2)mousePosition - holdingPosition).normalized * 2;
+
+            // Update the throwing angle
+            throwingAngle = Mathf.PI + Mathf.Atan2(rightStickPosition.y, rightStickPosition.x);
 
             // Update the position and rotation of the aim indicator
             aimIndicator.transform.position = new Vector3(holdingPosition.x, holdingPosition.y, -1.0f);
-            aimIndicator.transform.rotation = Quaternion.Euler(0.0f, 0.0f, throwingAngle * Mathf.Rad2Deg);
+            if (isFacingRight)
+            {
+                aimIndicator.transform.rotation = Quaternion.Euler(0.0f, 0.0f, throwingAngle * Mathf.Rad2Deg);
+            }
+            else
+            {
+                // No idea why I need to do this to get the indicator to face the correct direction, but I do
+                aimIndicator.transform.rotation = Quaternion.Euler(0.0f, 0.0f, (Mathf.PI + throwingAngle) * Mathf.Rad2Deg);
+            }
 
             // Update the position of the crosshair
-            crosshair.transform.position = new Vector3(mousePosition.x, mousePosition.y, -1.0f);
+            crosshair.transform.position = new Vector3(rightStickPosition.x + holdingPosition.x, rightStickPosition.y + holdingPosition.y, -1.0f);
 
             // If enough time has passed and the non-dominant fist is the current fist:
             if (punchCooldownTimer >= fistResetCooldown && currentFist == CurrentFist.Left)
@@ -377,9 +404,6 @@ public class PlayerController : MonoBehaviour
 
         // Set the holding position to the right of the player
         holdingPosition = new Vector2(transform.position.x + 1.0f, transform.position.y + 1.0f);
-
-        // Update the throwing angle
-        throwingAngle = Mathf.Atan2(mousePosition.y - holdingPosition.y, mousePosition.x - holdingPosition.x);
     }
 
     /// <summary>
@@ -397,9 +421,6 @@ public class PlayerController : MonoBehaviour
 
         // Set the holding position to the left of the player
         holdingPosition = new Vector2(transform.position.x - 1.0f, transform.position.y + 1.0f);
-
-        // Update the throwing angle
-        throwingAngle = -Mathf.Atan2(mousePosition.x - holdingPosition.x, mousePosition.y - holdingPosition.y) - (90.0f * Mathf.Deg2Rad);
     }
 
     #endregion
@@ -598,13 +619,13 @@ public class PlayerController : MonoBehaviour
     private void ValidateThrowDirection()
     {
         // If the player is facing right and the mouse is behind them:
-        if (isFacingRight && mousePosition.x < transform.position.x)
+        if (isFacingRight && (rightStickPosition.x + transform.position.x) > transform.position.x)
         {
             // Turn them around
             TurnLeft();
         }
         // Otherwise, if the player is facing left and the mouse is behind them:
-        else if (!isFacingRight && mousePosition.x > transform.position.x)
+        else if (!isFacingRight && (rightStickPosition.x + transform.position.x) < transform.position.x)
         {
             // Turn them around
             TurnRight();
