@@ -1853,52 +1853,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 853786426}
   m_CullTransparentMesh: 1
---- !u!1 &1003578294
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1003578296}
-  - component: {fileID: 1003578295}
-  m_Layer: 0
-  m_Name: InputHandler
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1003578295
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1003578294}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d78588736d0cda49baf3adb5cf4e23e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  player: {fileID: 0}
-  sceneManager: {fileID: 1616130093}
---- !u!4 &1003578296
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1003578294}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.0934145, y: 0.3668769, z: 0.03200456}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1195683048
 GameObject:
   m_ObjectHideFlags: 0
@@ -2294,6 +2248,10 @@ MonoBehaviour:
   levelPlay_b: {fileID: 1346921312}
   levelName: {fileID: 232038378}
   levelBlurb: {fileID: 1683971456}
+  deathRetry_b: {fileID: 0}
+  deathQuit_b: {fileID: 0}
+  deathTitle: {fileID: 0}
+  deathFlavor: {fileID: 0}
   pauseTitle: {fileID: 0}
   pauseBackground: {fileID: 0}
   pauseExit_b: {fileID: 0}
