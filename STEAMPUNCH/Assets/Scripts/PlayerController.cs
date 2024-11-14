@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
+using UnityEngine.Audio;
 
 /// <summary>
 /// The states of the player that determine if they can be controlled or not
@@ -495,7 +496,7 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("IsPunching", true);
 
         // Play the punch swing sound effect
-        sfx_punchSwing.Play();
+        PlayRandomizedSFX(sfx_punchSwing);
 
         // If the punch cooldown has been completed:
         if (punchCooldownTimer >= punchCooldown)
@@ -698,7 +699,7 @@ public class PlayerController : MonoBehaviour
             // Shake the camera
             cameraActions.Shake(0.1f, 0.02f);
 
-            sfx_punchHit.Play();
+            PlayRandomizedSFX(sfx_punchHit);
         }
     }
 
@@ -770,6 +771,17 @@ public class PlayerController : MonoBehaviour
         aimIndicator.SetActive(false);
     }
 
+    /// <summary>
+    /// Randomizes the speed and pitch of a sound, and plays it
+    /// </summary>
+    /// <param name="sound">The AudioSource to be played</param>
+    private void PlayRandomizedSFX(AudioSource sound)
+    {
+        if (sound.pitch != 1f) { sound.pitch = 1f; } // Reset
+
+        sound.pitch += Random.Range(-0.40f, 0.80f);
+        sound.Play();
+    }
     #endregion
 
     #region Etc. Helpers

@@ -9,14 +9,16 @@ using UnityEngine.UI;
 /// <summary>
 /// The states of the game
 /// </summary>
-public enum GameState { Title, LevelSelect, Options, Demo, Pause }
+public enum GameState { Title, LevelSelect, Options, Demo, Dead, Pause } // Currently 'Options' is unused and 'Demo' should be renamed
 
 public class SceneManager : MonoBehaviour
 {
     // Fields ===========================================================================
 
     private int selectedStage;
+
     private GameObject[] levelUI;
+    private GameObject[] deathUI;
 
     // References -------------------------------------------------------------
     [SerializeField] public TMP_Text titleTitle;
@@ -30,10 +32,14 @@ public class SceneManager : MonoBehaviour
     [SerializeField] public TMP_Text levelName;
     [SerializeField] public TMP_Text levelBlurb;
 
+    [SerializeField] public Button deathRetry_b;
+    [SerializeField] public Button deathQuit_b;
+    [SerializeField] public TMP_Text deathTitle;
+    [SerializeField] public TMP_Text deathFlavor;
+
     [SerializeField] public TMP_Text pauseTitle;
     [SerializeField] public Image pauseBackground;
     [SerializeField] public Button pauseExit_b;
-
 
     [SerializeField] public Camera mainCamera;
 
@@ -50,18 +56,24 @@ public class SceneManager : MonoBehaviour
     void Start()
     {
         levelUI = GameObject.FindGameObjectsWithTag("levelScreen"); // Objects need to be ACTIVE to be found!
+        deathUI = GameObject.FindGameObjectsWithTag("deathScreen"); // See above
 
         // This determines what state the game will be in when it starts (!)
         if (UnityEngine.SceneManagement.SceneManager.GetSceneByName("Menus").isLoaded)
-        { TitleScreen(); } // If statement not really necessary.
+        { TitleScreen(); }
+        // AFAIK this is the only place I can put this
+        else
+        {
+            foreach (GameObject x in deathUI)
+            { x.gameObject.SetActive(false); }
+        }
     }
 
     // Update is called once per frame
     void Update()
     { }
 
-    // This will draw UI following a scene switch.
-    // This is vital to ensuring the game can find all of the UI
+    // Currently unused
     private void OnEnable()
     {
 
@@ -98,7 +110,7 @@ public class SceneManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Restarts the current scene - Justin, is this how you have it?
+    /// Restarts the current scene
     /// </summary>
     public void ResetScene()
     {
@@ -110,11 +122,7 @@ public class SceneManager : MonoBehaviour
     /// </summary>
     public void SwitchToGame()
     {
-        if (selectedStage == 1)
-        {
-            var test = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
-            LoadLevel1();
-        }
+        if (selectedStage == 1)      { UnityEngine.SceneManagement.SceneManager.LoadScene("Level 1"); }
         else if (selectedStage == 2) { /*UnityEngine.SceneManagement.SceneManager.LoadScene("Stage2");*/ }
         else if (selectedStage == 3) { /*UnityEngine.SceneManagement.SceneManager.LoadScene("Stage3");*/ }
         else { }
@@ -124,8 +132,6 @@ public class SceneManager : MonoBehaviour
     /// Loads the Menus scene.
     /// </summary>
     public void SwitchToTitle() { UnityEngine.SceneManagement.SceneManager.LoadScene("Menus"); }
-
-    public void LoadLevel1() { UnityEngine.SceneManagement.SceneManager.LoadScene("Level 1"); }
 
     /// <summary>
     /// Draws TITLE SCREEN UI.
@@ -137,7 +143,7 @@ public class SceneManager : MonoBehaviour
         // Cleanup !
         if (Time.timeScale != 1) { Time.timeScale = 1; }
         selectedStage = 0;
-        levelPlay_b.interactable = false;
+        levelPlay_b.interactable = false; // The 'PUNCH' button
         levelName.gameObject.SetActive(false);
         levelBlurb.gameObject.SetActive(false);
 
@@ -173,14 +179,17 @@ public class SceneManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Gets run upon choosing a stage to play - it loads that stage.
+    /// Gets run upon choosing a stage to play - it (calls the function that) loads that stage.
     /// </summary>
     public void PlayStage()
     {
         gameState = GameState.Demo;
+        if (Time.timeScale != 1) { Time.timeScale = 1; } // In case player died
 
         // UI changes
-        foreach (GameObject x in levelUI)
+        foreach (GameObject x in levelUI) // Coming from level select
+        { x.gameObject.SetActive(false); }
+        foreach (GameObject x in deathUI) // Coming from dead (retry)
         { x.gameObject.SetActive(false); }
 
         levelBlurb.gameObject.SetActive(false);
@@ -189,6 +198,25 @@ public class SceneManager : MonoBehaviour
         EventSystem.current.SetSelectedGameObject(null); // Triston's Controller Extravaganza
 
         SwitchToGame();
+    }
+
+    // Death Screen =====================================================================
+
+    /// <summary>
+    /// Effectively pauses the game, lets the player retry or quit to title.
+    /// </summary>
+    public void Death()
+    {
+        gameState = GameState.Dead;
+
+        Time.timeScale = 0; // Stop time (pauses all game physics)
+
+        // UI changes
+        foreach (GameObject x in deathUI)
+        { x.gameObject.SetActive(true); }
+
+        EventSystem.current.SetSelectedGameObject(deathRetry_b.gameObject); // Triston's Controller Extravaganza
+
     }
 
     // Pause & Unpause ==================================================================
