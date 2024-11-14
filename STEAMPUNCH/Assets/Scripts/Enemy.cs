@@ -117,16 +117,16 @@ public class Enemy : MonoBehaviour
 
     public void DamagePlayer()
     {
-        if (Physics2D.OverlapArea(new Vector2(hitboxCollisionCheck.position.x - (hitboxCollisionCheck.GetComponent<SpriteRenderer>().bounds.size.x / 2),
-            hitboxCollisionCheck.position.y + (hitboxCollisionCheck.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
-            new Vector2(hitboxCollisionCheck.position.x + (hitboxCollisionCheck.GetComponent<SpriteRenderer>().bounds.size.x / 2),
-            hitboxCollisionCheck.position.y - (hitboxCollisionCheck.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
-            playerLayer));
-        {
-            Debug.Log("hello");
-            player.Health--;
-            player.GetComponent<Rigidbody2D>().AddForce(new Vector2(2.0f * knockbackForce, 3.0f));
-        }
+        //if (Physics2D.OverlapArea(new Vector2(hitboxCollisionCheck.position.x - (hitboxCollisionCheck.GetComponent<SpriteRenderer>().bounds.size.x / 2),
+        //    hitboxCollisionCheck.position.y + (hitboxCollisionCheck.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
+        //    new Vector2(hitboxCollisionCheck.position.x + (hitboxCollisionCheck.GetComponent<SpriteRenderer>().bounds.size.x / 2),
+        //    hitboxCollisionCheck.position.y - (hitboxCollisionCheck.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
+        //    playerLayer));
+        //{
+        //    Debug.Log("hello");
+        //    player.Health--;
+        //    player.GetComponent<Rigidbody2D>().AddForce(new Vector2(2.0f * knockbackForce, 3.0f));
+        //}
     }
 
 
