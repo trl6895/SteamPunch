@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,7 +11,10 @@ public class SmallEnemy : Enemy
 
     private float walkDistance;
     [SerializeField] private float setWalkDistance;
+    [SerializeField] private Transform playerTrackCheck;
+    [SerializeField] private float followSpeed;
     private bool facingLeft;
+    private bool foundPlayer = false;
     private Vector3 movement;
     EnemyStates state;
 
@@ -27,11 +31,17 @@ public class SmallEnemy : Enemy
     // Update is called once per frame
     void Update()
     {
-
+        Debug.Log(player.Health);
         switch (CurrentState)
         {
             case EnemyStates.Alive:
-                Walk();
+                if (foundPlayer) { TargetPlayer(); }
+                else 
+                {
+                    Walk();
+                    SearchPlayer();
+                }
+                DamagePlayer();
                 break;
             case EnemyStates.Knocked:
                 if (!animator.GetBool("IsKnocked"))
@@ -67,6 +77,41 @@ public class SmallEnemy : Enemy
             walkDistance = setWalkDistance;
         }
 
+    }
+
+    public void SearchPlayer()
+    {
+        if (Physics2D.OverlapArea(new Vector2(playerTrackCheck.position.x - (playerTrackCheck.GetComponent<SpriteRenderer>().bounds.size.x / 2),
+            playerTrackCheck.position.y + (playerTrackCheck.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
+            new Vector2(playerTrackCheck.position.x + (playerTrackCheck.GetComponent<SpriteRenderer>().bounds.size.x / 2),
+            playerTrackCheck.position.y - (playerTrackCheck.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
+            playerLayer))
+        {
+            foundPlayer = true;
+            float initialHeight = transform.position.y;
+            Rb.AddForce(new Vector2(0.0f, 400.0f));
+            while (transform.position.y != initialHeight)
+            {
+                Debug.Log("hello");
+                continue;
+            }
+        }
+    }
+
+    public void TargetPlayer()
+    {
+        if (player.transform.position.x > transform.position.x)
+        {
+            transform.position += new Vector3(followSpeed, 0.0f, 0.0f) * Time.deltaTime;
+            transform.Rotate(new Vector3(0.0f, 180.0f, 0.0f));
+            speed *= -1;
+        }
+        else if (player.transform.position.x < transform.position.x)
+        {
+            transform.position -= new Vector3(followSpeed, 0.0f, 0.0f) * Time.deltaTime;
+            transform.Rotate(new Vector3(0.0f, 180.0f, 0.0f));
+            speed *= -1;
+        }
     }
 
     //public void OnDrawGizmos()
