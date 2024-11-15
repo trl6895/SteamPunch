@@ -21,7 +21,7 @@ public class Enemy : MonoBehaviour
 
     public BoxCollider2D BoxCollider { get { return boxCollider; } }
 
-    [SerializeField] private Rigidbody2D rb;
+    [SerializeField] public Rigidbody2D rb;
 
     public Rigidbody2D Rb { get { return rb; } }
 

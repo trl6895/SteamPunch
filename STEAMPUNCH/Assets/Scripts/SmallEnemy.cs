@@ -31,7 +31,7 @@ public class SmallEnemy : Enemy
     // Update is called once per frame
     void Update()
     {
-        Debug.Log(player.Health);
+        //Debug.Log(player.Health);
         switch (CurrentState)
         {
             case EnemyStates.Alive:
