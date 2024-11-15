@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
+using UnityEngine.UI;
 
 /// <summary>
 /// The states of the player that determine if they can be controlled or not
@@ -80,6 +81,8 @@ public class PlayerController : MonoBehaviour
 
     // Stats ------------------------------------------------------------------
     [SerializeField] private float health;
+    [SerializeField] private Image healthbar;
+    [SerializeField] private Image healthBarHelmet;
 
     // Audio ------------------------------------------------------------------
     [SerializeField] public AudioSource sfx_punchSwing;
@@ -131,6 +134,7 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     private void Start()
     {
+        healthbar.transform.position = new Vector3(healthbar.transform.position.x, healthBarHelmet.transform.position.y, 0);
         // Check for gamepad usage, aiming controls differ
         var devices = InputSystem.devices;
         for (var i = 0; i < devices.Count; ++i)
@@ -189,6 +193,8 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //healthbar stuff
+        healthbar.transform.position = new Vector3(healthbar.transform.position.x + (200 - (Health*2)), healthBarHelmet.transform.position.y, 0);
         // If the gameplay is actively running:
         if (sceneManager.gameState == GameState.Demo)
         {
