@@ -337,7 +337,10 @@ public class PlayerController : MonoBehaviour
                 if (NearKnockedEnemy())
                     SetKnockedEnemyColor();
 
-
+            if (health <= 0)
+            {
+                sceneManager.Death();
+            }
         }
         // If the game is paused:
         else if (sceneManager.gameState == GameState.Pause)
@@ -764,6 +767,8 @@ public class PlayerController : MonoBehaviour
         {
             // Make the player recoil
             currentPunchMoveForce *= -recoilMultiplier;
+
+            rb.AddForce(new Vector2(0.0f, jumpingPower/3));
 
             // Track that the player is no longer punching
             isPunching = false;

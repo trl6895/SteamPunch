@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.U2D;
 
 public class SmallEnemy : Enemy
 {
@@ -13,6 +14,7 @@ public class SmallEnemy : Enemy
     [SerializeField] private float setWalkDistance;
     [SerializeField] private Transform playerTrackCheck;
     [SerializeField] private float followSpeed;
+    [SerializeField] SpriteRenderer sprite;
     private bool facingLeft;
     private bool foundPlayer = false;
     private Vector3 movement;
@@ -31,6 +33,14 @@ public class SmallEnemy : Enemy
     // Update is called once per frame
     void Update()
     {
+        HitFlashTimer -= Time.deltaTime;
+        if (HitFlashTimer <= 0)
+        {
+            HitFlashTimer = 0;
+        }
+        sprite.color = new Color(1, 1 - (HitFlashTimer/3), 1 - (HitFlashTimer / 3), 1 - (HitFlashTimer / 3));
+
+
         //Debug.Log(player.Health);
         switch (CurrentState)
         {

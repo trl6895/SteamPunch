@@ -125,7 +125,11 @@ public class SceneManager : MonoBehaviour
     /// <summary>
     /// Restarts the current scene
     /// </summary>
-    public void ResetScene() { UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name); }
+    public void ResetScene() 
+    { 
+        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name); 
+        Time.timeScale = 1.0f;
+    }
 
     // Nav ==============================================================================
 
@@ -218,6 +222,7 @@ public class SceneManager : MonoBehaviour
         // UI changes
         ShowOrHideUI(true, deathUI);
         ShowOrHideUI(false, gameUI);
+        greyBackground.gameObject.SetActive(true);
 
         EventSystem.current.SetSelectedGameObject(deathRetry_b.gameObject); // Triston's Controller Extravaganza
     }

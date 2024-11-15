@@ -25,6 +25,9 @@ public class Enemy : MonoBehaviour
 
     public Rigidbody2D Rb { get { return rb; } }
 
+    [SerializeField]
+    float hitFlashTimer = 0f;
+
     [SerializeField] private int health = 1;
 
     [SerializeField] protected Transform floorCheck;
@@ -41,6 +44,18 @@ public class Enemy : MonoBehaviour
     [SerializeField] public AudioSource sfx_knocked;
 
     public int Health { get { return health; } }
+
+    public float HitFlashTimer
+    {
+        get
+        {
+            return hitFlashTimer;
+        }
+        set
+        {
+            hitFlashTimer = value;
+        }
+    }
 
     // Properties =======================================================================
 
@@ -76,10 +91,13 @@ public class Enemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (hitFlashTimer <= 0)
+        {
+            hitFlashTimer = 0;
+        }
         // If the enemy is alive:
         if (currentState == EnemyStates.Alive)
         {
-            sprite.color = Color.white;
             // do alive stuff
         }
         // making this an else if for the time being, 
@@ -101,6 +119,7 @@ public class Enemy : MonoBehaviour
     /// <param name="force">The knockback force that the enemy receives after being punched</param>
     public void Punched(Vector2 force)
     {
+        hitFlashTimer = 1f;
         health--;
 
         if (health <= 0)

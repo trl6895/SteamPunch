@@ -189,7 +189,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentState: 0
   rb: {fileID: 2774793289857679824}
-  health: 1
+  hitFlashTimer: 1
+  health: 2
   floorCheck: {fileID: 2253354504363160093}
   groundLayer:
     serializedVersion: 2
@@ -204,6 +205,9 @@ MonoBehaviour:
   sfx_knocked: {fileID: -6677355183776967926}
   animator: {fileID: 3551798890675437588}
   setWalkDistance: 10
+  playerTrackCheck: {fileID: 0}
+  followSpeed: 0
+  sprite: {fileID: 7137066752389348426}
 --- !u!95 &3551798890675437588
 Animator:
   serializedVersion: 5
