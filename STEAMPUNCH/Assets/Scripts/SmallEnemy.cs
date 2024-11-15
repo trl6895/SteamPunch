@@ -16,7 +16,6 @@ public class SmallEnemy : Enemy
     [SerializeField] private float followSpeed;
     [SerializeField] SpriteRenderer sprite;
     private bool facingLeft;
-    private bool foundPlayer = false;
     private Vector3 movement;
     EnemyStates state;
 
@@ -83,7 +82,6 @@ public class SmallEnemy : Enemy
         {
             transform.Rotate(new Vector3(0.0f, 180.0f, 0.0f));
             speed *= -1;
-            knockbackForce *= -1;
             walkDistance = setWalkDistance;
         }
 
@@ -98,30 +96,26 @@ public class SmallEnemy : Enemy
             playerLayer))
         {
             foundPlayer = true;
-            float initialHeight = transform.position.y;
             Rb.AddForce(new Vector2(0.0f, 400.0f));
-            while (transform.position.y != initialHeight)
-            {
-                Debug.Log("hello");
-                continue;
-            }
         }
     }
 
     public void TargetPlayer()
     {
         animator.SetFloat("Chase", 1);
-        if (player.transform.position.x > transform.position.x)
+        if (player.transform.position.x - 0.1f < transform.position.x && player.transform.position.x + 0.1f > transform.position.x)
+        {
+            return;
+        }
+        else if (player.transform.position.x > transform.position.x)
         {
             transform.position += new Vector3(followSpeed, 0.0f, 0.0f) * Time.deltaTime;
-            transform.Rotate(new Vector3(0.0f, 180.0f, 0.0f));
-            speed *= -1;
+            transform.rotation = Quaternion.Euler(new Vector3(0.0f, 0.0f, 0.0f));
         }
         else if (player.transform.position.x < transform.position.x)
         {
             transform.position -= new Vector3(followSpeed, 0.0f, 0.0f) * Time.deltaTime;
-            transform.Rotate(new Vector3(0.0f, 180.0f, 0.0f));
-            speed *= -1;
+            transform.rotation = Quaternion.Euler(new Vector3(0.0f, 180.0f, 0.0f));
         }
     }
 
