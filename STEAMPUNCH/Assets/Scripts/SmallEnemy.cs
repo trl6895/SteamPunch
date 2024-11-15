@@ -59,7 +59,7 @@ public class SmallEnemy : Enemy
 
     public void Walk()
     {
-
+        animator.SetFloat("Chase", 0);
         if (Physics2D.OverlapArea(new Vector2(floorCheck.position.x - (floorCheck.GetComponent<SpriteRenderer>().bounds.size.x / 2),
             floorCheck.position.y + (floorCheck.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
             new Vector2(floorCheck.position.x + (floorCheck.GetComponent<SpriteRenderer>().bounds.size.x / 2),
@@ -100,6 +100,7 @@ public class SmallEnemy : Enemy
 
     public void TargetPlayer()
     {
+        animator.SetFloat("Chase", 1);
         if (player.transform.position.x > transform.position.x)
         {
             transform.position += new Vector3(followSpeed, 0.0f, 0.0f) * Time.deltaTime;
