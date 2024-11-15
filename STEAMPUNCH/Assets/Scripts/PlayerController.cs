@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
-using UnityEngine.Audio;
 
 /// <summary>
 /// The states of the player that determine if they can be controlled or not
@@ -89,6 +88,9 @@ public class PlayerController : MonoBehaviour
     // Child Objects
     [SerializeField] private GameObject aimIndicator;
     [SerializeField] private GameObject crosshair;
+
+    // Game State Change
+    private bool paused;
 
     // Properties =======================================================================
 
@@ -190,6 +192,18 @@ public class PlayerController : MonoBehaviour
         // If the gameplay is actively running:
         if (sceneManager.gameState == GameState.Demo)
         {
+            if (paused)
+            {
+                move.Enable();
+                look.Enable();
+                aim.Enable();
+                newInputHandler.Player.Jump.Enable();
+                newInputHandler.Player.Punch.Enable();
+                newInputHandler.Player.Grab.Enable();
+                paused = false;
+            }
+
+
             // Animate the player
             Animate();
 
@@ -235,7 +249,7 @@ public class PlayerController : MonoBehaviour
             }
 
             // Update the position of the crosshair
-            crosshair.transform.position = new Vector3(rightStickPosition.x + holdingPosition.x, rightStickPosition.y + holdingPosition.y, -1.0f);
+            // crosshair.transform.position = new Vector3(rightStickPosition.x + holdingPosition.x, rightStickPosition.y + holdingPosition.y, -1.0f);
 
             // If enough time has passed and the non-dominant fist is the current fist:
             if (punchCooldownTimer >= fistResetCooldown && currentFist == CurrentFist.Left)
@@ -296,6 +310,14 @@ public class PlayerController : MonoBehaviour
         else if (sceneManager.gameState == GameState.Pause)
         {
             //Nothing here right now :(
+            // Disable all Player controls here
+            move.Disable();
+            look.Disable();
+            aim.Disable();
+            newInputHandler.Player.Jump.Disable();
+            newInputHandler.Player.Punch.Disable();
+            newInputHandler.Player.Grab.Disable();
+            paused = true;
         }
 
         //if player doesn't click punch again, transitions back to movement
@@ -339,6 +361,11 @@ public class PlayerController : MonoBehaviour
             {
                 rb.velocity = new Vector3(rb.velocity.x, 0f);
             }
+        }
+
+        if (currentState == PlayerState.Surfing)
+        {
+            rb.velocity = new Vector3(rb.velocity.x, 0f);
         }
     }
 
@@ -752,7 +779,7 @@ public class PlayerController : MonoBehaviour
     private void ShowAimControls()
     {
         // Enable the crosshair
-        crosshair.SetActive(true);
+        //crosshair.SetActive(true);
 
         // Enable the aim indicator
         aimIndicator.SetActive(true);

@@ -134,7 +134,7 @@ public class SceneManager : MonoBehaviour
     /// </summary>
     public void SwitchToGame()
     {
-        if (selectedStage == 1)      { UnityEngine.SceneManagement.SceneManager.LoadScene("Level 1"); }
+        if (selectedStage == 1) { UnityEngine.SceneManagement.SceneManager.LoadScene("Level 1"); }
         else if (selectedStage == 2) { /*UnityEngine.SceneManagement.SceneManager.LoadScene("Stage2");*/ }
         else if (selectedStage == 3) { /*UnityEngine.SceneManagement.SceneManager.LoadScene("Stage3");*/ }
         else { }
@@ -232,6 +232,7 @@ public class SceneManager : MonoBehaviour
     {
         if      (gameState == GameState.Demo)  { Pause(); }
         else if (gameState == GameState.Pause) { Unpause(); }
+        else if (gameState == GameState.LevelSelect){ TitleScreen();}
         else if (gameState == GameState.Title) { Application.Quit(); }
     }
 
