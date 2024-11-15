@@ -71,6 +71,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private LayerMask enemyLayer;
+    [SerializeField] public BoxCollider2D hitbox;
 
     // Animation --------------------------------------------------------------
     [SerializeField] bool isStanding = false;
@@ -683,6 +684,9 @@ public class PlayerController : MonoBehaviour
             // Create a temporary tilemap collider 2D
             TilemapCollider2D tempTilemapCollider2D;
 
+            // Create a temporary breakable block collider 2D
+            BreakableBlock tempBreakableBlock;
+
             // If the current overlapping collider belongs to an enemy:
             if (contacts[i].gameObject.TryGetComponent<Enemy>(out tempEnemy))
             {
@@ -709,6 +713,15 @@ public class PlayerController : MonoBehaviour
             // Otherwise, if the current overlapping collider belongs to a wall:
             else if (contacts[i].gameObject.TryGetComponent<TilemapCollider2D>(out tempTilemapCollider2D))
             {
+                // Mark that there has been a successful hit
+                successfulHit = true;
+            }
+            // Otherwise, if the current overlapping collider belongs to a breakable block:
+            else if (contacts[i].gameObject.TryGetComponent<BreakableBlock>(out tempBreakableBlock))
+            {
+                // Destroy the block
+                tempBreakableBlock.Break();
+
                 // Mark that there has been a successful hit
                 successfulHit = true;
             }
