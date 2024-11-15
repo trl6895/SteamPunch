@@ -15,38 +15,42 @@ public class SceneManager : MonoBehaviour
 {
     // Fields ===========================================================================
 
-    private int selectedStage;
+    private int selectedStage; // Tracks currently selected stage. Changes on button select in menu, and resets when menu is loaded.
 
-    private GameObject[] levelUI;
-    private GameObject[] deathUI;
+    private GameObject[] titleUI; // Contains all  of the title select UI elements
+    private GameObject[] levelUI; // Contains all* of the level select UI elements (excludes those with serialization necessary)
+    private GameObject[] pauseUI; // Contains all* of the pause screen UI elements
+    private GameObject[] deathUI; // Contains all* of the death screen UI elements
+    private GameObject[] gameUI;  // Contains all  of the on-screen in-game UI elements
+    // Note that 'greyBackground' is used on both the pause and death screens, so it is not tagged.
 
     // References -------------------------------------------------------------
-    [SerializeField] public TMP_Text titleTitle;
-    [SerializeField] public Button titleLevels_b;
 
+    [SerializeField] public Camera mainCamera;
     private NewInputHandler newInputHandler;
 
-    // Level Select
+    // Fields that change states (buttons/activity, text/text, etc) DO need to be serialized
+
+    // Serialized for T.C.E.
+    [SerializeField] public Button titleLevels_b;
     [SerializeField] public Button levelStage_b1;
+    [SerializeField] public Button deathRetry_b;
+    [SerializeField] public Button pauseExit_b;
+
+    // Serialized to be directly edited
     [SerializeField] public Button levelPlay_b;
     [SerializeField] public TMP_Text levelName;
     [SerializeField] public TMP_Text levelBlurb;
 
-    [SerializeField] public Button deathRetry_b;
-    [SerializeField] public Button deathQuit_b;
-    [SerializeField] public TMP_Text deathTitle;
-    [SerializeField] public TMP_Text deathFlavor;
-
-    [SerializeField] public TMP_Text pauseTitle;
-    [SerializeField] public Image pauseBackground;
-    [SerializeField] public Button pauseExit_b;
-
-    [SerializeField] public Camera mainCamera;
+    // Serialized because it is used in multiple places and thus cannot be efficiently managed through a tag
+    [SerializeField] public Image greyBackground;
 
     // Gameplay management ----------------------------------------------------
+
     public GameState gameState;
 
-    // Methods ==========================================================================
+    // Default Methods ==================================================================
+
     private void Awake()
     {
         newInputHandler = new NewInputHandler();
@@ -55,36 +59,43 @@ public class SceneManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        levelUI = GameObject.FindGameObjectsWithTag("levelScreen"); // Objects need to be ACTIVE to be found!
+        titleUI = GameObject.FindGameObjectsWithTag("titleScreen"); // Objects need to be ACTIVE to be found!
+        levelUI = GameObject.FindGameObjectsWithTag("levelScreen"); // See above
+        pauseUI = GameObject.FindGameObjectsWithTag("pauseScreen"); // See above
         deathUI = GameObject.FindGameObjectsWithTag("deathScreen"); // See above
+        gameUI  = GameObject.FindGameObjectsWithTag("gameUI");      // See above
 
-        // This determines what state the game will be in when it starts (!)
+        // This determines what state the game will be in when it starts (!) and hides all UI that was enabled to be added to an array
         if (UnityEngine.SceneManagement.SceneManager.GetSceneByName("Menus").isLoaded)
-        { TitleScreen(); }
+        {
+            ShowOrHideUI(true, titleUI); // Not necessary due to coincidence but good standard
+            TitleScreen();
+        }
         // AFAIK this is the only place I can put this
         else
         {
-            foreach (GameObject x in deathUI)
-            { x.gameObject.SetActive(false); }
+            // Good practice to include all arrays here
+            ShowOrHideUI(false, pauseUI);
+            ShowOrHideUI(false, levelUI);
+            ShowOrHideUI(false, deathUI);
+            ShowOrHideUI(false, gameUI);
         }
     }
 
     // Update is called once per frame
-    void Update()
-    { }
+    void Update() { }
 
-    // Currently unused
     private void OnEnable()
     {
-
         newInputHandler.UI.Pause.performed += PauseOrUnpause;
         newInputHandler.UI.Pause.Enable();
 
         newInputHandler.UI.Reset.performed += OnResetButtonClick;
         newInputHandler.UI.Reset.Enable();
 
-
         Scene scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+
+        // Unused
         switch (scene.name)
         {
             case "Menus":
@@ -98,24 +109,25 @@ public class SceneManager : MonoBehaviour
         }
     }
 
-    private void OnDisable()
-    {
-        newInputHandler.UI.Pause.Disable();
-        newInputHandler.UI.Reset.Disable();
-    }
+    // Triston's controller extravaganza contd. =========================================
 
-    private void OnResetButtonClick(InputAction.CallbackContext context)
-    {
-        ResetScene();
-    }
+    /// <summary>
+    /// Formality*
+    /// </summary>
+    private void OnDisable() { newInputHandler.UI.Pause.Disable(); newInputHandler.UI.Reset.Disable(); }
+
+    /// <summary>
+    /// Restarts the current scene - supports controller.
+    /// </summary>
+    /// <param name="context">Button pressed</param>
+    private void OnResetButtonClick(InputAction.CallbackContext context) { ResetScene(); }
 
     /// <summary>
     /// Restarts the current scene
     /// </summary>
-    public void ResetScene()
-    {
-        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
-    }
+    public void ResetScene() { UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name); }
+
+    // Nav ==============================================================================
 
     /// <summary>
     /// Loads the selected scene (level).
@@ -133,6 +145,8 @@ public class SceneManager : MonoBehaviour
     /// </summary>
     public void SwitchToTitle() { UnityEngine.SceneManagement.SceneManager.LoadScene("Menus"); }
 
+    // UI ===============================================================================
+
     /// <summary>
     /// Draws TITLE SCREEN UI.
     /// </summary>
@@ -144,21 +158,16 @@ public class SceneManager : MonoBehaviour
         if (Time.timeScale != 1) { Time.timeScale = 1; }
         selectedStage = 0;
         levelPlay_b.interactable = false; // The 'PUNCH' button
-        levelName.gameObject.SetActive(false);
-        levelBlurb.gameObject.SetActive(false);
+        levelName.gameObject.SetActive(false); // Level name
+        levelBlurb.gameObject.SetActive(false); // Level info
 
         // UI changes
-        try
-        {
-            foreach (GameObject x in levelUI)
-            { x.gameObject.SetActive(false); }
-        }
+        try { ShowOrHideUI(false, levelUI); }
         catch (NullReferenceException) { Debug.Log("Suppressing Error"); } // Stops error
-
-        titleTitle.gameObject.SetActive(true);
-        titleLevels_b.gameObject.SetActive(true);
+        ShowOrHideUI(true, titleUI);
 
         EventSystem.current.SetSelectedGameObject(titleLevels_b.gameObject); // Triston's Controller Extravaganza
+        //EventSystem.current.SetSelectedGameObject(null);
     }
 
     /// <summary>
@@ -169,11 +178,8 @@ public class SceneManager : MonoBehaviour
         gameState = GameState.LevelSelect;
 
         // UI changes
-        titleTitle.gameObject.SetActive(false);
-        titleLevels_b.gameObject.SetActive(false);
-
-        foreach (GameObject x in levelUI)
-        { x.gameObject.SetActive(true); }
+        ShowOrHideUI(false, titleUI);
+        ShowOrHideUI(true, levelUI);
 
         EventSystem.current.SetSelectedGameObject(levelStage_b1.gameObject); // Triston's Controller Extravaganza
     }
@@ -187,10 +193,9 @@ public class SceneManager : MonoBehaviour
         if (Time.timeScale != 1) { Time.timeScale = 1; } // In case player died
 
         // UI changes
-        foreach (GameObject x in levelUI) // Coming from level select
-        { x.gameObject.SetActive(false); }
-        foreach (GameObject x in deathUI) // Coming from dead (retry)
-        { x.gameObject.SetActive(false); }
+        ShowOrHideUI(false, levelUI); // Coming from level select
+        ShowOrHideUI(false, deathUI); // Coming from dead (retry)
+        ShowOrHideUI(true, gameUI);
 
         levelBlurb.gameObject.SetActive(false);
         levelName.gameObject.SetActive(false);
@@ -208,33 +213,26 @@ public class SceneManager : MonoBehaviour
     public void Death()
     {
         gameState = GameState.Dead;
-
         Time.timeScale = 0; // Stop time (pauses all game physics)
 
         // UI changes
-        foreach (GameObject x in deathUI)
-        { x.gameObject.SetActive(true); }
+        ShowOrHideUI(true, deathUI);
+        ShowOrHideUI(false, gameUI);
 
         EventSystem.current.SetSelectedGameObject(deathRetry_b.gameObject); // Triston's Controller Extravaganza
-
     }
 
     // Pause & Unpause ==================================================================
 
+    /// <summary>
+    /// Formality*
+    /// </summary>
+    /// <param name="context"></param>
     private void PauseOrUnpause(InputAction.CallbackContext context)
     {
-        if (gameState == GameState.Demo)
-        {
-            Pause();
-        }
-        else if (gameState == GameState.Pause)
-        {
-            Unpause();
-        }
-        else if (gameState == GameState.Title)
-        {
-            Application.Quit();
-        }
+        if      (gameState == GameState.Demo)  { Pause(); }
+        else if (gameState == GameState.Pause) { Unpause(); }
+        else if (gameState == GameState.Title) { Application.Quit(); }
     }
 
     /// <summary>
@@ -243,13 +241,12 @@ public class SceneManager : MonoBehaviour
     public void Pause()
     {
         gameState = GameState.Pause;
-
         Time.timeScale = 0; // Stop time (pauses all game physics)
 
         // UI changes
-        pauseBackground.gameObject.SetActive(true);
-        pauseTitle.gameObject.SetActive(true);
-        pauseExit_b.gameObject.SetActive(true);
+        ShowOrHideUI(true, pauseUI);
+        ShowOrHideUI(false, gameUI);
+        greyBackground.gameObject.SetActive(true);
 
         EventSystem.current.SetSelectedGameObject(pauseExit_b.gameObject); // Triston's Controller Extravaganza
     }
@@ -260,13 +257,12 @@ public class SceneManager : MonoBehaviour
     public void Unpause()
     {
         gameState = GameState.Demo;
-
         Time.timeScale = 1; // Resume time
 
         // UI changes
-        pauseBackground.gameObject.SetActive(false);
-        pauseTitle.gameObject.SetActive(false);
-        pauseExit_b.gameObject.SetActive(false);
+        ShowOrHideUI(false, pauseUI);
+        ShowOrHideUI(true, gameUI);
+        greyBackground.gameObject.SetActive(false);
 
         EventSystem.current.SetSelectedGameObject(null); // Triston's Controller Extravaganza
     }
@@ -312,8 +308,21 @@ public class SceneManager : MonoBehaviour
         levelName.gameObject.SetActive(true);
         levelBlurb.gameObject.SetActive(true);
 
-        levelPlay_b.interactable = true;
+        levelPlay_b.interactable = true; // Enables player to click 'PUNCH' button
 
         EventSystem.current.SetSelectedGameObject(levelPlay_b.gameObject);
+    }
+
+    // Helper functions =================================================================
+
+    /// <summary>
+    /// Helper function: Sets active or inactive all UI in an array - for use with arrays of tagged elements defined at the start of SceneManager.
+    /// </summary>
+    /// <param name="show">Bool - whether to show or hide the UI</param>
+    /// <param name="UI">Array of GameObjects</param>
+    public void ShowOrHideUI(bool show, GameObject[] UI)
+    {
+        foreach (GameObject x in UI)
+        { x.gameObject.SetActive(show); }
     }
 }

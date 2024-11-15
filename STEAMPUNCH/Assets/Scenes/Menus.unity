@@ -1133,11 +1133,11 @@ GameObject:
   - component: {fileID: 682057838}
   m_Layer: 5
   m_Name: titleTitle
-  m_TagString: Untagged
+  m_TagString: titleScreen
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &682057837
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1598,11 +1598,11 @@ GameObject:
   - component: {fileID: 838249730}
   m_Layer: 5
   m_Name: titleLevels_b
-  m_TagString: Untagged
+  m_TagString: titleScreen
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &838249728
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2242,20 +2242,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a8c0f012c060704b8ba0535baab8661, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  titleTitle: {fileID: 682057838}
+  mainCamera: {fileID: 0}
   titleLevels_b: {fileID: 838249730}
   levelStage_b1: {fileID: 269603475}
+  deathRetry_b: {fileID: 0}
+  pauseExit_b: {fileID: 0}
   levelPlay_b: {fileID: 1346921312}
   levelName: {fileID: 232038378}
   levelBlurb: {fileID: 1683971456}
-  deathRetry_b: {fileID: 0}
-  deathQuit_b: {fileID: 0}
-  deathTitle: {fileID: 0}
-  deathFlavor: {fileID: 0}
-  pauseTitle: {fileID: 0}
-  pauseBackground: {fileID: 0}
-  pauseExit_b: {fileID: 0}
-  mainCamera: {fileID: 0}
+  greyBackground: {fileID: 0}
   gameState: 0
 --- !u!4 &1616130094
 Transform:
