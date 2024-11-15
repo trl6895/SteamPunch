@@ -26,7 +26,6 @@ public class Enemy : MonoBehaviour
     public Rigidbody2D Rb { get { return rb; } }
 
     [SerializeField] private int health = 1;
-    [SerializeField] private Image healthbar;
 
     [SerializeField] protected Transform floorCheck;
     [SerializeField] protected LayerMask groundLayer;
@@ -94,7 +93,6 @@ public class Enemy : MonoBehaviour
         }
         // Otherwise, if the enemy is grabbed:
         // MOVED TO THROWABLE ENEMY SCRIPT
-        healthbar.transform.position = new Vector3(200-(health*2), 0, 0);
     }
 
     /// <summary>
@@ -124,11 +122,13 @@ public class Enemy : MonoBehaviour
             hitboxCollisionCheck.position.y + (hitboxCollisionCheck.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
             new Vector2(hitboxCollisionCheck.position.x + (hitboxCollisionCheck.GetComponent<SpriteRenderer>().bounds.size.x / 2),
             hitboxCollisionCheck.position.y - (hitboxCollisionCheck.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
-            playerLayer))
+            playerLayer) && player.InvicibilityTimer <= 0f)
         {
             Debug.Log("hello");
-            player.Health--;
-            player.GetComponent<Rigidbody2D>().AddForce(new Vector2(2.0f * knockbackForce, 3.0f));
+
+            player.Health -= 10;
+            player.InvicibilityTimer = 1f;
+            //player.GetComponent<Rigidbody2D>().AddForce(new Vector2(2.0f * knockbackForce, 3.0f));
         }
     }
 

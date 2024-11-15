@@ -79,11 +79,14 @@ public class PlayerController : MonoBehaviour
     Animator animator;
     CurrentFist currentFist = CurrentFist.Right;
     float punchAnimTimer;
+    [SerializeField] SpriteRenderer spriteRenderer;
 
     // Stats ------------------------------------------------------------------
     [SerializeField] private float health;
+    [SerializeField] float invicibilityTimer;
     [SerializeField] private Image healthbar;
     [SerializeField] private Image healthBarHelmet;
+    private float healthbarStartingPos;
 
     // Audio ------------------------------------------------------------------
     [SerializeField] public AudioSource sfx_punchSwing;
@@ -123,6 +126,18 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public float InvicibilityTimer
+    {
+        get
+        {
+            return invicibilityTimer;
+        }
+        set 
+        {
+            invicibilityTimer = value;
+        }
+    }
+
     // Methods ==========================================================================
 
     #region Unity Default Methods
@@ -136,6 +151,7 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         healthbar.transform.position = new Vector3(healthbar.transform.position.x, healthBarHelmet.transform.position.y, 0);
+        healthbarStartingPos = healthbar.transform.position.x;
         // Check for gamepad usage, aiming controls differ
         var devices = InputSystem.devices;
         for (var i = 0; i < devices.Count; ++i)
@@ -194,9 +210,6 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //healthbar stuff
-        healthbar.transform.position = new Vector3(healthbar.transform.position.x + (200 - (Health*2)), healthBarHelmet.transform.position.y, 0);
-        // If the gameplay is actively running:
         if (sceneManager.gameState == GameState.Demo)
         {
             if (paused)
@@ -304,6 +317,17 @@ public class PlayerController : MonoBehaviour
                 }
             }
 
+            //healthbar stuff
+            invicibilityTimer -= Time.deltaTime;
+            if (invicibilityTimer < 0)
+            {
+                invicibilityTimer = 0;
+            }
+            healthbar.transform.position = new Vector3(healthbarStartingPos + (200 - (Health * 2)), healthBarHelmet.transform.position.y, 0);
+
+            //player will flash briefly after hit
+            spriteRenderer.color = new Color(1, 1 - invicibilityTimer / 2, 1 - invicibilityTimer / 2, 1-invicibilityTimer/2);
+
             if (isSurfingEnemy)
             {
                 transform.position = new Vector2(nearbyKnockedEnemy.transform.position.x, nearbyKnockedEnemy.transform.position.y + 0.5f);
@@ -312,6 +336,8 @@ public class PlayerController : MonoBehaviour
             if (!isHoldingEnemy && !isSurfingEnemy)
                 if (NearKnockedEnemy())
                     SetKnockedEnemyColor();
+
+
         }
         // If the game is paused:
         else if (sceneManager.gameState == GameState.Pause)
