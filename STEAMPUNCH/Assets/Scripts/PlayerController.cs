@@ -281,7 +281,7 @@ public class PlayerController : MonoBehaviour
             // Temporary death barrier for levels
             if (transform.position.y < -30.0f)
             {
-                sceneManager.ResetScene();
+                sceneManager.Death();
             }
 
             if (isPunching)
