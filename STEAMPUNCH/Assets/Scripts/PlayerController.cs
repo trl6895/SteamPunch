@@ -7,7 +7,7 @@ using UnityEngine.UI;
 /// <summary>
 /// The states of the player that determine if they can be controlled or not
 /// </summary>
-public enum PlayerState { Free, Locked, Surfing }
+public enum PlayerState { Free, Locked, Surfing, AirPause }
 
 /// <summary>
 /// The current fist that the player is punching with
@@ -36,9 +36,15 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public float throwingForceX = 500.0f;
     [SerializeField] public float throwingForceY = 500.0f;
     [SerializeField] public float throwingForce = 1000.0f;
+    [SerializeField] public float groundPoundForce = 50.0f;
     private bool isFacingRight = true;
 
     private bool jumpFlag = false;
+    private bool gpFlag = false;
+    private bool gpLockout = false;
+
+    private const float airPauseTime = 0.5f;
+    private float airPauseTimer = 0.0f;
 
     [SerializeField]
     float airPunchCounter = 0;
@@ -186,8 +192,11 @@ public class PlayerController : MonoBehaviour
         aim = newInputHandler.Player.Aim;
         aim.Enable();
 
-        newInputHandler.Player.Jump.performed += Jump;
+        newInputHandler.Player.Jump.performed += JumpAction;
         newInputHandler.Player.Jump.Enable();
+
+        newInputHandler.Player.GroundPound.performed += GroundPound;
+        newInputHandler.Player.GroundPound.Enable();
 
         newInputHandler.Player.Punch.performed += PunchOrThrow;
         newInputHandler.Player.Punch.Enable();
@@ -203,6 +212,7 @@ public class PlayerController : MonoBehaviour
         look.Disable();
         aim.Disable();
         newInputHandler.Player.Jump.Disable();
+        newInputHandler.Player.GroundPound.Disable();
         newInputHandler.Player.Punch.Disable();
         newInputHandler.Player.Grab.Disable();
     }
@@ -218,6 +228,7 @@ public class PlayerController : MonoBehaviour
                 look.Enable();
                 aim.Enable();
                 newInputHandler.Player.Jump.Enable();
+                newInputHandler.Player.GroundPound.Enable();
                 newInputHandler.Player.Punch.Enable();
                 newInputHandler.Player.Grab.Enable();
                 paused = false;
@@ -227,7 +238,8 @@ public class PlayerController : MonoBehaviour
             // Animate the player
             Animate();
 
-            Walk();
+            if (currentState != PlayerState.AirPause)
+                Walk();
 
             // Increment the punch cooldown timer
             punchCooldownTimer += Time.deltaTime;
@@ -334,13 +346,22 @@ public class PlayerController : MonoBehaviour
                 transform.position = new Vector2(nearbyKnockedEnemy.transform.position.x, nearbyKnockedEnemy.transform.position.y + 0.5f);
             }
 
-            if (!isHoldingEnemy && !isSurfingEnemy)
-                if (NearKnockedEnemy())
-                    SetKnockedEnemyColor();
+            if (!isHoldingEnemy && !isSurfingEnemy && NearKnockedEnemy())
+                SetKnockedEnemyColor();
 
             if (health <= 0)
             {
                 sceneManager.Death();
+            }
+
+            if (currentState == PlayerState.AirPause)
+            {
+                airPauseTimer += Time.deltaTime;
+                if (airPauseTimer > airPauseTime)
+                {
+                    currentState = PlayerState.Free;
+                    airPauseTimer = 0.0f;
+                }
             }
         }
         // If the game is paused:
@@ -352,6 +373,7 @@ public class PlayerController : MonoBehaviour
             look.Disable();
             aim.Disable();
             newInputHandler.Player.Jump.Disable();
+            newInputHandler.Player.GroundPound.Disable();
             newInputHandler.Player.Punch.Disable();
             newInputHandler.Player.Grab.Disable();
             paused = true;
@@ -368,41 +390,72 @@ public class PlayerController : MonoBehaviour
     // FixedUpdate is called every fixed framerate frame
     private void FixedUpdate()
     {
-        // Update the player's velocity
-        rb.velocity = new Vector2((horizontal * speed) + currentPunchMoveForce, rb.velocity.y);
-
-        if (jumpFlag)
+        if (currentState == PlayerState.AirPause)
         {
-            rb.AddForce(new Vector2(0.0f, jumpingPower));
-            jumpFlag = false;
-            currentState = PlayerState.Free;
+            rb.velocity = new Vector2(0.0f, 0.0f);
+            rb.isKinematic = true;
         }
-
-        if (currentState == PlayerState.Free)
+        else
         {
-            if (IsGrounded())
-            {
-                rb.AddForce(new Vector2(horizontal * speed, 0.0f), ForceMode2D.Impulse);
-                airPunchCounter = 0;
-                isStanding = true;
-            }
-            else
-            {
-                rb.AddForce(new Vector2(horizontal * speed * 8, 0.0f), ForceMode2D.Force);
-            }
-        }
+            rb.isKinematic = false;
+            // Update the player's velocity
+            rb.velocity = new Vector2((horizontal * speed) + currentPunchMoveForce, rb.velocity.y);
 
-        if (isPunching)
-        {
-            if (airPunchCounter == 1)
+            // READING MOVE FOR JUMP
+            /*
+            Vector2 mvXY = move.ReadValue<Vector2>();
+            float angle = Mathf.Rad2Deg * Mathf.Atan2(mvXY.y, mvXY.x);
+
+            Debug.Log("ANGLE: " + angle);
+
+            if (angle >= 45 && angle <= 135)
+            {
+                Jump();
+            }
+            */
+
+            if (jumpFlag)
+            {
+                rb.AddForce(new Vector2(0.0f, jumpingPower));
+                jumpFlag = false;
+                currentState = PlayerState.Free;
+            }
+
+            if (currentState == PlayerState.Free)
+            {
+                if (IsGrounded())
+                {
+                    rb.AddForce(new Vector2(horizontal * speed, 0.0f), ForceMode2D.Impulse);
+                    airPunchCounter = 0;
+                    isStanding = true;
+                    gpLockout = false;
+                }
+                else
+                {
+                    if (!gpFlag)
+                        rb.AddForce(new Vector2(horizontal * speed * 8, 0.0f), ForceMode2D.Force);
+                    else
+                    {
+                        rb.AddForce(new Vector2(0.0f, -groundPoundForce), ForceMode2D.Impulse);
+                        rb.velocity = new Vector3(0.0f, rb.velocity.y);
+                        gpLockout = true;
+                        gpFlag = false;
+                    }
+                }
+            }
+
+            if (isPunching)
+            {
+                if (airPunchCounter == 1)
+                {
+                    rb.velocity = new Vector3(rb.velocity.x, 0f);
+                }
+            }
+
+            if (currentState == PlayerState.Surfing)
             {
                 rb.velocity = new Vector3(rb.velocity.x, 0f);
             }
-        }
-
-        if (currentState == PlayerState.Surfing)
-        {
-            rb.velocity = new Vector3(rb.velocity.x, 0f);
         }
     }
 
@@ -508,7 +561,12 @@ public class PlayerController : MonoBehaviour
     /// <summary>
     /// Makes the player jump
     /// </summary>
-    public void Jump(InputAction.CallbackContext context)
+    private void JumpAction(InputAction.CallbackContext context)
+    {
+        Jump();
+    }
+
+    public void Jump()
     {
         if (IsGrounded() || currentState == PlayerState.Surfing)
         {
@@ -526,7 +584,15 @@ public class PlayerController : MonoBehaviour
 
             // rb.velocity += new Vector2(rb.velocity.x, jumpingPower) * Time.deltaTime;
         }
+    }
 
+    private void GroundPound(InputAction.CallbackContext context)
+    {
+        if (!IsGrounded() && currentState != PlayerState.Surfing && !gpLockout)
+        {
+            currentState = PlayerState.AirPause;
+            gpFlag = true;
+        }
     }
 
     private void PunchOrThrow(InputAction.CallbackContext context)
