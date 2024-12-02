@@ -67,6 +67,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public float fistResetCooldown = 1.0f;
     [SerializeField] public float punchCooldownTimer = 0.25f;
     [SerializeField] public CapsuleCollider2D punchCollider;
+    [SerializeField] public CapsuleCollider2D groundPoundCollider;
     public float throwingAngle = 0.0f;
     [SerializeField] public Vector2 holdingPosition;
     public Vector3 mousePosition;
@@ -299,12 +300,17 @@ public class PlayerController : MonoBehaviour
 
             if (isPunching)
             {
-                CheckForPunchHit();
+                CheckForPunchHit(punchCollider);
                 if (airPunchCounter == 0)
                 {
                     rb.velocity = new Vector3(rb.velocity.x, 0f);
                 }
             }
+            else if (gpLockout)
+            {
+                CheckForPunchHit(groundPoundCollider);
+            }
+
             if (currentPunchMoveForce > 0)
             {
                 currentPunchMoveForce -= 3 * punchMoveForce * Time.deltaTime;
@@ -766,13 +772,13 @@ public class PlayerController : MonoBehaviour
     /// <summary>
     /// Checks to see if a punch hit something
     /// </summary>
-    private void CheckForPunchHit()
+    private void CheckForPunchHit(Collider2D collider)
     {
         // Initialize a list to hold all colliders that collide with the punch
         List<Collider2D> contacts = new List<Collider2D>();
 
         // Fill the list with all contacts
-        punchCollider.OverlapCollider(new ContactFilter2D().NoFilter(), contacts);
+        collider.OverlapCollider(new ContactFilter2D().NoFilter(), contacts);
 
         // Make a boolean to track if anything was punched
         bool successfulHit = false;
