@@ -132,7 +132,7 @@ public class PlayerController : MonoBehaviour
         {
             return invicibilityTimer;
         }
-        set 
+        set
         {
             invicibilityTimer = value;
         }
@@ -254,7 +254,8 @@ public class PlayerController : MonoBehaviour
                 rightStickPosition = ((Vector2)mousePosition - holdingPosition).normalized * 2;
 
             // Update the throwing angle
-            throwingAngle = Mathf.PI + Mathf.Atan2(rightStickPosition.y, rightStickPosition.x);
+            // throwingAngle = Mathf.PI + Mathf.Atan2(rightStickPosition.y, rightStickPosition.x);
+            throwingAngle = Mathf.Atan2(rightStickPosition.y, rightStickPosition.x);
 
             // Update the position and rotation of the aim indicator
             aimIndicator.transform.position = new Vector3(holdingPosition.x, holdingPosition.y, -1.0f);
@@ -326,7 +327,7 @@ public class PlayerController : MonoBehaviour
             healthbar.transform.position = new Vector3(healthbarStartingPos + (200 - (Health * 2)), healthBarHelmet.transform.position.y, 0);
 
             //player will flash briefly after hit
-            spriteRenderer.color = new Color(1, 1 - invicibilityTimer / 2, 1 - invicibilityTimer / 2, 1-invicibilityTimer/2);
+            spriteRenderer.color = new Color(1, 1 - (invicibilityTimer / 2), 1 - (invicibilityTimer / 2), 1 - (invicibilityTimer / 2));
 
             if (isSurfingEnemy)
             {
@@ -768,7 +769,7 @@ public class PlayerController : MonoBehaviour
             // Make the player recoil
             currentPunchMoveForce *= -recoilMultiplier;
 
-            rb.AddForce(new Vector2(0.0f, jumpingPower/3));
+            rb.AddForce(new Vector2(0.0f, jumpingPower / 3));
 
             // Track that the player is no longer punching
             isPunching = false;
