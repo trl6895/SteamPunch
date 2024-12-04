@@ -896,7 +896,7 @@ LineRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -991,8 +991,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69064086cc1dc1e4ba7886b26d4c3510, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  segmentCount: 50
-  lineLength: 3.5
+  segmentCount: 100
+  lineLength: 2
 --- !u!1 &8049344693494965105
 GameObject:
   m_ObjectHideFlags: 0
