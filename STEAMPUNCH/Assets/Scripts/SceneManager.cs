@@ -45,6 +45,10 @@ public class SceneManager : MonoBehaviour
     // Serialized because it is used in multiple places and thus cannot be efficiently managed through a tag
     [SerializeField] public Image greyBackground;
 
+    // SFX
+    [SerializeField] public AudioClip button_sfx_hit;
+    [SerializeField] public AudioClip button_sfx_short;
+
     // Gameplay management ----------------------------------------------------
 
     public GameState gameState;
@@ -64,6 +68,9 @@ public class SceneManager : MonoBehaviour
         pauseUI = GameObject.FindGameObjectsWithTag("pauseScreen"); // See above
         deathUI = GameObject.FindGameObjectsWithTag("deathScreen"); // See above
         gameUI  = GameObject.FindGameObjectsWithTag("gameUI");      // See above
+
+        AudioSource audio = GetComponent<AudioSource>();
+        DontDestroyOnLoad(audio);
 
         // This determines what state the game will be in when it starts (!) and hides all UI that was enabled to be added to an array
         if (UnityEngine.SceneManagement.SceneManager.GetSceneByName("Menus").isLoaded)
@@ -248,6 +255,7 @@ public class SceneManager : MonoBehaviour
     {
         gameState = GameState.Pause;
         Time.timeScale = 0; // Stop time (pauses all game physics)
+        PlaySFX(button_sfx_hit);
 
         // UI changes
         ShowOrHideUI(true, pauseUI);
@@ -264,6 +272,7 @@ public class SceneManager : MonoBehaviour
     {
         gameState = GameState.Demo;
         Time.timeScale = 1; // Resume time
+        PlaySFX(button_sfx_short);
 
         // UI changes
         ShowOrHideUI(false, pauseUI);
@@ -330,5 +339,15 @@ public class SceneManager : MonoBehaviour
     {
         foreach (GameObject x in UI)
         { x.gameObject.SetActive(show); }
+    }
+
+    /// <summary>
+    /// Plays a sound effect
+    /// </summary>
+    /// <param name="audioClip">Desired sfx</param>
+    public void PlaySFX(AudioClip audioClip)
+    {
+        GetComponent<AudioSource>().clip = audioClip;
+        GetComponent<AudioSource>().Play();
     }
 }
