@@ -103,6 +103,7 @@ public class PlayerController : MonoBehaviour
     // Child Objects
     [SerializeField] private GameObject aimIndicator;
     [SerializeField] private GameObject crosshair;
+    [SerializeField] private GameObject trajectoryLine;
 
     // Game State Change
     private bool paused;
@@ -143,6 +144,14 @@ public class PlayerController : MonoBehaviour
         set
         {
             invicibilityTimer = value;
+        }
+    }
+
+    public ThrowableEnemy NearbyKnockedEnemy
+    {
+        get
+        {
+            return nearbyKnockedEnemy;
         }
     }
 
@@ -778,13 +787,13 @@ public class PlayerController : MonoBehaviour
     private void ValidateThrowDirection()
     {
         // If the player is facing right and the mouse is behind them:
-        if (isFacingRight && (rightStickPosition.x + transform.position.x) > transform.position.x)
+        if (isFacingRight && (rightStickPosition.x + transform.position.x) < transform.position.x)
         {
             // Turn them around
             TurnLeft();
         }
         // Otherwise, if the player is facing left and the mouse is behind them:
-        else if (!isFacingRight && (rightStickPosition.x + transform.position.x) < transform.position.x)
+        else if (!isFacingRight && (rightStickPosition.x + transform.position.x) > transform.position.x)
         {
             // Turn them around
             TurnRight();
@@ -929,6 +938,8 @@ public class PlayerController : MonoBehaviour
         // Enable the aim indicator
         aimIndicator.SetActive(true);
 
+        trajectoryLine.SetActive(true);
+
     }
 
     /// <summary>
@@ -941,7 +952,22 @@ public class PlayerController : MonoBehaviour
 
         // Disable the aim indicator
         aimIndicator.SetActive(false);
+
+        trajectoryLine.SetActive(false);
     }
+
+    private void ShowAimArc()
+    {
+        Vector2 force = new Vector2
+            (
+                Mathf.Cos(throwingAngle) * throwingForce,
+                Mathf.Sin(throwingAngle) * throwingForce
+            );
+    }
+
+    #endregion
+
+    #region SFX
 
     /// <summary>
     /// Randomizes the speed and pitch of a sound, and plays it
@@ -957,6 +983,21 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region Etc. Helpers
+
+    public Vector2 GetThrowForce()
+    {
+        if (isHoldingEnemy)
+        {
+            return new Vector2
+                (
+                    Mathf.Cos(throwingAngle) * throwingForce,
+                    Mathf.Sin(throwingAngle) * throwingForce
+                );
+        }
+
+        return Vector2.zero;
+    }
+
     private void SetKnockedEnemyColor()
     {
         if (nearbyKnockedEnemy != null)
