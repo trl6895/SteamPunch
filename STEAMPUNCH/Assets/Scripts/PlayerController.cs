@@ -72,6 +72,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public Vector2 holdingPosition;
     public Vector3 mousePosition;
     public Vector2 rightStickPosition;
+    private bool defaultAngle = false;
     private bool isPunching = false;
 
     // Collision --------------------------------------------------------------
@@ -262,13 +263,34 @@ public class PlayerController : MonoBehaviour
             }
 
             if (usingGamepad)
+            {
                 rightStickPosition = aim.ReadValue<Vector2>() * 2;
+                if (rightStickPosition.x <= 0.05f && rightStickPosition.y <= 0.05f)
+                    defaultAngle = true;
+                else
+                    defaultAngle = false;
+            }
             else
                 rightStickPosition = ((Vector2)mousePosition - holdingPosition).normalized * 2;
 
             // Update the throwing angle
             // throwingAngle = Mathf.PI + Mathf.Atan2(rightStickPosition.y, rightStickPosition.x);
-            throwingAngle = Mathf.Atan2(rightStickPosition.y, rightStickPosition.x);
+            if (!defaultAngle)
+            {
+                throwingAngle = Mathf.Atan2(rightStickPosition.y, rightStickPosition.x);
+            }
+            else
+            {
+                if (isFacingRight)
+                {
+                    throwingAngle = Mathf.PI / 4.0f;
+                }
+                else
+                {
+                    throwingAngle = 3.0f * Mathf.PI / 4.0f;
+                }
+            }
+
 
             // Update the position and rotation of the aim indicator
             aimIndicator.transform.position = new Vector3(holdingPosition.x, holdingPosition.y, -1.0f);
