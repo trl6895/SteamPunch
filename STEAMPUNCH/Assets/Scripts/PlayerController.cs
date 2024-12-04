@@ -265,7 +265,7 @@ public class PlayerController : MonoBehaviour
             if (usingGamepad)
             {
                 rightStickPosition = aim.ReadValue<Vector2>() * 2;
-                if (rightStickPosition.x <= 0.05f && rightStickPosition.y <= 0.05f)
+                if (Mathf.Abs(rightStickPosition.x) <= 0.05f && Mathf.Abs(rightStickPosition.y) <= 0.05f)
                     defaultAngle = true;
                 else
                     defaultAngle = false;
