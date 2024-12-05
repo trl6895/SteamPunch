@@ -4,7 +4,7 @@ public class TrajectoryLine : MonoBehaviour
 {
 
     [SerializeField] private int segmentCount = 100;
-    [SerializeField] private float lineLength = 2f;
+    [SerializeField] private float lineLength = 0.1f;
 
     private Vector2[] segments;
     private LineRenderer lineRenderer;
