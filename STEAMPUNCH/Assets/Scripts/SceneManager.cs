@@ -17,11 +17,14 @@ public class SceneManager : MonoBehaviour
 
     private int selectedStage; // Tracks currently selected stage. Changes on button select in menu, and resets when menu is loaded.
 
-    private GameObject[] titleUI; // Contains all  of the title select UI elements
+    // Arrays of tagged game objects
+    private GameObject[] titleUI; // Contains all of the title select UI elements
+    private GameObject[] titleCreditsUI; // Contains all of the title credits UI elements
     private GameObject[] levelUI; // Contains all* of the level select UI elements (excludes those with serialization necessary)
     private GameObject[] pauseUI; // Contains all* of the pause screen UI elements
     private GameObject[] deathUI; // Contains all* of the death screen UI elements
-    private GameObject[] gameUI;  // Contains all  of the on-screen in-game UI elements
+    private GameObject[] gameUI;  // Contains all of the on-screen in-game UI elements
+
     // Note that 'greyBackground' is used on both the pause and death screens, so it is not tagged.
 
     // References -------------------------------------------------------------
@@ -33,19 +36,21 @@ public class SceneManager : MonoBehaviour
 
     // Serialized for T.C.E.
     [SerializeField] public Button titleLevels_b;
+    [SerializeField] public Button titleCreditsBack_b;
     [SerializeField] public Button levelStage_b1;
     [SerializeField] public Button deathRetry_b;
     [SerializeField] public Button pauseExit_b;
 
-    // Serialized to be directly edited
+    // Serialized to be directly edited (for example - text that changes)
     [SerializeField] public Button levelPlay_b;
     [SerializeField] public TMP_Text levelName;
     [SerializeField] public TMP_Text levelBlurb;
 
     // Serialized because it is used in multiple places and thus cannot be efficiently managed through a tag
+    [SerializeField] public Image titleArt_placeholder_1;
     [SerializeField] public Image greyBackground;
 
-    // SFX
+    // Serialized SFX to be played at a time other than on button press (for example - on game pause)
     [SerializeField] public AudioClip button_sfx_hit;
     [SerializeField] public AudioClip button_sfx_short;
 
@@ -58,19 +63,20 @@ public class SceneManager : MonoBehaviour
     private void Awake()
     {
         newInputHandler = new NewInputHandler();
+
+        AudioSource audio = GetComponent<AudioSource>();
+        //DontDestroyOnLoad(audio);
     }
 
     // Start is called before the first frame update
     void Start()
     {
         titleUI = GameObject.FindGameObjectsWithTag("titleScreen"); // Objects need to be ACTIVE to be found!
+        titleCreditsUI = GameObject.FindGameObjectsWithTag("titleCreditsScreen"); // See above
         levelUI = GameObject.FindGameObjectsWithTag("levelScreen"); // See above
         pauseUI = GameObject.FindGameObjectsWithTag("pauseScreen"); // See above
         deathUI = GameObject.FindGameObjectsWithTag("deathScreen"); // See above
         gameUI  = GameObject.FindGameObjectsWithTag("gameUI");      // See above
-
-        AudioSource audio = GetComponent<AudioSource>();
-        DontDestroyOnLoad(audio);
 
         // This determines what state the game will be in when it starts (!) and hides all UI that was enabled to be added to an array
         if (UnityEngine.SceneManagement.SceneManager.GetSceneByName("Menus").isLoaded)
@@ -82,6 +88,7 @@ public class SceneManager : MonoBehaviour
         else
         {
             // Good practice to include all arrays here
+            ShowOrHideUI(false, titleCreditsUI);
             ShowOrHideUI(false, pauseUI);
             ShowOrHideUI(false, levelUI);
             ShowOrHideUI(false, deathUI);
@@ -145,6 +152,7 @@ public class SceneManager : MonoBehaviour
     /// </summary>
     public void SwitchToGame()
     {
+        // A more futureproof way to code this obviously does exist
         if (selectedStage == 1) { UnityEngine.SceneManagement.SceneManager.LoadScene("Level 1"); }
         else if (selectedStage == 2) { /*UnityEngine.SceneManagement.SceneManager.LoadScene("Stage2");*/ }
         else if (selectedStage == 3) { /*UnityEngine.SceneManagement.SceneManager.LoadScene("Stage3");*/ }
@@ -175,10 +183,26 @@ public class SceneManager : MonoBehaviour
         // UI changes
         try { ShowOrHideUI(false, levelUI); }
         catch (NullReferenceException) { Debug.Log("Suppressing Error"); } // Stops error
+        ShowOrHideUI(false, titleCreditsUI);
         ShowOrHideUI(true, titleUI);
 
         EventSystem.current.SetSelectedGameObject(titleLevels_b.gameObject); // Triston's Controller Extravaganza
         //EventSystem.current.SetSelectedGameObject(null);
+    }
+
+    /// <summary>
+    /// Draws the CREDITS, as shown from the title screen.
+    /// </summary>
+    public void TitleCredits()
+    {
+        gameState = GameState.LevelSelect;
+
+        // UI changes
+        ShowOrHideUI(true, titleCreditsUI);
+        ShowOrHideUI(false, titleUI);
+        titleArt_placeholder_1.gameObject.SetActive(true);
+
+        EventSystem.current.SetSelectedGameObject(titleCreditsBack_b.gameObject); // Triston's Controller Extravaganza
     }
 
     /// <summary>

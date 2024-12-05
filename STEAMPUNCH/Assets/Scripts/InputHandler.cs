@@ -28,13 +28,6 @@ public class InputHandler : MonoBehaviour
             {
                 Application.Quit();
             }
-            /*
-            // Press ANY  OTHER KEY
-            // Continues to level select screen
-            else if (Input.anyKey)
-            {
-                sceneManager.LevelSelectMenu();
-            }*/
         }
 
         // If on level select screen:

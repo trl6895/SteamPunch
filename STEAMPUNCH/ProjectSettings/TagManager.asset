@@ -9,6 +9,7 @@ TagManager:
   - gameUI
   - titleScreen
   - pauseScreen
+  - titleCreditsScreen
   layers:
   - Default
   - TransparentFX
