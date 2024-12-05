@@ -204,9 +204,9 @@ MonoBehaviour:
   knockbackForce: 0
   sfx_knocked: {fileID: -6677355183776967926}
   animator: {fileID: 3551798890675437588}
-  setWalkDistance: 10
-  playerTrackCheck: {fileID: 0}
-  followSpeed: 0
+  setWalkDistance: 15
+  playerTrackCheck: {fileID: 4889767030159608931}
+  followSpeed: 3.5
   sprite: {fileID: 7137066752389348426}
 --- !u!95 &3551798890675437588
 Animator:
