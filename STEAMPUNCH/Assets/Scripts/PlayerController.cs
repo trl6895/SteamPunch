@@ -79,6 +79,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public Rigidbody2D rb;
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer;
+
+    [SerializeField] private Transform wallCheck;
+    [SerializeField] private LayerMask wallLayer;
+    [SerializeField] private Transform wallCheckRight;
+
     [SerializeField] private LayerMask enemyLayer;
     [SerializeField] public BoxCollider2D hitbox;
 
@@ -462,11 +467,20 @@ public class PlayerController : MonoBehaviour
             {
                 if (IsGrounded())
                 {
+
                     rb.AddForce(new Vector2(horizontal * speed, 0.0f), ForceMode2D.Impulse);
                     airPunchCounter = 0;
                     isStanding = true;
                     gpLockout = false;
+                    gpFlag = false;
+
                 }
+
+                else if (IsWalled() && !IsGrounded())
+                {
+
+                }
+
                 else
                 {
                     if (!gpFlag)
@@ -779,6 +793,19 @@ public class PlayerController : MonoBehaviour
             new Vector2(groundCheck.position.x + (groundCheck.GetComponent<SpriteRenderer>().bounds.size.x / 2),
             groundCheck.position.y - (groundCheck.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
             groundLayer);
+    }
+
+    public bool IsWalled()
+    {
+        return Physics2D.OverlapArea(new Vector2(wallCheck.position.x - (wallCheck.GetComponent<SpriteRenderer>().bounds.size.x / 2),
+            wallCheck.position.y + (wallCheck.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
+            new Vector2(wallCheck.position.x + (wallCheck.GetComponent<SpriteRenderer>().bounds.size.x / 2),
+            wallCheck.position.y - (wallCheck.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
+            wallLayer) || Physics2D.OverlapArea(new Vector2(wallCheckRight.position.x - (wallCheckRight.GetComponent<SpriteRenderer>().bounds.size.x / 2),
+            wallCheckRight.position.y + (wallCheckRight.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
+            new Vector2(wallCheckRight.position.x + (wallCheckRight.GetComponent<SpriteRenderer>().bounds.size.x / 2),
+            wallCheckRight.position.y - (wallCheckRight.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
+            wallLayer);
     }
 
     /// <summary>
