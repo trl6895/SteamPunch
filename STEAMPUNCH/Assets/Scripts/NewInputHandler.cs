@@ -89,6 +89,15 @@ public partial class @NewInputHandler: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""GroundPound"",
+                    ""type"": ""Button"",
+                    ""id"": ""51b26da6-0372-4aff-b64f-2fcbb48965a1"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -97,7 +106,7 @@ public partial class @NewInputHandler: IInputActionCollection2, IDisposable
                     ""id"": ""978bfe49-cc26-4a3d-ab7b-7d7a29327403"",
                     ""path"": ""<Gamepad>/leftStick"",
                     ""interactions"": """",
-                    ""processors"": """",
+                    ""processors"": ""StickDeadzone"",
                     ""groups"": "";Gamepad"",
                     ""action"": ""Move"",
                     ""isComposite"": false,
@@ -207,7 +216,7 @@ public partial class @NewInputHandler: IInputActionCollection2, IDisposable
                     ""id"": ""1635d3fe-58b6-4ba9-a4e2-f4b964f6b5c8"",
                     ""path"": ""<XRController>/{Primary2DAxis}"",
                     ""interactions"": """",
-                    ""processors"": """",
+                    ""processors"": ""StickDeadzone"",
                     ""groups"": ""XR"",
                     ""action"": ""Move"",
                     ""isComposite"": false,
@@ -218,7 +227,7 @@ public partial class @NewInputHandler: IInputActionCollection2, IDisposable
                     ""id"": ""3ea4d645-4504-4529-b061-ab81934c3752"",
                     ""path"": ""<Joystick>/stick"",
                     ""interactions"": """",
-                    ""processors"": """",
+                    ""processors"": ""StickDeadzone"",
                     ""groups"": ""Joystick"",
                     ""action"": ""Move"",
                     ""isComposite"": false,
@@ -229,7 +238,7 @@ public partial class @NewInputHandler: IInputActionCollection2, IDisposable
                     ""id"": ""e0bd460e-b939-4cf8-9fe7-64dfa1a8b381"",
                     ""path"": ""<SwitchProControllerHID>/leftStick"",
                     ""interactions"": """",
-                    ""processors"": """",
+                    ""processors"": ""StickDeadzone"",
                     ""groups"": ""Gamepad"",
                     ""action"": ""Move"",
                     ""isComposite"": false,
@@ -358,6 +367,28 @@ public partial class @NewInputHandler: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""2b62901a-0de8-4e26-9e62-c39a3f9490ca"",
+                    ""path"": ""<XInputController>/rightShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Jump"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4f982d4d-81f0-446d-b83d-89f2927ff1b7"",
+                    ""path"": ""<SwitchProControllerHID>/rightShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Jump"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""dd730bd2-9b80-466f-8c57-e8148d949a11"",
                     ""path"": ""<Mouse>/rightButton"",
                     ""interactions"": """",
@@ -449,7 +480,7 @@ public partial class @NewInputHandler: IInputActionCollection2, IDisposable
                     ""id"": ""b489191b-f46f-46b2-9461-f00e64f73ddb"",
                     ""path"": ""<Gamepad>/rightStick"",
                     ""interactions"": """",
-                    ""processors"": """",
+                    ""processors"": ""StickDeadzone"",
                     ""groups"": ""Gamepad"",
                     ""action"": ""Aim"",
                     ""isComposite"": false,
@@ -460,7 +491,7 @@ public partial class @NewInputHandler: IInputActionCollection2, IDisposable
                     ""id"": ""a9539d76-da11-48f5-a127-211991d83082"",
                     ""path"": ""<XInputController>/rightStick"",
                     ""interactions"": """",
-                    ""processors"": """",
+                    ""processors"": ""StickDeadzone"",
                     ""groups"": ""Gamepad"",
                     ""action"": ""Aim"",
                     ""isComposite"": false,
@@ -471,9 +502,42 @@ public partial class @NewInputHandler: IInputActionCollection2, IDisposable
                     ""id"": ""f2de3617-935a-4d87-8f3a-befc0f736587"",
                     ""path"": ""<SwitchProControllerHID>/rightStick"",
                     ""interactions"": """",
-                    ""processors"": """",
+                    ""processors"": ""StickDeadzone"",
                     ""groups"": """",
                     ""action"": ""Aim"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""6f3b3ac5-a3cc-4cb1-9e39-f16e24713f04"",
+                    ""path"": ""<SwitchProControllerHID>/buttonWest"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""GroundPound"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""855a0a34-7171-4a3d-b2f1-91cf62e97dda"",
+                    ""path"": ""<XInputController>/buttonWest"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""GroundPound"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8abc7b20-0c9c-440f-8fb5-190d6a3369e8"",
+                    ""path"": ""<Keyboard>/leftShift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""GroundPound"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1196,6 +1260,7 @@ public partial class @NewInputHandler: IInputActionCollection2, IDisposable
         m_Player_Grab = m_Player.FindAction("Grab", throwIfNotFound: true);
         m_Player_Punch = m_Player.FindAction("Punch", throwIfNotFound: true);
         m_Player_Aim = m_Player.FindAction("Aim", throwIfNotFound: true);
+        m_Player_GroundPound = m_Player.FindAction("GroundPound", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1278,6 +1343,7 @@ public partial class @NewInputHandler: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Grab;
     private readonly InputAction m_Player_Punch;
     private readonly InputAction m_Player_Aim;
+    private readonly InputAction m_Player_GroundPound;
     public struct PlayerActions
     {
         private @NewInputHandler m_Wrapper;
@@ -1289,6 +1355,7 @@ public partial class @NewInputHandler: IInputActionCollection2, IDisposable
         public InputAction @Grab => m_Wrapper.m_Player_Grab;
         public InputAction @Punch => m_Wrapper.m_Player_Punch;
         public InputAction @Aim => m_Wrapper.m_Player_Aim;
+        public InputAction @GroundPound => m_Wrapper.m_Player_GroundPound;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1319,6 +1386,9 @@ public partial class @NewInputHandler: IInputActionCollection2, IDisposable
             @Aim.started += instance.OnAim;
             @Aim.performed += instance.OnAim;
             @Aim.canceled += instance.OnAim;
+            @GroundPound.started += instance.OnGroundPound;
+            @GroundPound.performed += instance.OnGroundPound;
+            @GroundPound.canceled += instance.OnGroundPound;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -1344,6 +1414,9 @@ public partial class @NewInputHandler: IInputActionCollection2, IDisposable
             @Aim.started -= instance.OnAim;
             @Aim.performed -= instance.OnAim;
             @Aim.canceled -= instance.OnAim;
+            @GroundPound.started -= instance.OnGroundPound;
+            @GroundPound.performed -= instance.OnGroundPound;
+            @GroundPound.canceled -= instance.OnGroundPound;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -1549,6 +1622,7 @@ public partial class @NewInputHandler: IInputActionCollection2, IDisposable
         void OnGrab(InputAction.CallbackContext context);
         void OnPunch(InputAction.CallbackContext context);
         void OnAim(InputAction.CallbackContext context);
+        void OnGroundPound(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {

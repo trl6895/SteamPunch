@@ -29,6 +29,16 @@ public class ThrowableEnemy : MonoBehaviour
         }
     }
 
+    public float Mass
+    {
+        get { return rb.mass; }
+    }
+
+    public float GravityScale
+    {
+        get { return rb.gravityScale; }
+    }
+
     // Start is called before the first frame update
     void Start()
     {

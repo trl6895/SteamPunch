@@ -36,7 +36,6 @@ public class Enemy : MonoBehaviour
     [SerializeField] protected LayerMask playerLayer;
 
     [SerializeField] protected Transform hitboxCollisionCheck;
-    protected bool foundPlayer = false;
 
     [SerializeField] protected float speed;
     [SerializeField] protected float knockbackForce;
@@ -134,8 +133,6 @@ public class Enemy : MonoBehaviour
 
         // Add a force to the enemy that sends it to the right
         rb.AddForce(force);
-
-        foundPlayer = true;
     }
 
     public void DamagePlayer()
@@ -148,14 +145,7 @@ public class Enemy : MonoBehaviour
         {
             player.Health -= 5;
             player.InvicibilityTimer = 1f;
-            if (player.transform.position.x > transform.position.x)
-            {
-                player.GetComponent<Rigidbody2D>().AddForce(new Vector2(knockbackForce, 1500.0f));
-            }
-            else if (player.transform.position.x < transform.position.x)
-            {
-                player.GetComponent<Rigidbody2D>().AddForce(new Vector2(-knockbackForce, 1500.0f));
-            }
+            //player.GetComponent<Rigidbody2D>().AddForce(new Vector2(2.0f * knockbackForce, 3.0f));
         }
     }
 

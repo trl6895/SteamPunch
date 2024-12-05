@@ -7,7 +7,7 @@ using UnityEngine.UI;
 /// <summary>
 /// The states of the player that determine if they can be controlled or not
 /// </summary>
-public enum PlayerState { Free, Locked, Surfing }
+public enum PlayerState { Free, Locked, Surfing, AirPause }
 
 /// <summary>
 /// The current fist that the player is punching with
@@ -36,9 +36,15 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public float throwingForceX = 500.0f;
     [SerializeField] public float throwingForceY = 500.0f;
     [SerializeField] public float throwingForce = 1000.0f;
+    [SerializeField] public float groundPoundForce = 50.0f;
     private bool isFacingRight = true;
 
     private bool jumpFlag = false;
+    private bool gpFlag = false;
+    private bool gpLockout = false;
+
+    private const float airPauseTime = 0.5f;
+    private float airPauseTimer = 0.0f;
 
     [SerializeField]
     float airPunchCounter = 0;
@@ -61,10 +67,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public float fistResetCooldown = 1.0f;
     [SerializeField] public float punchCooldownTimer = 0.25f;
     [SerializeField] public CapsuleCollider2D punchCollider;
+    [SerializeField] public CapsuleCollider2D groundPoundCollider;
     public float throwingAngle = 0.0f;
     [SerializeField] public Vector2 holdingPosition;
     public Vector3 mousePosition;
     public Vector2 rightStickPosition;
+    private bool defaultAngle = false;
     private bool isPunching = false;
 
     // Collision --------------------------------------------------------------
@@ -95,6 +103,7 @@ public class PlayerController : MonoBehaviour
     // Child Objects
     [SerializeField] private GameObject aimIndicator;
     [SerializeField] private GameObject crosshair;
+    [SerializeField] private GameObject trajectoryLine;
 
     // Game State Change
     private bool paused;
@@ -132,9 +141,17 @@ public class PlayerController : MonoBehaviour
         {
             return invicibilityTimer;
         }
-        set 
+        set
         {
             invicibilityTimer = value;
+        }
+    }
+
+    public ThrowableEnemy NearbyKnockedEnemy
+    {
+        get
+        {
+            return nearbyKnockedEnemy;
         }
     }
 
@@ -186,8 +203,11 @@ public class PlayerController : MonoBehaviour
         aim = newInputHandler.Player.Aim;
         aim.Enable();
 
-        newInputHandler.Player.Jump.performed += Jump;
+        newInputHandler.Player.Jump.performed += JumpAction;
         newInputHandler.Player.Jump.Enable();
+
+        newInputHandler.Player.GroundPound.performed += GroundPound;
+        newInputHandler.Player.GroundPound.Enable();
 
         newInputHandler.Player.Punch.performed += PunchOrThrow;
         newInputHandler.Player.Punch.Enable();
@@ -203,6 +223,7 @@ public class PlayerController : MonoBehaviour
         look.Disable();
         aim.Disable();
         newInputHandler.Player.Jump.Disable();
+        newInputHandler.Player.GroundPound.Disable();
         newInputHandler.Player.Punch.Disable();
         newInputHandler.Player.Grab.Disable();
     }
@@ -218,6 +239,7 @@ public class PlayerController : MonoBehaviour
                 look.Enable();
                 aim.Enable();
                 newInputHandler.Player.Jump.Enable();
+                newInputHandler.Player.GroundPound.Enable();
                 newInputHandler.Player.Punch.Enable();
                 newInputHandler.Player.Grab.Enable();
                 paused = false;
@@ -227,7 +249,8 @@ public class PlayerController : MonoBehaviour
             // Animate the player
             Animate();
 
-            Walk();
+            if (currentState != PlayerState.AirPause)
+                Walk();
 
             // Increment the punch cooldown timer
             punchCooldownTimer += Time.deltaTime;
@@ -249,12 +272,34 @@ public class PlayerController : MonoBehaviour
             }
 
             if (usingGamepad)
+            {
                 rightStickPosition = aim.ReadValue<Vector2>() * 2;
+                if (Mathf.Abs(rightStickPosition.x) <= 0.05f && Mathf.Abs(rightStickPosition.y) <= 0.05f)
+                    defaultAngle = true;
+                else
+                    defaultAngle = false;
+            }
             else
                 rightStickPosition = ((Vector2)mousePosition - holdingPosition).normalized * 2;
 
             // Update the throwing angle
-            throwingAngle = Mathf.PI + Mathf.Atan2(rightStickPosition.y, rightStickPosition.x);
+            // throwingAngle = Mathf.PI + Mathf.Atan2(rightStickPosition.y, rightStickPosition.x);
+            if (!defaultAngle)
+            {
+                throwingAngle = Mathf.Atan2(rightStickPosition.y, rightStickPosition.x);
+            }
+            else
+            {
+                if (isFacingRight)
+                {
+                    throwingAngle = Mathf.PI / 4.0f;
+                }
+                else
+                {
+                    throwingAngle = 3.0f * Mathf.PI / 4.0f;
+                }
+            }
+
 
             // Update the position and rotation of the aim indicator
             aimIndicator.transform.position = new Vector3(holdingPosition.x, holdingPosition.y, -1.0f);
@@ -286,12 +331,17 @@ public class PlayerController : MonoBehaviour
 
             if (isPunching)
             {
-                CheckForPunchHit();
+                CheckForPunchHit(punchCollider);
                 if (airPunchCounter == 0)
                 {
                     rb.velocity = new Vector3(rb.velocity.x, 0f);
                 }
             }
+            else if (gpLockout)
+            {
+                CheckForPunchHit(groundPoundCollider);
+            }
+
             if (currentPunchMoveForce > 0)
             {
                 currentPunchMoveForce -= 3 * punchMoveForce * Time.deltaTime;
@@ -326,20 +376,29 @@ public class PlayerController : MonoBehaviour
             healthbar.transform.position = new Vector3(healthbarStartingPos + (200 - (Health * 2)), healthBarHelmet.transform.position.y, 0);
 
             //player will flash briefly after hit
-            spriteRenderer.color = new Color(1, 1 - invicibilityTimer / 2, 1 - invicibilityTimer / 2, 1-invicibilityTimer/2);
+            spriteRenderer.color = new Color(1, 1 - (invicibilityTimer / 2), 1 - (invicibilityTimer / 2), 1 - (invicibilityTimer / 2));
 
             if (isSurfingEnemy)
             {
                 transform.position = new Vector2(nearbyKnockedEnemy.transform.position.x, nearbyKnockedEnemy.transform.position.y + 0.5f);
             }
 
-            if (!isHoldingEnemy && !isSurfingEnemy)
-                if (NearKnockedEnemy())
-                    SetKnockedEnemyColor();
+            if (!isHoldingEnemy && !isSurfingEnemy && NearKnockedEnemy())
+                SetKnockedEnemyColor();
 
             if (health <= 0)
             {
                 sceneManager.Death();
+            }
+
+            if (currentState == PlayerState.AirPause)
+            {
+                airPauseTimer += Time.deltaTime;
+                if (airPauseTimer > airPauseTime)
+                {
+                    currentState = PlayerState.Free;
+                    airPauseTimer = 0.0f;
+                }
             }
         }
         // If the game is paused:
@@ -351,6 +410,7 @@ public class PlayerController : MonoBehaviour
             look.Disable();
             aim.Disable();
             newInputHandler.Player.Jump.Disable();
+            newInputHandler.Player.GroundPound.Disable();
             newInputHandler.Player.Punch.Disable();
             newInputHandler.Player.Grab.Disable();
             paused = true;
@@ -367,41 +427,72 @@ public class PlayerController : MonoBehaviour
     // FixedUpdate is called every fixed framerate frame
     private void FixedUpdate()
     {
-        // Update the player's velocity
-        rb.velocity = new Vector2((horizontal * speed) + currentPunchMoveForce, rb.velocity.y);
-
-        if (jumpFlag)
+        if (currentState == PlayerState.AirPause)
         {
-            rb.AddForce(new Vector2(0.0f, jumpingPower));
-            jumpFlag = false;
-            currentState = PlayerState.Free;
+            rb.velocity = new Vector2(0.0f, 0.0f);
+            rb.isKinematic = true;
         }
-
-        if (currentState == PlayerState.Free)
+        else
         {
-            if (IsGrounded())
-            {
-                rb.AddForce(new Vector2(horizontal * speed, 0.0f), ForceMode2D.Impulse);
-                airPunchCounter = 0;
-                isStanding = true;
-            }
-            else
-            {
-                rb.AddForce(new Vector2(horizontal * speed * 8, 0.0f), ForceMode2D.Force);
-            }
-        }
+            rb.isKinematic = false;
+            // Update the player's velocity
+            rb.velocity = new Vector2((horizontal * speed) + currentPunchMoveForce, rb.velocity.y);
 
-        if (isPunching)
-        {
-            if (airPunchCounter == 1)
+            // READING MOVE FOR JUMP
+            /*
+            Vector2 mvXY = move.ReadValue<Vector2>();
+            float angle = Mathf.Rad2Deg * Mathf.Atan2(mvXY.y, mvXY.x);
+
+            Debug.Log("ANGLE: " + angle);
+
+            if (angle >= 45 && angle <= 135)
+            {
+                Jump();
+            }
+            */
+
+            if (jumpFlag)
+            {
+                rb.AddForce(new Vector2(0.0f, jumpingPower));
+                jumpFlag = false;
+                currentState = PlayerState.Free;
+            }
+
+            if (currentState == PlayerState.Free)
+            {
+                if (IsGrounded())
+                {
+                    rb.AddForce(new Vector2(horizontal * speed, 0.0f), ForceMode2D.Impulse);
+                    airPunchCounter = 0;
+                    isStanding = true;
+                    gpLockout = false;
+                }
+                else
+                {
+                    if (!gpFlag)
+                        rb.AddForce(new Vector2(horizontal * speed * 8, 0.0f), ForceMode2D.Force);
+                    else
+                    {
+                        rb.AddForce(new Vector2(0.0f, -groundPoundForce), ForceMode2D.Impulse);
+                        rb.velocity = new Vector3(0.0f, rb.velocity.y);
+                        gpLockout = true;
+                        gpFlag = false;
+                    }
+                }
+            }
+
+            if (isPunching)
+            {
+                if (airPunchCounter == 1)
+                {
+                    rb.velocity = new Vector3(rb.velocity.x, 0f);
+                }
+            }
+
+            if (currentState == PlayerState.Surfing)
             {
                 rb.velocity = new Vector3(rb.velocity.x, 0f);
             }
-        }
-
-        if (currentState == PlayerState.Surfing)
-        {
-            rb.velocity = new Vector3(rb.velocity.x, 0f);
         }
     }
 
@@ -507,7 +598,12 @@ public class PlayerController : MonoBehaviour
     /// <summary>
     /// Makes the player jump
     /// </summary>
-    public void Jump(InputAction.CallbackContext context)
+    private void JumpAction(InputAction.CallbackContext context)
+    {
+        Jump();
+    }
+
+    public void Jump()
     {
         if (IsGrounded() || currentState == PlayerState.Surfing)
         {
@@ -525,7 +621,15 @@ public class PlayerController : MonoBehaviour
 
             // rb.velocity += new Vector2(rb.velocity.x, jumpingPower) * Time.deltaTime;
         }
+    }
 
+    private void GroundPound(InputAction.CallbackContext context)
+    {
+        if (!IsGrounded() && currentState != PlayerState.Surfing && !gpLockout)
+        {
+            currentState = PlayerState.AirPause;
+            gpFlag = true;
+        }
     }
 
     private void PunchOrThrow(InputAction.CallbackContext context)
@@ -683,13 +787,13 @@ public class PlayerController : MonoBehaviour
     private void ValidateThrowDirection()
     {
         // If the player is facing right and the mouse is behind them:
-        if (isFacingRight && (rightStickPosition.x + transform.position.x) > transform.position.x)
+        if (isFacingRight && (rightStickPosition.x + transform.position.x) < transform.position.x)
         {
             // Turn them around
             TurnLeft();
         }
         // Otherwise, if the player is facing left and the mouse is behind them:
-        else if (!isFacingRight && (rightStickPosition.x + transform.position.x) < transform.position.x)
+        else if (!isFacingRight && (rightStickPosition.x + transform.position.x) > transform.position.x)
         {
             // Turn them around
             TurnRight();
@@ -699,13 +803,13 @@ public class PlayerController : MonoBehaviour
     /// <summary>
     /// Checks to see if a punch hit something
     /// </summary>
-    private void CheckForPunchHit()
+    private void CheckForPunchHit(Collider2D collider)
     {
         // Initialize a list to hold all colliders that collide with the punch
         List<Collider2D> contacts = new List<Collider2D>();
 
         // Fill the list with all contacts
-        punchCollider.OverlapCollider(new ContactFilter2D().NoFilter(), contacts);
+        collider.OverlapCollider(new ContactFilter2D().NoFilter(), contacts);
 
         // Make a boolean to track if anything was punched
         bool successfulHit = false;
@@ -768,7 +872,7 @@ public class PlayerController : MonoBehaviour
             // Make the player recoil
             currentPunchMoveForce *= -recoilMultiplier;
 
-            rb.AddForce(new Vector2(0.0f, jumpingPower/3));
+            rb.AddForce(new Vector2(0.0f, jumpingPower / 3));
 
             // Track that the player is no longer punching
             isPunching = false;
@@ -834,6 +938,8 @@ public class PlayerController : MonoBehaviour
         // Enable the aim indicator
         aimIndicator.SetActive(true);
 
+        trajectoryLine.SetActive(true);
+
     }
 
     /// <summary>
@@ -846,7 +952,22 @@ public class PlayerController : MonoBehaviour
 
         // Disable the aim indicator
         aimIndicator.SetActive(false);
+
+        trajectoryLine.SetActive(false);
     }
+
+    private void ShowAimArc()
+    {
+        Vector2 force = new Vector2
+            (
+                Mathf.Cos(throwingAngle) * throwingForce,
+                Mathf.Sin(throwingAngle) * throwingForce
+            );
+    }
+
+    #endregion
+
+    #region SFX
 
     /// <summary>
     /// Randomizes the speed and pitch of a sound, and plays it
@@ -862,6 +983,21 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region Etc. Helpers
+
+    public Vector2 GetThrowForce()
+    {
+        if (isHoldingEnemy)
+        {
+            return new Vector2
+                (
+                    Mathf.Cos(throwingAngle) * throwingForce,
+                    Mathf.Sin(throwingAngle) * throwingForce
+                );
+        }
+
+        return Vector2.zero;
+    }
+
     private void SetKnockedEnemyColor()
     {
         if (nearbyKnockedEnemy != null)
