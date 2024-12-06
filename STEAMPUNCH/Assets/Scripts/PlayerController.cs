@@ -845,6 +845,9 @@ public class PlayerController : MonoBehaviour
             // Create a temporary bouncy block
             BouncyBlock tempBouncyBlock;
 
+            // Crate spawner button
+            CrateSpawner tempCrateSpawner;
+
             // If the current overlapping collider belongs to an enemy:
             if (contacts[i].gameObject.TryGetComponent<Enemy>(out tempEnemy))
             {
@@ -891,6 +894,13 @@ public class PlayerController : MonoBehaviour
             {
                 // Mark that there has been a successful bouncy hit
                 successfulHitBouncy = true;
+            }
+            // Otherwise, if the current overlapping collider belongs to a wall:
+            else if (contacts[i].gameObject.TryGetComponent<CrateSpawner>(out tempCrateSpawner))
+            {
+                // Mark that there has been a successful hit
+                tempCrateSpawner.Activate();
+                successfulHit = true;
             }
         }
 
