@@ -143,7 +143,7 @@ public class Enemy : MonoBehaviour
             hitboxCollisionCheck.position.y - (hitboxCollisionCheck.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
             playerLayer) && player.InvicibilityTimer <= 0f)
         {
-            player.Health -= 5;
+            player.Health -= 1;
             player.InvicibilityTimer = 1f;
             //player.GetComponent<Rigidbody2D>().AddForce(new Vector2(2.0f * knockbackForce, 3.0f));
         }

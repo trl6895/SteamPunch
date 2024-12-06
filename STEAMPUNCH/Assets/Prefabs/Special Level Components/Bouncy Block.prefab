@@ -75,7 +75,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 127276930, guid: 7b63ba3587100994e8317d6a83343b49, type: 3}
+  m_Sprite: {fileID: -1029970673, guid: 30e112dd2f8539641b7a729e6581c41f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -144,3 +144,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitbox: {fileID: 2532796496788181244}
+  sfx_bouncy: {fileID: 0}
