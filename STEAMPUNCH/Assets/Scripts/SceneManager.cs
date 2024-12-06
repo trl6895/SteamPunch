@@ -45,6 +45,7 @@ public class SceneManager : MonoBehaviour
     [SerializeField] public Button levelPlay_b;
     [SerializeField] public TMP_Text levelName;
     [SerializeField] public TMP_Text levelBlurb;
+   
 
     // Serialized because it is used in multiple places and thus cannot be efficiently managed through a tag
     [SerializeField] public Image titleArt_placeholder_1;
@@ -92,7 +93,7 @@ public class SceneManager : MonoBehaviour
             ShowOrHideUI(false, pauseUI);
             ShowOrHideUI(false, levelUI);
             ShowOrHideUI(false, deathUI);
-            ShowOrHideUI(false, gameUI);
+            //ShowOrHideUI(false, gameUI);
         }
     }
 
