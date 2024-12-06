@@ -29,14 +29,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2345785249007729100}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 29.69, y: 4.53, z: 0}
+  m_LocalPosition: {x: 5.4606485, y: 2.6415021, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4282275019797010388}
   - {fileID: 231289760573837038}
   m_Father: {fileID: 0}
-  m_RootOrder: 13
+  m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &8450491350049458171
 SpriteRenderer:
@@ -106,7 +106,7 @@ MonoBehaviour:
   sprite: {fileID: 8450491350049458171}
   rb: {fileID: 6813858680551891485}
   hitFlashTimer: 0
-  health: 1
+  health: 5
   floorCheck: {fileID: 4282275019797010388}
   groundLayer:
     serializedVersion: 2
@@ -116,7 +116,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   hitboxCollisionCheck: {fileID: 5526410887445877877}
-  speed: 3
+  speed: 4
   knockbackForce: 0
   sfx_knocked: {fileID: 0}
   avoidDistance: 10
@@ -125,7 +125,7 @@ MonoBehaviour:
   playerTrackCheck: {fileID: 231289760573837038}
   playerPos: {fileID: 0}
   projectile: {fileID: 3263837410334741814, guid: ed75a5a9866dbaa4187e0c0ad876c524, type: 3}
-  attackFrequency: 5
+  attackFrequency: 3
 --- !u!114 &3220645210639579202
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -236,7 +236,7 @@ Transform:
   m_GameObject: {fileID: 3576556284183413187}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.0000019073, y: -0.57, z: 0}
-  m_LocalScale: {x: 0.215901, y: 0.12069, z: 0.10728}
+  m_LocalScale: {x: 0.29686388, y: 0.12069, z: 0.10728}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5526410887445877877}
@@ -284,7 +284,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 34c54046c4d23554d8483ba4286f9a92, type: 3}
-  m_Color: {r: 0, g: 1, b: 0.23359394, a: 1}
+  m_Color: {r: 0, g: 1, b: 0.23359394, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -368,7 +368,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 34c54046c4d23554d8483ba4286f9a92, type: 3}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 0, b: 0, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
