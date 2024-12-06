@@ -910,7 +910,7 @@ public class PlayerController : MonoBehaviour
             // Make the player recoil
             currentPunchMoveForce *= -recoilMultiplier;
 
-            rb.AddForce(new Vector2(0.0f, jumpingPower / 3));
+            rb.AddForce(new Vector2(0.0f, 350f));
 
             // Track that the player is no longer punching
             isPunching = false;
@@ -925,7 +925,7 @@ public class PlayerController : MonoBehaviour
             // Make the player recoil
             currentPunchMoveForce *= -recoilMultiplier * 3;
 
-            rb.AddForce(new Vector2(0.0f, jumpingPower / 3));
+            rb.AddForce(new Vector2(0.0f, 25f));
 
             // Track that the player is no longer punching
             isPunching = false;
