@@ -154,7 +154,7 @@ public class SceneManager : MonoBehaviour
     public void SwitchToGame()
     {
         // A more futureproof way to code this obviously does exist
-        if (selectedStage == 1) { UnityEngine.SceneManagement.SceneManager.LoadScene("Level 1"); }
+        if (selectedStage == 1) { UnityEngine.SceneManagement.SceneManager.LoadScene("Level 1 Supreme"); }
         else if (selectedStage == 2) { /*UnityEngine.SceneManagement.SceneManager.LoadScene("Stage2");*/ }
         else if (selectedStage == 3) { /*UnityEngine.SceneManagement.SceneManager.LoadScene("Stage3");*/ }
         else { }
