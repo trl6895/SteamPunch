@@ -197,6 +197,7 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
+  player: {fileID: 0}
   playerLayer:
     serializedVersion: 2
     m_Bits: 64

@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class Crate : MonoBehaviour
 {
+
+
+    [SerializeField] protected LayerMask enemyLayer;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -15,4 +19,19 @@ public class Crate : MonoBehaviour
     {
         
     }
+
+
+    public void Damage()
+    {
+        if (Physics2D.OverlapArea(new Vector2(transform.position.x - (transform.GetComponent<SpriteRenderer>().bounds.size.x / 2),
+            transform.position.y + (transform.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
+            new Vector2(transform.position.x + (transform.GetComponent<SpriteRenderer>().bounds.size.x / 2),
+            transform.position.y - (transform.GetComponent<SpriteRenderer>().bounds.size.y / 2)),
+            enemyLayer))
+        {            
+            Destroy(gameObject);
+        }
+    }
+
+
 }
