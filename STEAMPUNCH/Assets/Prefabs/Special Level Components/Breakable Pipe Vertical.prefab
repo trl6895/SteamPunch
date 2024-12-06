@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1172569462380576866}
   - component: {fileID: 403121428839097886}
   m_Layer: 3
-  m_Name: Breakable Tile
+  m_Name: Breakable Pipe Vertical
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -75,7 +75,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 1693945188, guid: 30e112dd2f8539641b7a729e6581c41f, type: 3}
+  m_Sprite: {fileID: -1369242579, guid: 30e112dd2f8539641b7a729e6581c41f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
