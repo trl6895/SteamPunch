@@ -6,8 +6,6 @@ public class BreakableBlock : MonoBehaviour
 {
     // Fields ============================================================================
 
-    [SerializeField] AudioSource sfx_breakBlock;
-
     // Methods ===========================================================================
 
     // Start is called before the first frame update
@@ -25,8 +23,6 @@ public class BreakableBlock : MonoBehaviour
     // Destroys the block
     public void Break()
     {
-        sfx_breakBlock.Play();
-
         Destroy(this.gameObject);
     }
 }

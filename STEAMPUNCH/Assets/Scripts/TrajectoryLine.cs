@@ -28,9 +28,6 @@ public class TrajectoryLine : MonoBehaviour
 
         holdingPoint = controller.holdingPosition;
         enemy = controller.NearbyKnockedEnemy;
-
-        enemyMass = enemy.Mass;
-        enemyGravityScale = enemy.GravityScale;
     }
 
     // Update is called once per frame
