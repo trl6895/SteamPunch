@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6568599544667665107}
   - component: {fileID: 1136512241703547098}
   - component: {fileID: 6370586397397119299}
+  - component: {fileID: 3216212724046130765}
   m_Layer: 0
   m_Name: MediumEnemyProjectile
   m_TagString: Untagged
@@ -105,7 +106,6 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 64
-  player: {fileID: 881621052250060928, guid: 4ad3b7c20f4a628418354502c698ab30, type: 3}
 --- !u!50 &1136512241703547098
 Rigidbody2D:
   serializedVersion: 4
@@ -178,3 +178,24 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!95 &3216212724046130765
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3263837410334741814}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: d168831f84002e54d89ec0661672b784, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

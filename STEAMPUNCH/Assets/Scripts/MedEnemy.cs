@@ -17,6 +17,7 @@ public class MedEnemy : Enemy
     [SerializeField] protected Transform playerPos;
     [SerializeField] protected GameObject projectile;
     [SerializeField] protected float attackFrequency;
+    private Animator animator;
     protected float currentAttackCooldown;
     protected bool inCooldown;
     private bool facingLeft;
@@ -32,6 +33,7 @@ public class MedEnemy : Enemy
         movement = new Vector3(0.0f, 0.0f, 0.0f);
         facingLeft = true;
         currentAttackCooldown = attackFrequency;
+        animator = GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -58,6 +60,7 @@ public class MedEnemy : Enemy
                 //{
                 //    animator.SetBool("IsKnocked", true);
                 //}
+                animator.SetBool("isDead", true);
                 break;
             case EnemyStates.Grabbed:
                 break;
