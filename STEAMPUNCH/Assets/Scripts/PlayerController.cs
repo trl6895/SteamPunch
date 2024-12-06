@@ -97,9 +97,6 @@ public class PlayerController : MonoBehaviour
     // Stats ------------------------------------------------------------------
     [SerializeField] private float health;
     [SerializeField] float invicibilityTimer;
-    [SerializeField] private Image healthbar;
-    [SerializeField] private Image healthBarHelmet;
-    private float healthbarStartingPos;
 
     // Audio ------------------------------------------------------------------
     [SerializeField] public AudioSource sfx_punchSwing;
@@ -173,8 +170,6 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     private void Start()
     {
-        healthbar.transform.position = new Vector3(healthbar.transform.position.x, healthBarHelmet.transform.position.y, 0);
-        healthbarStartingPos = healthbar.transform.position.x;
         // Check for gamepad usage, aiming controls differ
         var devices = InputSystem.devices;
         for (var i = 0; i < devices.Count; ++i)
@@ -366,7 +361,6 @@ public class PlayerController : MonoBehaviour
             {
                 invicibilityTimer = 0;
             }
-            healthbar.transform.position = new Vector3(healthbarStartingPos + (200 - (Health * 2)), healthBarHelmet.transform.position.y, 0);
 
             //player will flash briefly after hit
             spriteRenderer.color = new Color(1, 1 - (invicibilityTimer / 2), 1 - (invicibilityTimer / 2), 1 - (invicibilityTimer / 2));
@@ -389,6 +383,7 @@ public class PlayerController : MonoBehaviour
                 airPauseTimer += Time.deltaTime;
                 if (airPauseTimer > airPauseTime)
                 {
+                    animator.SetBool("IsPounding", true);
                     currentState = PlayerState.Free;
                     airPauseTimer = 0.0f;
                 }
@@ -461,7 +456,7 @@ public class PlayerController : MonoBehaviour
                     isStanding = true;
                     gpLockout = false;
                     gpFlag = false;
-
+                    animator.SetBool("IsPounding", false);
                 }
 
                 else if (IsWalled() && !IsGrounded())
@@ -914,6 +909,7 @@ public class PlayerController : MonoBehaviour
 
             // Track that the player is no longer punching
             isPunching = false;
+            animator.SetBool("IsPounding", false);
 
             // Shake the camera
             cameraActions.Shake(0.1f, 0.02f);
