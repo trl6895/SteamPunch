@@ -14,7 +14,6 @@ public class SmallEnemy : Enemy
     [SerializeField] private float setWalkDistance;
     [SerializeField] private Transform playerTrackCheck;
     [SerializeField] private float followSpeed;
-    [SerializeField] SpriteRenderer sprite;
     private bool facingLeft;
     private bool foundPlayer = false;
     private Vector3 movement;
@@ -111,17 +110,19 @@ public class SmallEnemy : Enemy
     public void TargetPlayer()
     {
         animator.SetFloat("Chase", 1);
-        if (player.transform.position.x > transform.position.x)
+        if (player.transform.position.x - 0.1f < transform.position.x && player.transform.position.x + 0.1f > transform.position.x)
+        {
+            return;
+        }
+        else if (player.transform.position.x > transform.position.x)
         {
             transform.position += new Vector3(followSpeed, 0.0f, 0.0f) * Time.deltaTime;
-            transform.Rotate(new Vector3(0.0f, 180.0f, 0.0f));
-            speed *= -1;
+            transform.rotation = Quaternion.Euler(new Vector3(0.0f, 0.0f, 0.0f));
         }
         else if (player.transform.position.x < transform.position.x)
         {
             transform.position -= new Vector3(followSpeed, 0.0f, 0.0f) * Time.deltaTime;
-            transform.Rotate(new Vector3(0.0f, 180.0f, 0.0f));
-            speed *= -1;
+            transform.rotation = Quaternion.Euler(new Vector3(0.0f, 180.0f, 0.0f));
         }
     }
 

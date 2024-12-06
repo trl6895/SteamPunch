@@ -16,7 +16,7 @@ public class Enemy : MonoBehaviour
     // This field is serialized atm for testing purposes
     [SerializeField] EnemyStates currentState;
 
-    private SpriteRenderer sprite;
+    [SerializeField] protected SpriteRenderer sprite;
     private BoxCollider2D boxCollider;
 
     public BoxCollider2D BoxCollider { get { return boxCollider; } }
