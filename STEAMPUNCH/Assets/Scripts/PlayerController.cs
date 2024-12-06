@@ -104,9 +104,10 @@ public class PlayerController : MonoBehaviour
     // Audio ------------------------------------------------------------------
     [SerializeField] public AudioSource sfx_punchSwing;
     [SerializeField] public AudioSource sfx_punchHit;
+    [SerializeField] public AudioSource sfx_breakBlock;
+    [SerializeField] public AudioSource sfx_bouncy;
 
     // Child Objects
-    [SerializeField] private GameObject aimIndicator;
     [SerializeField] private GameObject crosshair;
     [SerializeField] private GameObject trajectoryLine;
 
@@ -303,19 +304,6 @@ public class PlayerController : MonoBehaviour
                 {
                     throwingAngle = 3.0f * Mathf.PI / 4.0f;
                 }
-            }
-
-
-            // Update the position and rotation of the aim indicator
-            aimIndicator.transform.position = new Vector3(holdingPosition.x, holdingPosition.y, -1.0f);
-            if (isFacingRight)
-            {
-                aimIndicator.transform.rotation = Quaternion.Euler(0.0f, 0.0f, throwingAngle * Mathf.Rad2Deg);
-            }
-            else
-            {
-                // No idea why I need to do this to get the indicator to face the correct direction, but I do
-                aimIndicator.transform.rotation = Quaternion.Euler(0.0f, 0.0f, (Mathf.PI + throwingAngle) * Mathf.Rad2Deg);
             }
 
             // Update the position of the crosshair
@@ -838,8 +826,9 @@ public class PlayerController : MonoBehaviour
         // Fill the list with all contacts
         collider.OverlapCollider(new ContactFilter2D().NoFilter(), contacts);
 
-        // Make a boolean to track if anything was punched
+        // Make a booleans to track if anything was punched
         bool successfulHit = false;
+        bool successfulHitBouncy = false;
 
         // For each contact point in the punch collider:
         for (int i = 0; i < contacts.Count; i++)
@@ -852,6 +841,9 @@ public class PlayerController : MonoBehaviour
 
             // Create a temporary breakable block collider 2D
             BreakableBlock tempBreakableBlock;
+
+            // Create a temporary bouncy block
+            BouncyBlock tempBouncyBlock;
 
             // If the current overlapping collider belongs to an enemy:
             if (contacts[i].gameObject.TryGetComponent<Enemy>(out tempEnemy))
@@ -887,9 +879,18 @@ public class PlayerController : MonoBehaviour
             {
                 // Destroy the block
                 tempBreakableBlock.Break();
+                
+                // Play a breaking block sound effect
+                PlayRandomizedSFX(sfx_breakBlock);
 
                 // Mark that there has been a successful hit
                 successfulHit = true;
+            }
+            // Otherwise, if the current overlapping collider belongs to a bouncy block:
+            else if (contacts[i].gameObject.TryGetComponent<BouncyBlock>(out tempBouncyBlock))
+            {
+                // Mark that there has been a successful bouncy hit
+                successfulHitBouncy = true;
             }
         }
 
@@ -908,6 +909,21 @@ public class PlayerController : MonoBehaviour
             cameraActions.Shake(0.1f, 0.02f);
 
             PlayRandomizedSFX(sfx_punchHit);
+        }
+        else if (successfulHitBouncy)
+        {
+            // Make the player recoil
+            currentPunchMoveForce *= -recoilMultiplier * 3;
+
+            rb.AddForce(new Vector2(0.0f, jumpingPower / 3));
+
+            // Track that the player is no longer punching
+            isPunching = false;
+
+            // Shake the camera
+            cameraActions.Shake(0.1f, 0.02f);
+
+            PlayRandomizedSFX(sfx_bouncy);
         }
     }
 
@@ -962,9 +978,6 @@ public class PlayerController : MonoBehaviour
         // Enable the crosshair
         //crosshair.SetActive(true);
 
-        // Enable the aim indicator
-        aimIndicator.SetActive(true);
-
         trajectoryLine.SetActive(true);
 
     }
@@ -976,9 +989,6 @@ public class PlayerController : MonoBehaviour
     {
         // Disable the crosshair
         crosshair.SetActive(false);
-
-        // Disable the aim indicator
-        aimIndicator.SetActive(false);
 
         trajectoryLine.SetActive(false);
     }
@@ -1000,7 +1010,7 @@ public class PlayerController : MonoBehaviour
     /// Randomizes the speed and pitch of a sound, and plays it
     /// </summary>
     /// <param name="sound">The AudioSource to be played</param>
-    private void PlayRandomizedSFX(AudioSource sound)
+    public void PlayRandomizedSFX(AudioSource sound)
     {
         if (sound.pitch != 1f) { sound.pitch = 1f; } // Reset
 

@@ -7,6 +7,7 @@ public class BouncyBlock : MonoBehaviour
     // Fields ============================================================================
 
     [SerializeField] private BoxCollider2D hitbox;
+    [SerializeField] public AudioSource sfx_bouncy;
 
     // Methods ===========================================================================
 
@@ -44,47 +45,43 @@ public class BouncyBlock : MonoBehaviour
             Debug.Log(contacts[i]);
 
             // If the current overlapping collider belongs to the player:
-            if (contacts[i].gameObject.TryGetComponent<PlayerController>(out tempPlayer))
+            if (contacts[i].gameObject.TryGetComponent<PlayerController>(out tempPlayer) && contacts[i].GetType() != typeof(CapsuleCollider2D))
             {
                 // If the player is colliding from the top:
                 if(tempPlayer.hitbox.transform.position.y > hitbox.transform.position.y + (hitbox.size.y / 2.0f))
                 {
                     tempPlayer.rb.velocity += new Vector2(0.0f, collision.relativeVelocity.y * -0.75f);
                 }
-                //// Otherwise, if the player is colliding from the left:
-                //else if(tempPlayer.hitbox.transform.position.x + (tempPlayer.hitbox.size.x / 2.0f) < hitbox.transform.position.x - (hitbox.size.x / 2.0f))
-                //{
-                //    tempPlayer.rb.velocity += new Vector2(-100.0f, 0.0f);
-                //    Debug.Log($"left, {collision.relativeVelocity}");
-                //}
-                //// Otherwise, if the player is colliding from the right:
-                //else if (tempPlayer.hitbox.transform.position.x - (tempPlayer.hitbox.size.x / 2.0f) > hitbox.transform.position.x + (hitbox.size.x / 2.0f))
-                //{
-                //    tempPlayer.rb.velocity += new Vector2(collision.relativeVelocity.x * 0.75f, 0.0f);
-                //    Debug.Log($"right, {collision.relativeVelocity}");
-                //}
                 // Otherwise, if the player is colliding from the bottom:
                 else if (tempPlayer.hitbox.transform.position.y + (tempPlayer.hitbox.size.y) < hitbox.transform.position.y - (hitbox.size.y / 2.0f))
                 {
                     tempPlayer.rb.velocity += new Vector2(0.0f, collision.relativeVelocity.y * -1.333f);
                 }
+
+                // Play bounce sound effect
+                tempPlayer.PlayRandomizedSFX(sfx_bouncy);
             }
-            //// Otherwise, if the current overlapping collider belongs to an enemy:
-            //else if (contacts[i].gameObject.TryGetComponent<Enemy>(out tempEnemy))
-            //{
-            //    Debug.Log($"{tempEnemy.BoxCollider.transform.position.y} > {hitbox.transform.position.y + (hitbox.size.y / 2.0f)}");
-            //    // If the enemy is colliding from the top:
-            //    if (tempEnemy.BoxCollider.transform.position.y > hitbox.transform.position.y + (hitbox.size.y / 2.0f))
-            //    {
-            //        tempEnemy.rb.velocity += new Vector2(0.0f, collision.relativeVelocity.y * -0.75f);
-            //        Debug.Log("top");
-            //    }
-            //    // Otherwise, if the enemy is colliding from the bottom:
-            //    else if (tempEnemy.BoxCollider.transform.position.y + (tempEnemy.BoxCollider.size.y) < hitbox.transform.position.y - (hitbox.size.y / 2.0f))
-            //    {
-            //        tempEnemy.rb.velocity += new Vector2(0.0f, collision.relativeVelocity.y * -1.333f);
-            //    }
-            //}
+            // Otherwise, if the current overlapping collider belongs to an enemy:
+            else if (contacts[i].gameObject.TryGetComponent<Enemy>(out tempEnemy))
+            {
+                //Debug.Log($"{tempEnemy.BoxCollider.transform.position.y} > {hitbox.transform.position.y + (hitbox.size.y / 2.0f)}");
+                // If the enemy is colliding from the top:
+                if (tempEnemy.BoxCollider.transform.position.y > hitbox.transform.position.y + (hitbox.size.y / 2.0f))
+                {
+                    tempEnemy.rb.velocity += new Vector2(0.0f, collision.relativeVelocity.y * -0.75f);
+                    Debug.Log("top");
+                }
+                // Otherwise, if the enemy is colliding from the bottom:
+                else if (tempEnemy.BoxCollider.transform.position.y + (tempEnemy.BoxCollider.size.y) < hitbox.transform.position.y - (hitbox.size.y / 2.0f))
+                {
+                    tempEnemy.rb.velocity += new Vector2(0.0f, collision.relativeVelocity.y * -1.333f);
+                }
+                // Otherwise:
+                else
+                {
+                    tempEnemy.rb.velocity = new Vector2(tempEnemy.rb.velocity.x * -1.0f, tempEnemy.rb.velocity.y);
+                }
+            }
         }
     }
 }
