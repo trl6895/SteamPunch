@@ -53,7 +53,6 @@ public class MedEnemy : Enemy
             case EnemyStates.Alive:
                 AvoidPlayer();
                 TargetPlayer();
-                DamagePlayer();
                 break;
             case EnemyStates.Knocked:
                 //if (!animator.GetBool("IsKnocked"))
